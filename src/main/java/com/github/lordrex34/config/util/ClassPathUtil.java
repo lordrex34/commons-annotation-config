@@ -25,16 +25,12 @@ package com.github.lordrex34.config.util;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentMap;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Maps;
 import com.google.common.reflect.ClassPath;
 import com.google.common.reflect.ClassPath.ClassInfo;
@@ -46,13 +42,13 @@ import com.google.common.reflect.ClassPath.ClassInfo;
 @SuppressWarnings("unchecked")
 public final class ClassPathUtil
 {
-	private static final ConcurrentMap<ClassLoader, ClassPath> _classPathByClassLoaderMap = Maps.newConcurrentMap();
+	private static final ConcurrentMap<ClassLoader, ClassPath> CLASS_PATH_BY_CLASS_LOADER_MAP = Maps.newConcurrentMap();
 	
-	public static ClassPath getClassPath(ClassLoader classLoader) throws IOException
+	private static ClassPath getClassPath(ClassLoader classLoader) throws IOException
 	{
 		try
 		{
-			return _classPathByClassLoaderMap.computeIfAbsent(classLoader, cl ->
+			return CLASS_PATH_BY_CLASS_LOADER_MAP.computeIfAbsent(classLoader, cl ->
 			{
 				try
 				{
@@ -76,144 +72,147 @@ public final class ClassPathUtil
 	}
 	
 	/**
-	 * Gets a {@link Class#newInstance()} of the first class extending the given target class.
-	 * @param <T>
+	 * Gets all classes.
 	 * @param classLoader the class loader that is used for the process
-	 * @param targetClass the given target class
-	 * @return new instance of the given target class
-	 * @throws Exception
-	 */
-	public static <T> T getInstanceOfExtending(ClassLoader classLoader, Class<T> targetClass) throws Exception
-	{
-		for (Class<T> targetClassImpl : getAllClassesExtending(classLoader, targetClass))
-		{
-			for (Constructor<?> constructor : targetClassImpl.getConstructors())
-			{
-				if (Modifier.isPublic(constructor.getModifiers()) && (constructor.getParameterCount() == 0))
-				{
-					return (T) constructor.newInstance();
-				}
-			}
-		}
-		throw new IllegalStateException("Couldn't find public constructor without prameters");
-		
-	}
-	
-	/**
-	 * Gets all classes extending the given target class.
-	 * @param <T>
-	 * @param classLoader the class loader that is used for the process
-	 * @param targetClass the given target class
+	 * @param packagePrefix the package where you seek
 	 * @return a list of classes
 	 * @throws IOException
 	 */
-	public static <T> List<Class<T>> getAllClassesExtending(ClassLoader classLoader, Class<T> targetClass) throws IOException
+	public static FluentIterable<Class<?>> getAllClasses(ClassLoader classLoader, String packagePrefix) throws IOException
 	{
 		final ClassPath classPath = getClassPath(classLoader);
 		//@formatter:off
-		return classPath.getTopLevelClasses()
-			.stream()
-			.map(ClassPathUtil::loadClass)
+		return FluentIterable.from(classPath.getResources())
+			.filter(ClassInfo.class)
+			.filter(classInfo -> classInfo.getName().startsWith(packagePrefix))
+			.transform(ClassPathUtil::loadClass)
 			.filter(Objects::nonNull)
-			.filter(clazz -> targetClass.isAssignableFrom(clazz))
-			.filter(clazz -> !Modifier.isAbstract(clazz.getModifiers()))
-			.filter(clazz -> !Modifier.isInterface(clazz.getModifiers()))
-			.map(clazz -> (Class<T>) clazz)
-			.collect(Collectors.toList());
+			.transform(clazz -> (Class<?>) clazz);
 		//@formatter:on
 	}
 	
 	/**
-	 * Gets all classes extending the given target class.
-	 * @param <T>
-	 * @param classLoader the class loader that is used for the process
-	 * @param packageName the package where you seek
-	 * @param targetClass the given target class
-	 * @return a list of classes
+	 * Same as {@link #getAllClasses(ClassLoader, String)}, using {@link ClassLoader#getSystemClassLoader()} as the classLoader parameter.
+	 * @param packagePrefix
+	 * @return
 	 * @throws IOException
 	 */
-	public static <T> List<Class<T>> getAllClassesExtending(ClassLoader classLoader, String packageName, Class<T> targetClass) throws IOException
+	public static FluentIterable<Class<?>> getAllClasses(String packagePrefix) throws IOException
 	{
-		final ClassPath classPath = getClassPath(classLoader);
-		//@formatter:off
-		return classPath.getTopLevelClassesRecursive(packageName)
-			.stream()
-			.map(ClassPathUtil::loadClass)
-			.filter(Objects::nonNull)
-			.filter(clazz -> targetClass.isAssignableFrom(clazz))
-			.filter(clazz -> !Modifier.isAbstract(clazz.getModifiers()))
-			.filter(clazz -> !Modifier.isInterface(clazz.getModifiers()))
-			.map(clazz -> (Class<T>) clazz)
-			.collect(Collectors.toList());
-		//@formatter:on
+		return getAllClasses(ClassLoader.getSystemClassLoader(), packagePrefix);
 	}
 	
 	/**
 	 * Gets all classes extending the given target class.
 	 * @param <T>
 	 * @param classLoader the class loader that is used for the process
-	 * @param packageName the package where you seek
+	 * @param packagePrefix the package where you seek
+	 * @param targetClass the given target class
+	 * @return a list of classes
+	 * @throws IOException
+	 */
+	public static <T> FluentIterable<Class<? extends T>> getAllClassesExtending(ClassLoader classLoader, String packagePrefix, Class<T> targetClass) throws IOException
+	{
+		//@formatter:off
+		return getAllClasses(classLoader, packagePrefix)
+			.filter(targetClass::isAssignableFrom)
+			.transform(clazz -> (Class<? extends T>) clazz);
+		//@formatter:on
+	}
+	
+	/**
+	 * Same as {@link #getAllClassesExtending(ClassLoader, String, Class)}, using {@link ClassLoader#getSystemClassLoader()} as the classLoader parameter.
+	 * @param packagePrefix
+	 * @param targetClass
+	 * @param <T>
+	 * @return
+	 * @throws IOException
+	 */
+	public static <T> FluentIterable<Class<? extends T>> getAllClassesExtending(String packagePrefix, Class<T> targetClass) throws IOException
+	{
+		return getAllClassesExtending(ClassLoader.getSystemClassLoader(), packagePrefix, targetClass);
+	}
+	
+	/**
+	 * Gets all classes extending the given target class.
+	 * @param classLoader the class loader that is used for the process
+	 * @param packagePrefix the package where you seek
 	 * @param annotationClass the given annotation class
 	 * @return a list of classes
 	 * @throws IOException
 	 */
-	public static <T> List<Class<T>> getAllClassesAnnotatedWith(ClassLoader classLoader, String packageName, Class<? extends Annotation> annotationClass) throws IOException
+	public static FluentIterable<Class<?>> getAllClassesAnnotatedWith(ClassLoader classLoader, String packagePrefix, Class<? extends Annotation> annotationClass) throws IOException
 	{
-		final ClassPath classPath = getClassPath(classLoader);
 		//@formatter:off
-		return classPath.getTopLevelClassesRecursive(packageName)
-			.stream()
-			.map(ClassPathUtil::loadClass)
-			.filter(Objects::nonNull)
-			.filter(clazz -> clazz.isAnnotationPresent(annotationClass))
-			.filter(clazz -> !Modifier.isAbstract(clazz.getModifiers()))
-			.filter(clazz -> !Modifier.isInterface(clazz.getModifiers()))
-			.map(clazz -> (Class<T>) clazz)
-			.collect(Collectors.toList());
+		return getAllClasses(classLoader, packagePrefix)
+			.filter(clazz -> clazz.isAnnotationPresent(annotationClass));
 		//@formatter:on
 	}
 	
 	/**
-	 * Gets all methods annotated with the specified annotation.
-	 * @param classLoader the class loader that is used for the process
+	 * Same as {@link #getAllClassesAnnotatedWith(ClassLoader, String, Class)}, using {@link ClassLoader#getSystemClassLoader()} as the classLoader parameter.
+	 * @param packagePrefix
 	 * @param annotationClass
-	 * @return a list of methods
+	 * @return
 	 * @throws IOException
 	 */
-	public static List<Method> getAllMethodsAnnotatedWith(ClassLoader classLoader, Class<? extends Annotation> annotationClass) throws IOException
+	public static FluentIterable<Class<?>> getAllClassesAnnotatedWith(String packagePrefix, Class<? extends Annotation> annotationClass) throws IOException
 	{
-		final ClassPath classPath = getClassPath(classLoader);
+		return getAllClassesAnnotatedWith(ClassLoader.getSystemClassLoader(), packagePrefix, annotationClass);
+	}
+	
+	/**
+	 * Gets all methods inside the package.
+	 * @param classLoader the class loader that is used for the process
+	 * @param packagePrefix the name of the package
+	 * @return a stream of methods
+	 * @throws IOException
+	 */
+	public static FluentIterable<Method> getAllMethods(ClassLoader classLoader, String packagePrefix) throws IOException
+	{
 		//@formatter:off
-		return classPath.getTopLevelClasses()
-			.stream()
-			.map(ClassPathUtil::loadClass)
-			.filter(Objects::nonNull)
-			.flatMap(clazz -> Arrays.stream(clazz.getDeclaredMethods()))
-			.filter(method -> method.isAnnotationPresent(annotationClass))
-			.collect(Collectors.toList());
-		//@formatter:on		
+		return getAllClasses(classLoader, packagePrefix)
+			.transformAndConcat(clazz -> Arrays.asList(clazz.getDeclaredMethods()));
+		//@formatter:on
+	}
+	
+	/**
+	 * Same as {@link #getAllMethods(ClassLoader, String)}, using {@link ClassLoader#getSystemClassLoader()} as the classLoader parameter.
+	 * @param packagePrefix
+	 * @return
+	 * @throws IOException
+	 */
+	public static FluentIterable<Method> getAllMethods(String packagePrefix) throws IOException
+	{
+		return getAllMethods(ClassLoader.getSystemClassLoader(), packagePrefix);
 	}
 	
 	/**
 	 * Gets all methods inside the package annotated with the specified annotation.
 	 * @param classLoader the class loader that is used for the process
-	 * @param packageName the name of the package
+	 * @param packagePrefix the name of the package
 	 * @param annotationClass the annotation you seek
 	 * @return a list of methods
 	 * @throws IOException
 	 */
-	public static List<Method> getAllMethodsAnnotatedWith(ClassLoader classLoader, String packageName, Class<? extends Annotation> annotationClass) throws IOException
+	public static FluentIterable<Method> getAllMethodsAnnotatedWith(ClassLoader classLoader, String packagePrefix, Class<? extends Annotation> annotationClass) throws IOException
 	{
-		final ClassPath classPath = getClassPath(classLoader);
 		//@formatter:off
-		return classPath.getTopLevelClassesRecursive(packageName)
-			.stream()
-			.map(ClassPathUtil::loadClass)
-			.filter(Objects::nonNull)
-			.flatMap(clazz -> Arrays.stream(clazz.getDeclaredMethods()))
-			.filter(method -> method.isAnnotationPresent(annotationClass))
-			.collect(Collectors.toList());
+		return getAllMethods(classLoader, packagePrefix)
+			.filter(method -> method.isAnnotationPresent(annotationClass));
 		//@formatter:on
+	}
+	
+	/**
+	 * Same as {@link #getAllMethodsAnnotatedWith(ClassLoader, String, Class)}, using {@link ClassLoader#getSystemClassLoader()} as the classLoader parameter.
+	 * @param packagePrefix
+	 * @param annotationClass
+	 * @return
+	 * @throws IOException
+	 */
+	public static FluentIterable<Method> getAllMethodsAnnotatedWith(String packagePrefix, Class<? extends Annotation> annotationClass) throws IOException
+	{
+		return getAllMethodsAnnotatedWith(ClassLoader.getSystemClassLoader(), packagePrefix, annotationClass);
 	}
 	
 	/**
@@ -235,22 +234,4 @@ public final class ClassPathUtil
 		return null;
 	}
 	
-	/**
-	 * Gets all methods inside the package.
-	 * @param classLoader the class loader that is used for the process
-	 * @param packageName the name of the package
-	 * @return a stream of methods
-	 * @throws IOException
-	 */
-	public static Stream<Method> getAllMethods(ClassLoader classLoader, String packageName) throws IOException
-	{
-		final ClassPath classPath = getClassPath(classLoader);
-		//@formatter:off
-		return classPath.getTopLevelClassesRecursive(packageName)
-			.stream()
-			.map(ClassPathUtil::loadClass)
-			.filter(Objects::nonNull)
-			.flatMap(clazz -> Arrays.stream(clazz.getDeclaredMethods()));
-		//@formatter:on
-	}
 }

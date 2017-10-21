@@ -76,6 +76,14 @@ public abstract class AbstractConfigGenerator
 	}
 	
 	/**
+	 * Same as {@link #AbstractConfigGenerator(ClassLoader)}, using {@link ClassLoader#getSystemClassLoader()} as the classLoader parameter.
+	 */
+	public AbstractConfigGenerator()
+	{
+		this(ClassLoader.getSystemClassLoader());
+	}
+	
+	/**
 	 * A simple static method to simplify properties file generation, in case you don't want to create your own generator implementation.
 	 * @param classLoader the class loader that is used for the process
 	 * @param packageName the package where configuration related classes are stored
@@ -90,6 +98,15 @@ public abstract class AbstractConfigGenerator
 				return packageName;
 			}
 		};
+	}
+	
+	/**
+	 * Same as {@link #generateAll(ClassLoader, String)}, using {@link ClassLoader#getSystemClassLoader()} as the classLoader parameter.
+	 * @param packageName
+	 */
+	public static void generateAll(String packageName)
+	{
+		generateAll(ClassLoader.getSystemClassLoader(), packageName);
 	}
 	
 	/**

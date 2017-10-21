@@ -318,6 +318,15 @@ public final class ConfigManager
 		LOGGER.info("Loaded {} config file(s).", configCount.getValue());
 	}
 	
+	/**
+	 * Same as {@link #load(ClassLoader, String)}, using {@link ClassLoader#getSystemClassLoader()} as the classLoader parameter.
+	 * @param packageName
+	 */
+	public void load(String packageName)
+	{
+		load(ClassLoader.getSystemClassLoader(), packageName);
+	}
+	
 	private static final class ConfigCounter
 	{
 		private int _count;
@@ -364,6 +373,15 @@ public final class ConfigManager
 		{
 			_reloading.set(false);
 		}
+	}
+	
+	/**
+	 * Same as {@link #reload(ClassLoader, String)}, using {@link ClassLoader#getSystemClassLoader()} as the classLoader parameter.
+	 * @param packageName
+	 */
+	public void reload(String packageName)
+	{
+		reload(ClassLoader.getSystemClassLoader(), packageName);
 	}
 	
 	/**
