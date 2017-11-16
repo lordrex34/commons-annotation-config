@@ -72,13 +72,13 @@ public final class ConfigManager
 	/**
 	 * Constructs the {@link ConfigManager} class, triggered by the {@link SingletonHolder}.
 	 */
-	protected ConfigManager()
+	ConfigManager()
 	{
 		// visibility
 	}
 	
 	/**
-	 * Allows/disallows based on the below {@code boolean} whether override system is being used or not.<br>
+	 * Allows/disallows based on the below {@code boolean} parameter whether override system is being used or not.<br>
 	 * For this method to take effect, it has to be used before {@link #load(String)} or {@link #load(ClassLoader, String)}.
 	 * @param overrideSystemAllowed user choice to allow/disallow the override system
 	 */
@@ -125,6 +125,8 @@ public final class ConfigManager
 			}
 			
 			_overridenProperties = new PropertiesParser(overridePath);
+			
+			LOGGER.info("loaded '{}'", overridePath);
 		}
 		else
 		{
