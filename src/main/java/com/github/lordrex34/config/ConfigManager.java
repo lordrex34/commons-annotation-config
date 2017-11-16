@@ -63,8 +63,8 @@ public final class ConfigManager
 	/** Properties registry, that is used for misplaced configuration indication. */
 	private final Map<String, Map<Path, Set<String>>> _propertiesRegistry = new TreeMap<>();
 	
-	/** Path of the override.properties configuration file. */
-	private final Path _overridePath;
+	/** Whether override system is being used or not. */
+	private boolean _overrideSystemAllowed = true;
 	
 	/** The parsed overridden properties. */
 	private PropertiesParser _overridenProperties;
@@ -72,24 +72,67 @@ public final class ConfigManager
 	/**
 	 * Constructs the {@link ConfigManager} class, triggered by the {@link SingletonHolder}.
 	 */
-	protected ConfigManager()
+	ConfigManager()
 	{
-		_overridePath = Paths.get("config", "override.properties");
-		if (Files.notExists(_overridePath))
+		// visibility
+	}
+	
+	/**
+	 * Allows/disallows based on the below {@code boolean} parameter whether override system is being used or not.<br>
+	 * For this method to take effect, it has to be used before {@link #load(String)} or {@link #load(ClassLoader, String)}.
+	 * @param overrideSystemAllowed user choice to allow/disallow the override system
+	 */
+	public void setOverrideSystemAllowed(boolean overrideSystemAllowed)
+	{
+		_overrideSystemAllowed = overrideSystemAllowed;
+	}
+	
+	/**
+	 * Checks whether the override system is allowed or not.<br>
+	 * When it's disabled {@code config/override.properties} won't be used.
+	 * @return {@code true} when override system is allowed, otherwise {@code false}
+	 */
+	public boolean isOverrideSystemAllowed()
+	{
+		return _overrideSystemAllowed;
+	}
+	
+	/**
+	 * A method designed to initialize override properties.<br>
+	 * In case override system is disabled, it initializes an empty instance of {@link PropertiesParser}.
+	 */
+	private void initOverrideProperties()
+	{
+		if (isOverrideSystemAllowed())
 		{
-			try
+			final Path overridePath = Paths.get("config", "override.properties");
+			if (Files.notExists(overridePath))
 			{
-				Files.createDirectories(_overridePath.getParent());
-				Files.createFile(_overridePath);
+				try
+				{
+					final Path overridePathParent = overridePath.getParent();
+					if (overridePathParent != null)
+					{
+						Files.createDirectories(overridePathParent);
+					}
+					Files.createFile(overridePath);
+					LOGGER.info("Generated empty file: '{}'", overridePath);
+				}
+				catch (IOException e)
+				{
+					// Disaster, disaster! Read-only FS alert! NOW!!
+					throw new Error("Failed to create override config and/or its directory!", e);
+				}
 			}
-			catch (IOException e)
-			{
-				// Disaster, disaster! Read-only FS alert! NOW!!
-				throw new Error("Failed to create override config and/or its directory!", e);
-			}
+			
+			_overridenProperties = new PropertiesParser(overridePath);
+			
+			LOGGER.info("loaded '{}' with {} overridden properti(es).", overridePath, _overridenProperties.size());
 		}
-		
-		_overridenProperties = new PropertiesParser(_overridePath);
+		else
+		{
+			_overridenProperties = PropertiesParser.EMPTY;
+		}
 	}
 	
 	/**
@@ -273,6 +316,8 @@ public final class ConfigManager
 	 */
 	public void load(ClassLoader classLoader, String packageName)
 	{
+		initOverrideProperties();
+		
 		if (_overridenProperties == null)
 		{
 			throw new NullPointerException("Override properties is missing!");
@@ -353,11 +398,6 @@ public final class ConfigManager
 	 */
 	public void reload(ClassLoader classLoader, String packageName)
 	{
-		// overridden properties will always be reloaded
-		// as it is path, and not package based, and so not need to be
-		// though any package might use override.properties
-		_overridenProperties = new PropertiesParser(_overridePath);
-		
 		if (_propertiesRegistry.containsKey(packageName))
 		{
 			_propertiesRegistry.get(packageName).clear();
