@@ -30,6 +30,7 @@ import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Properties;
@@ -46,18 +47,32 @@ public final class PropertiesParser
 {
 	private static final Logger LOGGER = LoggerFactory.getLogger(PropertiesParser.class);
 	
+	public static final PropertiesParser EMPTY = new PropertiesParser("Empty Properties");
+	
 	private final Properties _properties = new Properties();
-	private final Path _path;
+	private final String _path;
 	
 	public PropertiesParser(String name)
 	{
-		this(Paths.get(name));
+		_path = name;
+		
+		load(Paths.get(name));
 	}
 	
 	public PropertiesParser(Path path)
 	{
-		_path = path;
+		_path = path.toString();
 		
+		load(path);
+	}
+	
+	public PropertiesParser(File file)
+	{
+		this(file.toPath());
+	}
+	
+	private void load(Path path)
+	{
 		try (InputStream is = Files.newInputStream(path))
 		{
 			_properties.load(is);
@@ -68,11 +83,6 @@ public final class PropertiesParser
 		}
 	}
 	
-	public PropertiesParser(File file)
-	{
-		this(file.toPath());
-	}
-	
 	public boolean containsKey(String key)
 	{
 		return _properties.containsKey(key);
@@ -80,7 +90,7 @@ public final class PropertiesParser
 	
 	public Set<Entry<Object, Object>> entrySet()
 	{
-		return _properties.entrySet();
+		return Collections.unmodifiableSet(_properties.entrySet());
 	}
 	
 	public String getValue(String key)

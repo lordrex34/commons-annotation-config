@@ -69,13 +69,16 @@ public final class ConfigManager
 	/** The parsed overridden properties. */
 	private PropertiesParser _overridenProperties;
 	
+	/** Whether override system is being used or not. */
+	private boolean _overrideSystemAllowed = true;
+	
 	/**
 	 * Constructs the {@link ConfigManager} class, triggered by the {@link SingletonHolder}.
 	 */
 	protected ConfigManager()
 	{
 		_overridePath = Paths.get("config", "override.properties");
-		if (Files.notExists(_overridePath))
+		if (Files.notExists(_overridePath) && isOverrideSystemAllowed())
 		{
 			try
 			{
@@ -89,7 +92,42 @@ public final class ConfigManager
 			}
 		}
 		
-		_overridenProperties = new PropertiesParser(_overridePath);
+		initOverrideProperties();
+	}
+	
+	/**
+	 * A method designed to initialize override properties.<br>
+	 * In case override system is disabled, it initializes an empty instance of {@link PropertiesParser}.
+	 */
+	private void initOverrideProperties()
+	{
+		if (isOverrideSystemAllowed())
+		{
+			_overridenProperties = new PropertiesParser(_overridePath);
+		}
+		else
+		{
+			_overridenProperties = PropertiesParser.EMPTY;
+		}
+	}
+	
+	/**
+	 * Allows/disallows based on the below {@code boolean} whether override system is being used or not.
+	 * @param overrideSystemAllowed user choice to allow/disallow the override system
+	 */
+	public void setOverrideSystemAllowed(boolean overrideSystemAllowed)
+	{
+		_overrideSystemAllowed = overrideSystemAllowed;
+	}
+	
+	/**
+	 * Checks whether the override system is allowed or not.<br>
+	 * When it's disabled {@code config/override.properties} won't be used.
+	 * @return {@code true} when override system is allowed, otherwise {@code false}
+	 */
+	public boolean isOverrideSystemAllowed()
+	{
+		return _overrideSystemAllowed;
 	}
 	
 	/**
@@ -356,7 +394,7 @@ public final class ConfigManager
 		// overridden properties will always be reloaded
 		// as it is path, and not package based, and so not need to be
 		// though any package might use override.properties
-		_overridenProperties = new PropertiesParser(_overridePath);
+		initOverrideProperties();
 		
 		if (_propertiesRegistry.containsKey(packageName))
 		{
