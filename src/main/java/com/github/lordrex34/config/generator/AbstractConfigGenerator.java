@@ -152,7 +152,11 @@ public abstract class AbstractConfigGenerator
 		}
 		
 		final Path configPath = Paths.get("", configClass.pathNames()).resolve(configClass.fileName() + configClass.fileExtension());
-		Files.createDirectories(configPath.getParent());
+		final Path configPathParent = configPath.getParent();
+		if (configPathParent != null)
+		{
+			Files.createDirectories(configPathParent);
+		}
 		
 		try (BufferedWriter bw = Files.newBufferedWriter(configPath))
 		{

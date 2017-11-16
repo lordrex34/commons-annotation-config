@@ -82,7 +82,11 @@ public final class ConfigManager
 		{
 			try
 			{
-				Files.createDirectories(_overridePath.getParent());
+				final Path overridePathParent = _overridePath.getParent();
+				if (overridePathParent != null)
+				{
+					Files.createDirectories(overridePathParent);
+				}
 				Files.createFile(_overridePath);
 			}
 			catch (IOException e)
