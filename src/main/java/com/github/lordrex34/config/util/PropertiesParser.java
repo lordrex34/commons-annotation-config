@@ -91,6 +91,11 @@ public final class PropertiesParser
 		}
 	}
 	
+	public int size()
+	{
+		return _properties.size();
+	}
+	
 	public boolean containsKey(String key)
 	{
 		return _properties.containsKey(key);

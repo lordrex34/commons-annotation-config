@@ -116,6 +116,7 @@ public final class ConfigManager
 						Files.createDirectories(overridePathParent);
 					}
 					Files.createFile(overridePath);
+					LOGGER.info("Generated empty file: '{}'", overridePath);
 				}
 				catch (IOException e)
 				{
@@ -126,7 +127,7 @@ public final class ConfigManager
 			
 			_overridenProperties = new PropertiesParser(overridePath);
 			
-			LOGGER.info("loaded '{}'", overridePath);
+			LOGGER.info("loaded '{}' with {} overridden properti(es).", overridePath, _overridenProperties.size());
 		}
 		else
 		{
