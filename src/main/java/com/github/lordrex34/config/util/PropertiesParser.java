@@ -39,6 +39,8 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Strings;
+
 /**
  * Simplifies loading of property files and adds logging if a non-existing property is requested.
  * @author NosBit
@@ -47,7 +49,7 @@ public final class PropertiesParser
 {
 	private static final Logger LOGGER = LoggerFactory.getLogger(PropertiesParser.class);
 	
-	public static final PropertiesParser EMPTY = new PropertiesParser("Empty Properties");
+	public static final PropertiesParser EMPTY = new PropertiesParser("");
 	
 	private final Properties _properties = new Properties();
 	private final String _filename;
@@ -73,6 +75,12 @@ public final class PropertiesParser
 	
 	private void load(Path path)
 	{
+		if (Strings.isNullOrEmpty(_filename))
+		{
+			// Do not load properties file, if it is not provided.
+			return;
+		}
+		
 		try (InputStream is = Files.newInputStream(path))
 		{
 			_properties.load(is);
