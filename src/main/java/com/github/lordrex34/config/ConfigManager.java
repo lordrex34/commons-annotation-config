@@ -63,11 +63,11 @@ public final class ConfigManager
 	/** Properties registry, that is used for misplaced configuration indication. */
 	private final Map<String, Map<Path, Set<String>>> _propertiesRegistry = new TreeMap<>();
 	
-	/** The parsed overridden properties. */
-	private PropertiesParser _overridenProperties;
-	
 	/** Whether override system is being used or not. */
 	private boolean _overrideSystemAllowed = true;
+	
+	/** The parsed overridden properties. */
+	private PropertiesParser _overridenProperties;
 	
 	/**
 	 * Constructs the {@link ConfigManager} class, triggered by the {@link SingletonHolder}.
@@ -78,42 +78,8 @@ public final class ConfigManager
 	}
 	
 	/**
-	 * A method designed to initialize override properties.<br>
-	 * In case override system is disabled, it initializes an empty instance of {@link PropertiesParser}.
-	 */
-	private void initOverrideProperties()
-	{
-		final Path overridePath = Paths.get("config", "override.properties");
-		if (Files.notExists(overridePath) && isOverrideSystemAllowed())
-		{
-			try
-			{
-				final Path overridePathParent = overridePath.getParent();
-				if (overridePathParent != null)
-				{
-					Files.createDirectories(overridePathParent);
-				}
-				Files.createFile(overridePath);
-			}
-			catch (IOException e)
-			{
-				// Disaster, disaster! Read-only FS alert! NOW!!
-				throw new Error("Failed to create override config and/or its directory!", e);
-			}
-		}
-		
-		if (isOverrideSystemAllowed())
-		{
-			_overridenProperties = new PropertiesParser(overridePath);
-		}
-		else
-		{
-			_overridenProperties = PropertiesParser.EMPTY;
-		}
-	}
-	
-	/**
-	 * Allows/disallows based on the below {@code boolean} whether override system is being used or not.
+	 * Allows/disallows based on the below {@code boolean} whether override system is being used or not.<br>
+	 * For this method to take effect, it has to be used before {@link #load(String)} or {@link #load(ClassLoader, String)}.
 	 * @param overrideSystemAllowed user choice to allow/disallow the override system
 	 */
 	public void setOverrideSystemAllowed(boolean overrideSystemAllowed)
@@ -129,6 +95,41 @@ public final class ConfigManager
 	public boolean isOverrideSystemAllowed()
 	{
 		return _overrideSystemAllowed;
+	}
+	
+	/**
+	 * A method designed to initialize override properties.<br>
+	 * In case override system is disabled, it initializes an empty instance of {@link PropertiesParser}.
+	 */
+	private void initOverrideProperties()
+	{
+		if (isOverrideSystemAllowed())
+		{
+			final Path overridePath = Paths.get("config", "override.properties");
+			if (Files.notExists(overridePath))
+			{
+				try
+				{
+					final Path overridePathParent = overridePath.getParent();
+					if (overridePathParent != null)
+					{
+						Files.createDirectories(overridePathParent);
+					}
+					Files.createFile(overridePath);
+				}
+				catch (IOException e)
+				{
+					// Disaster, disaster! Read-only FS alert! NOW!!
+					throw new Error("Failed to create override config and/or its directory!", e);
+				}
+			}
+			
+			_overridenProperties = new PropertiesParser(overridePath);
+		}
+		else
+		{
+			_overridenProperties = PropertiesParser.EMPTY;
+		}
 	}
 	
 	/**
