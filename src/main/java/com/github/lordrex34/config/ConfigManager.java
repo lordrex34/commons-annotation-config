@@ -63,9 +63,6 @@ public final class ConfigManager
 	/** Properties registry, that is used for misplaced configuration indication. */
 	private final Map<String, Map<Path, Set<String>>> _propertiesRegistry = new TreeMap<>();
 	
-	/** Path of the override.properties configuration file. */
-	private final Path _overridePath;
-	
 	/** The parsed overridden properties. */
 	private PropertiesParser _overridenProperties;
 	
@@ -77,26 +74,7 @@ public final class ConfigManager
 	 */
 	protected ConfigManager()
 	{
-		_overridePath = Paths.get("config", "override.properties");
-		if (Files.notExists(_overridePath) && isOverrideSystemAllowed())
-		{
-			try
-			{
-				final Path overridePathParent = _overridePath.getParent();
-				if (overridePathParent != null)
-				{
-					Files.createDirectories(overridePathParent);
-				}
-				Files.createFile(_overridePath);
-			}
-			catch (IOException e)
-			{
-				// Disaster, disaster! Read-only FS alert! NOW!!
-				throw new Error("Failed to create override config and/or its directory!", e);
-			}
-		}
-		
-		initOverrideProperties();
+		// visibility
 	}
 	
 	/**
@@ -105,9 +83,28 @@ public final class ConfigManager
 	 */
 	private void initOverrideProperties()
 	{
+		final Path overridePath = Paths.get("config", "override.properties");
+		if (Files.notExists(overridePath) && isOverrideSystemAllowed())
+		{
+			try
+			{
+				final Path overridePathParent = overridePath.getParent();
+				if (overridePathParent != null)
+				{
+					Files.createDirectories(overridePathParent);
+				}
+				Files.createFile(overridePath);
+			}
+			catch (IOException e)
+			{
+				// Disaster, disaster! Read-only FS alert! NOW!!
+				throw new Error("Failed to create override config and/or its directory!", e);
+			}
+		}
+		
 		if (isOverrideSystemAllowed())
 		{
-			_overridenProperties = new PropertiesParser(_overridePath);
+			_overridenProperties = new PropertiesParser(overridePath);
 		}
 		else
 		{
@@ -315,6 +312,8 @@ public final class ConfigManager
 	 */
 	public void load(ClassLoader classLoader, String packageName)
 	{
+		initOverrideProperties();
+		
 		if (_overridenProperties == null)
 		{
 			throw new NullPointerException("Override properties is missing!");
@@ -395,11 +394,6 @@ public final class ConfigManager
 	 */
 	public void reload(ClassLoader classLoader, String packageName)
 	{
-		// overridden properties will always be reloaded
-		// as it is path, and not package based, and so not need to be
-		// though any package might use override.properties
-		initOverrideProperties();
-		
 		if (_propertiesRegistry.containsKey(packageName))
 		{
 			_propertiesRegistry.get(packageName).clear();
