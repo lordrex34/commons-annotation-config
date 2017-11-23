@@ -21,6 +21,7 @@
  */
 package com.github.lordrex34.config.model;
 
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.file.Files;
@@ -34,7 +35,6 @@ import org.slf4j.LoggerFactory;
 
 import com.github.lordrex34.config.ConfigManager;
 import com.github.lordrex34.config.annotation.ConfigClass;
-import com.github.lordrex34.config.generator.AbstractConfigGenerator;
 import com.github.lordrex34.config.postloadhooks.ConfigPostLoadHook;
 import com.github.lordrex34.config.postloadhooks.EmptyConfigPostLoadHook;
 import com.github.lordrex34.config.util.PropertiesParser;
@@ -89,7 +89,7 @@ public class ConfigClassInfo
 			
 			try
 			{
-				AbstractConfigGenerator.printConfigClass(_clazz);
+				generate();
 			}
 			catch (IOException e)
 			{
@@ -115,5 +115,57 @@ public class ConfigClassInfo
 		}
 		
 		LOGGER.debug("loaded '{}'", configPath);
+	}
+	
+	public void print(StringBuilder out)
+	{
+		if (_configClass == null)
+		{
+			return;
+		}
+		
+		// Header.
+		out.append("################################################################################\r\n");
+		out.append("## ").append(_configClass.fileName().replace("_", " ")).append(" Settings").append(System.lineSeparator());
+		out.append("################################################################################\r\n");
+		
+		out.append(System.lineSeparator()); // separator
+		
+		// File comment if exists.
+		if ((_configClass.comment() != null) && (_configClass.comment().length > 0))
+		{
+			for (String line : _configClass.comment())
+			{
+				out.append("# ").append(line).append(System.lineSeparator());
+			}
+			out.append(System.lineSeparator());
+		}
+		
+		_fieldInfoClasses.forEach(configFieldInfo -> configFieldInfo.print(out));
+	}
+	
+	/**
+	 * Generates a properties file based on the annotation input from the configuration class.
+	 * @throws IOException
+	 */
+	public void generate() throws IOException
+	{
+		final StringBuilder out = new StringBuilder();
+		
+		print(out);
+		
+		final Path configPath = Paths.get("", _configClass.pathNames()).resolve(_configClass.fileName() + _configClass.fileExtension());
+		final Path configPathParent = configPath.getParent();
+		if (configPathParent != null)
+		{
+			Files.createDirectories(configPathParent);
+		}
+		
+		try (BufferedWriter bw = Files.newBufferedWriter(configPath))
+		{
+			bw.append(out.toString());
+		}
+		
+		LOGGER.info("Generated: '{}'", configPath);
 	}
 }

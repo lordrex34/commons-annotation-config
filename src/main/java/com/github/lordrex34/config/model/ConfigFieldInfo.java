@@ -24,12 +24,16 @@ package com.github.lordrex34.config.model;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.github.lordrex34.config.ConfigManager;
 import com.github.lordrex34.config.annotation.ConfigField;
+import com.github.lordrex34.config.annotation.ConfigGroupBeginning;
+import com.github.lordrex34.config.annotation.ConfigGroupEnding;
 import com.github.lordrex34.config.postloadhooks.ConfigPostLoadHook;
 import com.github.lordrex34.config.postloadhooks.EmptyConfigPostLoadHook;
 import com.github.lordrex34.config.util.PropertiesParser;
@@ -108,6 +112,70 @@ public class ConfigFieldInfo
 		catch (InstantiationException | IllegalAccessException e)
 		{
 			LOGGER.warn("Failed to set field!", e);
+		}
+	}
+	
+	/**
+	 * Generates the required information of the filed into the properties file.
+	 * @param out the string builder used for the generation
+	 */
+	public void print(StringBuilder out)
+	{
+		if ((_field == null) || (_configField == null))
+		{
+			return;
+		}
+		
+		final ConfigGroupBeginning beginningGroup = _field.getDeclaredAnnotation(ConfigGroupBeginning.class);
+		if (beginningGroup != null)
+		{
+			out.append("########################################").append(System.lineSeparator());
+			out.append("## Section BEGIN: ").append(beginningGroup.name()).append(System.lineSeparator());
+			
+			for (String line : beginningGroup.comment())
+			{
+				out.append("# ").append(line).append(System.lineSeparator());
+			}
+			
+			out.append(System.lineSeparator());
+		}
+		
+		for (String line : _configField.comment())
+		{
+			out.append("# ").append(line).append(System.lineSeparator());
+		}
+		
+		if (!_configField.onlyComment())
+		{
+			out.append("# Default: ").append(_configField.value()).append(System.lineSeparator());
+			if (_field.getType().isEnum())
+			{
+				out.append("# Available: ").append(Arrays.stream(_field.getType().getEnumConstants()).map(String::valueOf).collect(Collectors.joining("|"))).append(System.lineSeparator());
+			}
+			else if (_field.getType().isArray())
+			{
+				final Class<?> fieldComponentType = _field.getType().getComponentType();
+				if (fieldComponentType.isEnum())
+				{
+					out.append("# Available: ").append(Arrays.stream(_field.getType().getEnumConstants()).map(String::valueOf).collect(Collectors.joining(","))).append(System.lineSeparator());
+				}
+			}
+			out.append(_configField.name()).append(" = ").append(_configField.value()).append(System.lineSeparator());
+			out.append(System.lineSeparator());
+		}
+		
+		final ConfigGroupEnding endingGroup = _field.getDeclaredAnnotation(ConfigGroupEnding.class);
+		if (endingGroup != null)
+		{
+			for (String line : endingGroup.comment())
+			{
+				out.append("# ").append(line).append(System.lineSeparator());
+			}
+			
+			out.append("## Section END: ").append(endingGroup.name()).append(System.lineSeparator());
+			out.append("########################################").append(System.lineSeparator());
+			
+			out.append(System.lineSeparator());
 		}
 	}
 }
