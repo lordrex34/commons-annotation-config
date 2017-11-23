@@ -43,7 +43,7 @@ import com.github.lordrex34.config.util.PropertiesParser;
  * @author NB4L1 (original concept)
  * @author lord_rex
  */
-public class ConfigClassInfo
+public final class ConfigClassInfo
 {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ConfigClassInfo.class);
 	
@@ -116,6 +116,10 @@ public class ConfigClassInfo
 		LOGGER.debug("loaded '{}'", configPath);
 	}
 	
+	/**
+	 * Prints the necessary class information into a {@link StringBuilder}.
+	 * @param out the {@link StringBuilder} that receives the output
+	 */
 	public void print(StringBuilder out)
 	{
 		// Header.
@@ -139,7 +143,7 @@ public class ConfigClassInfo
 	}
 	
 	/**
-	 * Generates a properties file based on the annotation input from the configuration class.
+	 * Generates a properties file based on the annotation input from the configuration class and its fields.
 	 * @throws IOException
 	 */
 	public void generate() throws IOException

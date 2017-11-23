@@ -42,19 +42,23 @@ import com.github.lordrex34.config.util.PropertiesParser;
  * @author NB4L1 (original concept)
  * @author lord_rex
  */
-public class ConfigFieldInfo
+public final class ConfigFieldInfo
 {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ConfigFieldInfo.class);
 	
 	private final Class<?> _clazz;
 	private final Field _field;
 	private final ConfigField _configField;
+	private final ConfigGroupBeginning _beginningGroup;
+	private final ConfigGroupEnding _endingGroup;
 	
 	public ConfigFieldInfo(Class<?> clazz, Field field)
 	{
 		_clazz = clazz;
 		_field = field;
 		_configField = _field.getDeclaredAnnotation(ConfigField.class);
+		_beginningGroup = _field.getDeclaredAnnotation(ConfigGroupBeginning.class);
+		_endingGroup = _field.getDeclaredAnnotation(ConfigGroupEnding.class);
 	}
 	
 	public void load(Path configPath, PropertiesParser properties, PropertiesParser overriddenProperties)
@@ -110,8 +114,8 @@ public class ConfigFieldInfo
 	}
 	
 	/**
-	 * Generates the required information of the filed into the properties file.
-	 * @param out the string builder used for the generation
+	 * Prints the necessary field information into a {@link StringBuilder}.
+	 * @param out the {@link StringBuilder} that receives the output
 	 */
 	public void print(StringBuilder out)
 	{
@@ -120,13 +124,12 @@ public class ConfigFieldInfo
 			return;
 		}
 		
-		final ConfigGroupBeginning beginningGroup = _field.getDeclaredAnnotation(ConfigGroupBeginning.class);
-		if (beginningGroup != null)
+		if (_beginningGroup != null)
 		{
 			out.append("########################################").append(System.lineSeparator());
-			out.append("## Section BEGIN: ").append(beginningGroup.name()).append(System.lineSeparator());
+			out.append("## Section BEGIN: ").append(_beginningGroup.name()).append(System.lineSeparator());
 			
-			for (String line : beginningGroup.comment())
+			for (String line : _beginningGroup.comment())
 			{
 				out.append("# ").append(line).append(System.lineSeparator());
 			}
@@ -158,15 +161,14 @@ public class ConfigFieldInfo
 			out.append(System.lineSeparator());
 		}
 		
-		final ConfigGroupEnding endingGroup = _field.getDeclaredAnnotation(ConfigGroupEnding.class);
-		if (endingGroup != null)
+		if (_endingGroup != null)
 		{
-			for (String line : endingGroup.comment())
+			for (String line : _endingGroup.comment())
 			{
 				out.append("# ").append(line).append(System.lineSeparator());
 			}
 			
-			out.append("## Section END: ").append(endingGroup.name()).append(System.lineSeparator());
+			out.append("## Section END: ").append(_endingGroup.name()).append(System.lineSeparator());
 			out.append("########################################").append(System.lineSeparator());
 			
 			out.append(System.lineSeparator());
