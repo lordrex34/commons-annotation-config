@@ -28,7 +28,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +39,6 @@ import com.github.lordrex34.config.ConfigManager;
 import com.github.lordrex34.config.annotation.ConfigClass;
 import com.github.lordrex34.config.annotation.ConfigField;
 import com.github.lordrex34.config.postloadhooks.ConfigPostLoadHook;
-import com.github.lordrex34.config.postloadhooks.EmptyConfigPostLoadHook;
 import com.github.lordrex34.config.util.PropertiesParser;
 
 /**
@@ -47,6 +48,8 @@ import com.github.lordrex34.config.util.PropertiesParser;
 public final class ConfigClassInfo
 {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ConfigClassInfo.class);
+	
+	private static final Map<String, ConfigPostLoadHook> POST_LOAD_HOOKS = new HashMap<>();
 	
 	private final Class<?> _clazz;
 	private final ConfigClass _configClass;
@@ -82,8 +85,8 @@ public final class ConfigClassInfo
 	 */
 	public void load()
 	{
-		final PropertiesParser overridenProperties = ConfigManager.getInstance().getOverriddenProperties();
-		if (overridenProperties == null)
+		final PropertiesParser overriddenProperties = ConfigManager.getInstance().getOverriddenProperties();
+		if (overriddenProperties == null)
 		{
 			throw new NullPointerException("Override properties is missing!");
 		}
@@ -104,21 +107,9 @@ public final class ConfigClassInfo
 		}
 		
 		final PropertiesParser properties = new PropertiesParser(configPath);
-		_fieldInfoClasses.forEach(configFieldInfo -> configFieldInfo.load(configPath, properties, overridenProperties));
+		_fieldInfoClasses.forEach(configFieldInfo -> configFieldInfo.load(configPath, properties, overriddenProperties));
 		
-		try
-		{
-			// post load hook event for class
-			final ConfigPostLoadHook postLoadHook = _configClass.postLoadHook().newInstance();
-			if ((postLoadHook != null) && !(postLoadHook instanceof EmptyConfigPostLoadHook))
-			{
-				postLoadHook.load(properties, overridenProperties);
-			}
-		}
-		catch (InstantiationException | IllegalAccessException e)
-		{
-			LOGGER.warn("Failed to load post load hook!", e);
-		}
+		ConfigManager.loadPostLoadHook(POST_LOAD_HOOKS, _configClass.postLoadHook(), properties, overriddenProperties);
 		
 		LOGGER.debug("loaded '{}'", configPath);
 	}

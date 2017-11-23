@@ -111,16 +111,7 @@ public final class ConfigFieldInfo
 			_field.set(null, valueSupplier.supply(_field, _configField, properties, overriddenProperties));
 			_field.setAccessible(wasAccessible);
 			
-			// post load hooks
-			final Class<? extends ConfigPostLoadHook> postLoadHookClass = _configField.postLoadHook();
-			final String postLoadHookClassName = postLoadHookClass.getName();
-			ConfigPostLoadHook postLoadHook = POST_LOAD_HOOKS.get(postLoadHookClassName);
-			if (postLoadHook == null)
-			{
-				postLoadHook = postLoadHookClass.newInstance();
-				POST_LOAD_HOOKS.put(postLoadHookClassName, postLoadHook);
-			}
-			postLoadHook.load(properties, overriddenProperties);
+			ConfigManager.loadPostLoadHook(POST_LOAD_HOOKS, _configField.postLoadHook(), properties, overriddenProperties);
 		}
 		catch (InstantiationException | IllegalAccessException e)
 		{
