@@ -41,9 +41,7 @@ import org.slf4j.LoggerFactory;
 
 import com.github.lordrex34.config.annotation.ConfigClass;
 import com.github.lordrex34.config.annotation.ConfigField;
-import com.github.lordrex34.config.converter.IConfigConverter;
 import com.github.lordrex34.config.generator.AbstractConfigGenerator;
-import com.github.lordrex34.config.lang.FieldParser.FieldParserException;
 import com.github.lordrex34.config.postloadhooks.ConfigPostLoadHook;
 import com.github.lordrex34.config.postloadhooks.EmptyConfigPostLoadHook;
 import com.github.lordrex34.config.util.ClassPathUtil;
@@ -168,29 +166,6 @@ public final class ConfigManager
 	}
 	
 	/**
-	 * Gets the right property regarding all possible user input.
-	 * @param properties the original properties file
-	 * @param override the override properties that overwrites original settings
-	 * @param propertyKey the property key can be found in properties files (user-friendly form)
-	 * @param defaultValue a default value in case nothing could be loaded from the properties files
-	 * @return the right property
-	 */
-	private static String getProperty(PropertiesParser properties, PropertiesParser override, String propertyKey, String defaultValue)
-	{
-		String property = override.getValue(propertyKey);
-		if (property == null)
-		{
-			property = properties.getValue(propertyKey);
-			if (property == null)
-			{
-				LOGGER.warn("Property key '{}' is missing, using default value!", propertyKey);
-				return defaultValue;
-			}
-		}
-		return property;
-	}
-	
-	/**
 	 * Loads a configuration class into the manager.
 	 * @param clazz the config class itself
 	 */
@@ -226,70 +201,7 @@ public final class ConfigManager
 		final PropertiesParser properties = new PropertiesParser(configPath);
 		for (Field field : clazz.getDeclaredFields())
 		{
-			if (field == null)
-			{
-				continue;
-			}
-			
-			// Skip inappropriate fields.
-			if (!Modifier.isStatic(field.getModifiers()) || Modifier.isFinal(field.getModifiers()))
-			{
-				LOGGER.debug("Skipping non static or final field: {}#{}", clazz.getSimpleName(), field.getName());
-				continue;
-			}
-			
-			final ConfigField configField = field.getDeclaredAnnotation(ConfigField.class);
-			if (configField != null)
-			{
-				// If field is just a comment holder, then do not try to load it.
-				if (configField.onlyComment())
-				{
-					continue;
-				}
-				
-				try
-				{
-					final String propertyKey = configField.name();
-					final String propertyValue = configField.value();
-					ConfigManager.getInstance().registerProperty(clazz.getPackage().getName(), configPath, propertyKey);
-					if (!configField.reloadable() && ConfigManager.getInstance().isReloading())
-					{
-						LOGGER.debug("Property '{}' retained with its previous value!", propertyKey);
-						continue;
-					}
-					
-					final String configProperty = getProperty(properties, _overridenProperties, propertyKey, propertyValue);
-					final IConfigConverter converter = configField.converter().newInstance();
-					Object value;
-					try
-					{
-						value = converter.convertFromString(field, field.getType(), configProperty);
-					}
-					catch (FieldParserException e)
-					{
-						value = converter.convertFromString(field, field.getType(), propertyValue);
-						LOGGER.warn("Property '{}' has incorrect syntax! Using default value instead: {}", propertyKey, propertyValue);
-					}
-					final boolean wasAccessible = field.isAccessible();
-					if (!wasAccessible)
-					{
-						field.setAccessible(true);
-					}
-					field.set(null, value);
-					field.setAccessible(wasAccessible);
-					
-					// post load hook event for field
-					final ConfigPostLoadHook postLoadHook = configField.postLoadHook().newInstance();
-					if ((postLoadHook != null) && !(postLoadHook instanceof EmptyConfigPostLoadHook))
-					{
-						postLoadHook.load(properties, _overridenProperties);
-					}
-				}
-				catch (InstantiationException | IllegalAccessException e)
-				{
-					LOGGER.warn("Failed to set field!", e);
-				}
-			}
+			processConfigField(configPath, clazz, field, properties);
 		}
 		
 		try
@@ -307,6 +219,72 @@ public final class ConfigManager
 		}
 		
 		LOGGER.debug("loaded '{}'", configPath);
+	}
+	
+	/**
+	 * Processes the configuration of the fields according to properties file content.
+	 * @param configPath the {@link Path} that refers to the current properties file being read
+	 * @param clazz the {@link Class} that contains the fields
+	 * @param field the {@link Field} that will be configured
+	 * @param properties the properties parser responsible for reading properties
+	 */
+	private void processConfigField(Path configPath, Class<?> clazz, Field field, PropertiesParser properties)
+	{
+		// Safety check.
+		if (field == null)
+		{
+			return;
+		}
+		
+		// Skip inappropriate fields.
+		if (!Modifier.isStatic(field.getModifiers()) || Modifier.isFinal(field.getModifiers()))
+		{
+			LOGGER.debug("Skipping non static or final field: {}#{}", clazz.getSimpleName(), field.getName());
+			return;
+		}
+		
+		// Get the annotation.
+		final ConfigField configField = field.getDeclaredAnnotation(ConfigField.class);
+		if (configField == null)
+		{
+			return;
+		}
+		
+		// If field is just a comment holder, then do not try to load it.
+		if (configField.onlyComment())
+		{
+			return;
+		}
+		
+		try
+		{
+			final String propertyKey = configField.name();
+			ConfigManager.getInstance().registerProperty(clazz.getPackage().getName(), configPath, propertyKey);
+			if (!configField.reloadable() && ConfigManager.getInstance().isReloading())
+			{
+				LOGGER.debug("Property '{}' retained with its previous value!", propertyKey);
+				return;
+			}
+			
+			final boolean wasAccessible = field.isAccessible();
+			if (!wasAccessible)
+			{
+				field.setAccessible(true);
+			}
+			field.set(null, configField.valueSupplier().newInstance().supply(field, configField, properties, _overridenProperties));
+			field.setAccessible(wasAccessible);
+			
+			// post load hook event for field
+			final ConfigPostLoadHook postLoadHook = configField.postLoadHook().newInstance();
+			if ((postLoadHook != null) && !(postLoadHook instanceof EmptyConfigPostLoadHook))
+			{
+				postLoadHook.load(properties, _overridenProperties);
+			}
+		}
+		catch (InstantiationException | IllegalAccessException e)
+		{
+			LOGGER.warn("Failed to set field!", e);
+		}
 	}
 	
 	/**
@@ -446,6 +424,29 @@ public final class ConfigManager
 				.forEach(e -> result.setProperty(e.getKey().toString(), e.getValue().toString()));
 		//@formatter:on
 		return result;
+	}
+	
+	/**
+	 * Gets the right property regarding all possible user input.
+	 * @param properties the original properties file
+	 * @param override the override properties that overwrites original settings
+	 * @param propertyKey the property key can be found in properties files (user-friendly form)
+	 * @param defaultValue a default value in case nothing could be loaded from the properties files
+	 * @return the right property
+	 */
+	public static String getProperty(PropertiesParser properties, PropertiesParser override, String propertyKey, String defaultValue)
+	{
+		String property = override.getValue(propertyKey);
+		if (property == null)
+		{
+			property = properties.getValue(propertyKey);
+			if (property == null)
+			{
+				LOGGER.warn("Property key '{}' is missing, using default value!", propertyKey);
+				return defaultValue;
+			}
+		}
+		return property;
 	}
 	
 	private static final class SingletonHolder

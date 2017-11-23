@@ -30,6 +30,8 @@ import com.github.lordrex34.config.converter.IConfigConverter;
 import com.github.lordrex34.config.converter.MainConfigConverter;
 import com.github.lordrex34.config.postloadhooks.ConfigPostLoadHook;
 import com.github.lordrex34.config.postloadhooks.EmptyConfigPostLoadHook;
+import com.github.lordrex34.config.supplier.DefaultConfigSupplier;
+import com.github.lordrex34.config.supplier.IConfigValueSupplier;
 
 /**
  * @author NB4L1 (original idea)
@@ -44,6 +46,12 @@ public @interface ConfigField
 	 * @return name
 	 */
 	String name();
+	
+	/**
+	 * Here you may specify your own configuration value supplier for your field.
+	 * @return the configuration value supplier
+	 */
+	Class<? extends IConfigValueSupplier<?>> valueSupplier() default DefaultConfigSupplier.class;
 	
 	/**
 	 * A default value used both for generation, and in case the property key is missing, it is going to be loaded.
