@@ -70,10 +70,6 @@ task sourcesJar(type: Jar) {
 	from sourceSets.main.allSource
 }
 
-tasks.withType(Javadoc) {
-	options.addStringOption("Xdoclint:none", "-quiet")
-}
-
 artifacts {
 	archives javadocJar, sourcesJar
 }
