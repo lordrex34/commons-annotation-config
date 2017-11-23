@@ -175,7 +175,7 @@ public final class ConfigManager
 			final Path entryConfigFile = entry.getKey();
 			final Set<String> entryProperties = entry.getValue();
 			
-			if (entryProperties.contains(propertyKey))
+			if (!entryConfigFile.equals(configFile) && entryProperties.contains(propertyKey))
 			{
 				LOGGER.warn("Property key '{}' is already defined in config file '{}', so now '{}' overwrites that! Please fix this!", propertyKey, entryConfigFile, configFile);
 			}
