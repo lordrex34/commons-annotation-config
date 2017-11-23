@@ -267,6 +267,11 @@ public final class ConfigManager
 	 */
 	public void reload(ClassLoader classLoader, String packageName)
 	{
+		if (_overridenProperties != null)
+		{
+			_overridenProperties.clear();
+		}
+		
 		_configRegistry.clear();
 		
 		if (_propertiesRegistry.containsKey(packageName))
