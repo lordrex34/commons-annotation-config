@@ -39,6 +39,9 @@ public class TestConfigSupplier
 	@BeforeClass
 	public static void beforeClass()
 	{
+		// clear to avoid conflict with other tests
+		ConfigManager.getInstance().clear();
+		
 		// load configurations
 		ConfigManager.getInstance().load(IConfigMarker.class.getPackage().getName());
 	}

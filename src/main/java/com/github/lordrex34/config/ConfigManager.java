@@ -244,6 +244,23 @@ public final class ConfigManager
 	}
 	
 	/**
+	 * Full wipe of the configuration manager data.<br>
+	 * Designed for testing purposes.<br>
+	 * Yes. Curse of singleton holders.<br>
+	 * <b>Not to be used for reload process!</b>
+	 */
+	public void clear()
+	{
+		if (_overridenProperties != null)
+		{
+			_overridenProperties.clear();
+		}
+		
+		_configRegistry.clear();
+		_propertiesRegistry.clear();
+	}
+	
+	/**
 	 * Reloads configurations by package name.
 	 * @param classLoader the class loader that is used for the process
 	 * @param packageName the package where configuration related classes are stored

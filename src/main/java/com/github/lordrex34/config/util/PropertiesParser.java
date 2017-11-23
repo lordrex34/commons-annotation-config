@@ -91,6 +91,11 @@ public final class PropertiesParser
 		}
 	}
 	
+	public void clear()
+	{
+		_properties.clear();
+	}
+	
 	public int size()
 	{
 		return _properties.size();
