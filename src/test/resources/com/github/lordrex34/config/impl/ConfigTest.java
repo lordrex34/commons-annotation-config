@@ -21,11 +21,14 @@
  */
 package com.github.lordrex34.config.impl;
 
+import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Set;
 
 import com.github.lordrex34.config.annotation.ConfigClass;
 import com.github.lordrex34.config.annotation.ConfigField;
+import com.github.lordrex34.config.supplier.IConfigValueSupplier;
+import com.github.lordrex34.config.util.PropertiesParser;
 
 /**
  * @author lord_rex
@@ -56,4 +59,28 @@ public class ConfigTest
 	
 	@ConfigField(name = "TestDoubleSet", value = "1.1,4.2,1.3,3.4,2.5")
 	public static Set<Double> TEST_DOUBLE_SET;
+	
+	@ConfigField(name = "TestIntSupplier", valueSupplier = MyIntegerSupplier.class, value = "")
+	public static int TEST_INT_SUPPLIER;
+	
+	public static final class MyIntegerSupplier implements IConfigValueSupplier<Integer>
+	{
+		@Override
+		public Integer supply(Field field, ConfigField configField, PropertiesParser properties, PropertiesParser overridenProperties)
+		{
+			return 9999;
+		}
+	}
+	
+	@ConfigField(name = "TestDoubleSupplier", valueSupplier = MyDoubleSupplier.class, value = "")
+	public static double TEST_DOUBLE_SUPPLIER;
+	
+	public static final class MyDoubleSupplier implements IConfigValueSupplier<Double>
+	{
+		@Override
+		public Double supply(Field field, ConfigField configField, PropertiesParser properties, PropertiesParser overridenProperties)
+		{
+			return 100.0D;
+		}
+	}
 }

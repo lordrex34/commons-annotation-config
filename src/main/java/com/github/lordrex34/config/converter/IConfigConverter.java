@@ -38,7 +38,7 @@ public interface IConfigConverter
 	 * @param value the value that is used for the process
 	 * @return converted result
 	 */
-	public Object convertFromString(Field field, Class<?> type, String value);
+	Object convertFromString(Field field, Class<?> type, String value);
 	
 	/**
 	 * Converts {@link Object} into {@link String} according to the implementation.
@@ -47,5 +47,5 @@ public interface IConfigConverter
 	 * @param obj the object that is subject of the process
 	 * @return converted result
 	 */
-	public String convertToString(Field field, Class<?> type, Object obj);
+	String convertToString(Field field, Class<?> type, Object obj);
 }

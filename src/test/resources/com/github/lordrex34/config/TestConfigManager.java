@@ -24,6 +24,7 @@ package com.github.lordrex34.config;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.github.lordrex34.config.impl.ConfigTest;
 import com.github.lordrex34.config.impl.IConfigMarker;
 
 /**
@@ -40,6 +41,7 @@ public class TestConfigManager
 	@Test
 	public void test()
 	{
-		// TODO
+		System.out.println(ConfigTest.TEST_INT_SUPPLIER);
+		System.out.println(ConfigTest.TEST_DOUBLE_SUPPLIER);
 	}
 }
