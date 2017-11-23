@@ -75,12 +75,6 @@ public final class ConfigFieldInfo
 			return;
 		}
 		
-		// Get the annotation.
-		if (_configField == null)
-		{
-			return;
-		}
-		
 		// If field is just a comment holder, then do not try to load it.
 		if (_configField.onlyComment())
 		{
@@ -140,11 +134,6 @@ public final class ConfigFieldInfo
 	 */
 	public void print(StringBuilder out)
 	{
-		if ((_field == null) || (_configField == null))
-		{
-			return;
-		}
-		
 		if (_beginningGroup != null)
 		{
 			out.append("########################################").append(System.lineSeparator());

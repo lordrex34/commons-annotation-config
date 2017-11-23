@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 
 import com.github.lordrex34.config.ConfigManager;
 import com.github.lordrex34.config.annotation.ConfigClass;
+import com.github.lordrex34.config.annotation.ConfigField;
 import com.github.lordrex34.config.postloadhooks.ConfigPostLoadHook;
 import com.github.lordrex34.config.postloadhooks.EmptyConfigPostLoadHook;
 import com.github.lordrex34.config.util.PropertiesParser;
@@ -66,6 +67,12 @@ public final class ConfigClassInfo
 		
 		for (Field field : _clazz.getDeclaredFields())
 		{
+			if (field.getDeclaredAnnotation(ConfigField.class) == null)
+			{
+				// skip fields not using ConfigField annotation
+				continue;
+			}
+			
 			_fieldInfoClasses.add(new ConfigFieldInfo(_clazz, field));
 		}
 	}
