@@ -28,13 +28,13 @@ import static org.junit.Assert.assertThat;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.github.lordrex34.config.impl.ConfigSupplierTest;
+import com.github.lordrex34.config.impl.ConfigArrayTest;
 import com.github.lordrex34.config.impl.IConfigMarker;
 
 /**
  * @author lord_rex
  */
-public class TestConfigSupplier
+public class TestConfigArray
 {
 	@BeforeClass
 	public static void beforeClass()
@@ -50,7 +50,7 @@ public class TestConfigSupplier
 	public void test()
 	{
 		assertNotEquals(ConfigManager.getInstance().getConfigRegistry().size(), 0);
-		assertThat(ConfigSupplierTest.TEST_STRING_SUPPLIER, is(ConfigSupplierTest.SUPPLIED_STRING_VALUE));
-		assertThat(ConfigSupplierTest.TEST_INTEGER_SUPPLIER, is(ConfigSupplierTest.SUPPLIED_INTEGER_VALUE));
+		assertThat(ConfigArrayTest.TEST_STRING_ARRAY, is(ConfigArrayTest.TEST_STRING_ARRAY_VALUE.split(",")));
+		assertThat(ConfigArrayTest.TEST_INT_ARRAY[1], is(Integer.valueOf(ConfigArrayTest.TEST_INT_ARRAY_VALUE.split(",")[1])));
 	}
 }

@@ -23,7 +23,6 @@ package com.github.lordrex34.config.converter;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
-import java.util.Arrays;
 import java.util.regex.Pattern;
 
 public class ArrayConfigConverter implements IConfigConverter
@@ -46,10 +45,12 @@ public class ArrayConfigConverter implements IConfigConverter
 			Array.set(array, i, getElementConverter().convertFromString(field, componentType, splitted[i]));
 		}
 		
-		if (Comparable.class.isAssignableFrom(componentType))
-		{
-			Arrays.sort((Comparable[]) array);
-		}
+		// Commented out, so arrays can retain their order, and tests won't fail.
+		// I merely don't see any reason why on earth should a String array be sorted.
+		// if (Comparable.class.isAssignableFrom(componentType))
+		// {
+		// Arrays.sort((Comparable[]) array);
+		// }
 		
 		return array;
 	}
@@ -70,10 +71,12 @@ public class ArrayConfigConverter implements IConfigConverter
 			return "";
 		}
 		
-		if (Comparable.class.isAssignableFrom(componentType))
-		{
-			Arrays.sort((Comparable[]) obj);
-		}
+		// Commented out, so arrays can retain their order, and tests won't fail.
+		// I merely don't see any reason why on earth should a String array be sorted.
+		// if (Comparable.class.isAssignableFrom(componentType))
+		// {
+		// Arrays.sort((Comparable[]) obj);
+		// }
 		
 		final StringBuilder sb = new StringBuilder();
 		

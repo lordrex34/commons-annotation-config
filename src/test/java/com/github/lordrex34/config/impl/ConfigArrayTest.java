@@ -39,6 +39,7 @@ public class ConfigArrayTest
 	@ConfigField(name = "TestShortArray", value = "111,221,443")
 	public static short[] TEST_SHORT_ARRAY;
 	
+	public static final String TEST_INT_ARRAY_VALUE = "1222,4442,9993";
 	@ConfigField(name = "TestIntArray", value = "1222,4442,9993")
 	public static int[] TEST_INT_ARRAY;
 	
@@ -51,7 +52,8 @@ public class ConfigArrayTest
 	@ConfigField(name = "TestDoubleArray", value = "4.1,2.3,9.7")
 	public static double[] TEST_DOUBLE_ARRAY;
 	
-	@ConfigField(name = "TestStringArray", value = "This,is,a,string,array,test.")
+	public static final String TEST_STRING_ARRAY_VALUE = "This,is,a,string,array,test.";
+	@ConfigField(name = "TestStringArray", value = TEST_STRING_ARRAY_VALUE)
 	public static String[] TEST_STRING_ARRAY;
 	
 	@ConfigField(name = "TestEnumArray", value = "TEST_1,TEST_2")
