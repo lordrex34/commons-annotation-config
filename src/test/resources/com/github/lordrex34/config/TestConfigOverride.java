@@ -21,25 +21,54 @@
  */
 package com.github.lordrex34.config;
 
-import org.junit.Before;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertThat;
+
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
+import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.github.lordrex34.config.impl.ConfigOverrideTest;
 import com.github.lordrex34.config.impl.IConfigMarker;
 
 /**
  * @author lord_rex
  */
-public class TestConfigManager
+public class TestConfigOverride
 {
-	@Before
-	public void before()
+	private static final int OVERRIDDEN_INT = 300;
+	private static final String OVERRIDDEN_STRING = "My overridden string. :)";
+	
+	@BeforeClass
+	public static void beforeClass() throws IOException
 	{
+		// create an override.properties file
+		final StringBuilder sb = new StringBuilder();
+		sb.append("TestOverrideInt = " + OVERRIDDEN_INT).append(System.lineSeparator());
+		sb.append("TestOverrideString = " + OVERRIDDEN_STRING).append(System.lineSeparator());
+		
+		final Path path = Paths.get("config", "override.properties");
+		try (BufferedWriter bw = Files.newBufferedWriter(path))
+		{
+			bw.append(sb.toString());
+		}
+		
+		// load configurations
 		ConfigManager.getInstance().load(IConfigMarker.class.getPackage().getName());
 	}
 	
 	@Test
 	public void test()
 	{
-		// TODO
+		assertNotEquals(ConfigManager.getInstance().getConfigRegistry().size(), 0);
+		assertNotEquals(ConfigManager.getInstance().getOverriddenProperties().size(), 0);
+		assertThat(ConfigOverrideTest.TEST_OVERRIDE_INT, is(OVERRIDDEN_INT));
+		assertThat(ConfigOverrideTest.TEST_OVERRIDE_STRING, is(OVERRIDDEN_STRING));
 	}
 }
