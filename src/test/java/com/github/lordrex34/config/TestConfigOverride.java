@@ -53,8 +53,14 @@ public class TestConfigOverride
 		sb.append("TestOverrideInt = " + OVERRIDDEN_INT).append(System.lineSeparator());
 		sb.append("TestOverrideString = " + OVERRIDDEN_STRING).append(System.lineSeparator());
 		
-		final Path path = Paths.get("config", "override.properties");
-		try (BufferedWriter bw = Files.newBufferedWriter(path))
+		final Path overridePath = Paths.get("config", "override.properties");
+		final Path overridePathParent = overridePath.getParent();
+		if (overridePathParent != null)
+		{
+			Files.createDirectories(overridePathParent);
+		}
+		
+		try (BufferedWriter bw = Files.newBufferedWriter(overridePath))
 		{
 			bw.append(sb.toString());
 		}
