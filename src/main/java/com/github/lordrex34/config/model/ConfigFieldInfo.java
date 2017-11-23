@@ -25,6 +25,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -155,7 +156,9 @@ public final class ConfigFieldInfo
 				final Class<?> fieldComponentType = _field.getType().getComponentType();
 				if (fieldComponentType.isEnum())
 				{
-					out.append("# Available: ").append(Arrays.stream(_field.getType().getEnumConstants()).map(String::valueOf).collect(Collectors.joining(","))).append(System.lineSeparator());
+					@SuppressWarnings("unchecked")
+					final EnumSet<?> collection = EnumSet.allOf(fieldComponentType.asSubclass(Enum.class));
+					out.append("# Available: ").append(collection.toString().replace("[", "").replace("]", "").replace(" ", "")).append(System.lineSeparator());
 				}
 			}
 			out.append(_configField.name()).append(" = ").append(_configField.value()).append(System.lineSeparator());

@@ -21,39 +21,41 @@
  */
 package com.github.lordrex34.config.impl;
 
+import java.util.Set;
+
 import com.github.lordrex34.config.annotation.ConfigClass;
 import com.github.lordrex34.config.annotation.ConfigField;
 
 /**
  * @author lord_rex
  */
-@ConfigClass(fileName = "test")
-public class ConfigTest
+@ConfigClass(fileName = "set_test")
+public class ConfigSetTest
 {
-	@ConfigField(name = "TestBoolean", value = "true")
-	public static boolean TEST_BOOLEAN;
+	@ConfigField(name = "TestBooleanSet", value = "true,false,true")
+	public static Set<Boolean> TEST_BOOLEAN_SET;
 	
-	@ConfigField(name = "TestByte", value = "120")
-	public static byte TEST_BYTE;
+	@ConfigField(name = "TestByteSet", value = "1,2,3")
+	public static Set<Byte> TEST_BYTE_SET;
 	
-	@ConfigField(name = "TestShort", value = "9870")
-	public static short TEST_SHORT;
+	@ConfigField(name = "TestShortSet", value = "111,221,443")
+	public static Set<Short> TEST_SHORT_SET;
 	
-	@ConfigField(name = "TestInt", value = "129834")
-	public static int TEST_INT;
+	@ConfigField(name = "TestIntSet", value = "1222,4442,9993")
+	public static Set<Integer> TEST_INT_SET;
 	
-	@ConfigField(name = "TestLong", value = "712983235535234")
-	public static long TEST_LONG;
+	@ConfigField(name = "TestLongSet", value = "12252353252352,443252353253242,993252362673293")
+	public static Set<Long> TEST_LONG_SET;
 	
-	@ConfigField(name = "TestFloat", value = "1234.")
-	public static float TEST_FLOAT;
+	@ConfigField(name = "TestFloatSet", value = "1.,3.2,5.")
+	public static Set<Float> TEST_FLOAT_SET;
 	
-	@ConfigField(name = "TestDouble", value = "1234.14")
-	public static double TEST_DOUBLE;
+	@ConfigField(name = "TestDoubleSet", value = "4.1,2.3,9.7")
+	public static Set<Double> TEST_DOUBLE_SET;
 	
-	@ConfigField(name = "TestString", value = "Any string is good here.")
-	public static String TEST_STRING;
+	@ConfigField(name = "TestStringSet", value = "This,is,a,string,array,test.")
+	public static Set<String> TEST_STRING_SET;
 	
-	@ConfigField(name = "TestEnum", value = "TEST_1")
-	public static EnumForConfig TEST_ENUM;
+	@ConfigField(name = "TestEnumSet", value = "TEST_1,TEST_2")
+	public static Set<EnumForConfig> TEST_ENUM_SET;
 }

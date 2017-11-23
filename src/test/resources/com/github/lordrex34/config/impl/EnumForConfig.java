@@ -19,27 +19,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.github.lordrex34.config;
-
-import org.junit.Before;
-import org.junit.Test;
-
-import com.github.lordrex34.config.impl.IConfigMarker;
+package com.github.lordrex34.config.impl;
 
 /**
  * @author lord_rex
  */
-public class TestConfigManager
+public enum EnumForConfig
 {
-	@Before
-	public void before()
-	{
-		ConfigManager.getInstance().load(IConfigMarker.class.getPackage().getName());
-	}
-	
-	@Test
-	public void test()
-	{
-		// TODO
-	}
+	TEST_1,
+	TEST_2,
+	TEST_3;
 }

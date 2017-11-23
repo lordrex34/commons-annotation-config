@@ -27,33 +27,33 @@ import com.github.lordrex34.config.annotation.ConfigField;
 /**
  * @author lord_rex
  */
-@ConfigClass(fileName = "test")
-public class ConfigTest
+@ConfigClass(fileName = "array_test")
+public class ConfigArrayTest
 {
-	@ConfigField(name = "TestBoolean", value = "true")
-	public static boolean TEST_BOOLEAN;
+	@ConfigField(name = "TestBooleanArray", value = "true,false,true")
+	public static boolean[] TEST_BOOLEAN_ARRAY;
 	
-	@ConfigField(name = "TestByte", value = "120")
-	public static byte TEST_BYTE;
+	@ConfigField(name = "TestByteArray", value = "1,2,3")
+	public static byte[] TEST_BYTE_ARRAY;
 	
-	@ConfigField(name = "TestShort", value = "9870")
-	public static short TEST_SHORT;
+	@ConfigField(name = "TestShortArray", value = "111,221,443")
+	public static short[] TEST_SHORT_ARRAY;
 	
-	@ConfigField(name = "TestInt", value = "129834")
-	public static int TEST_INT;
+	@ConfigField(name = "TestIntArray", value = "1222,4442,9993")
+	public static int[] TEST_INT_ARRAY;
 	
-	@ConfigField(name = "TestLong", value = "712983235535234")
-	public static long TEST_LONG;
+	@ConfigField(name = "TestLongArray", value = "12252353252352,443252353253242,993252362673293")
+	public static long[] TEST_LONG_ARRAY;
 	
-	@ConfigField(name = "TestFloat", value = "1234.")
-	public static float TEST_FLOAT;
+	@ConfigField(name = "TestFloatArray", value = "1.,3.2,5.")
+	public static float[] TEST_FLOAT_ARRAY;
 	
-	@ConfigField(name = "TestDouble", value = "1234.14")
-	public static double TEST_DOUBLE;
+	@ConfigField(name = "TestDoubleArray", value = "4.1,2.3,9.7")
+	public static double[] TEST_DOUBLE_ARRAY;
 	
-	@ConfigField(name = "TestString", value = "Any string is good here.")
-	public static String TEST_STRING;
+	@ConfigField(name = "TestStringArray", value = "This,is,a,string,array,test.")
+	public static String[] TEST_STRING_ARRAY;
 	
-	@ConfigField(name = "TestEnum", value = "TEST_1")
-	public static EnumForConfig TEST_ENUM;
+	@ConfigField(name = "TestEnumArray", value = "TEST_1,TEST_2")
+	public static EnumForConfig[] TEST_ENUM_ARRAY;
 }

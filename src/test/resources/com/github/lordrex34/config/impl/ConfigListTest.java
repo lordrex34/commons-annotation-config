@@ -21,39 +21,41 @@
  */
 package com.github.lordrex34.config.impl;
 
+import java.util.List;
+
 import com.github.lordrex34.config.annotation.ConfigClass;
 import com.github.lordrex34.config.annotation.ConfigField;
 
 /**
  * @author lord_rex
  */
-@ConfigClass(fileName = "test")
-public class ConfigTest
+@ConfigClass(fileName = "list_test")
+public class ConfigListTest
 {
-	@ConfigField(name = "TestBoolean", value = "true")
-	public static boolean TEST_BOOLEAN;
+	@ConfigField(name = "TestBooleanList", value = "true,false,true")
+	public static List<Boolean> TEST_BOOLEAN_LIST;
 	
-	@ConfigField(name = "TestByte", value = "120")
-	public static byte TEST_BYTE;
+	@ConfigField(name = "TestByteList", value = "1,2,3")
+	public static List<Byte> TEST_BYTE_LIST;
 	
-	@ConfigField(name = "TestShort", value = "9870")
-	public static short TEST_SHORT;
+	@ConfigField(name = "TestShortList", value = "111,221,443")
+	public static List<Short> TEST_SHORT_LIST;
 	
-	@ConfigField(name = "TestInt", value = "129834")
-	public static int TEST_INT;
+	@ConfigField(name = "TestIntList", value = "1222,4442,9993")
+	public static List<Integer> TEST_INT_LIST;
 	
-	@ConfigField(name = "TestLong", value = "712983235535234")
-	public static long TEST_LONG;
+	@ConfigField(name = "TestLongList", value = "12252353252352,443252353253242,993252362673293")
+	public static List<Long> TEST_LONG_LIST;
 	
-	@ConfigField(name = "TestFloat", value = "1234.")
-	public static float TEST_FLOAT;
+	@ConfigField(name = "TestFloatList", value = "1.,3.2,5.")
+	public static List<Float> TEST_FLOAT_LIST;
 	
-	@ConfigField(name = "TestDouble", value = "1234.14")
-	public static double TEST_DOUBLE;
+	@ConfigField(name = "TestDoubleList", value = "4.1,2.3,9.7")
+	public static List<Double> TEST_DOUBLE_LIST;
 	
-	@ConfigField(name = "TestString", value = "Any string is good here.")
-	public static String TEST_STRING;
+	@ConfigField(name = "TestStringList", value = "This,is,a,string,array,test.")
+	public static List<String> TEST_STRING_LIST;
 	
-	@ConfigField(name = "TestEnum", value = "TEST_1")
-	public static EnumForConfig TEST_ENUM;
+	@ConfigField(name = "TestEnumList", value = "TEST_1,TEST_2")
+	public static List<EnumForConfig> TEST_ENUM_LIST;
 }
