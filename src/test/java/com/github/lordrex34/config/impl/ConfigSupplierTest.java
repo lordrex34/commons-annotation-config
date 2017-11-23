@@ -34,6 +34,8 @@ import com.github.lordrex34.config.util.PropertiesParser;
 @ConfigClass(fileName = "supplier_test")
 public class ConfigSupplierTest
 {
+	public static final String SUPPLIED_STRING_VALUE = "My name is Lord Rex.";
+	
 	@ConfigField(name = "TestStringSupplier", valueSupplier = MyStringConfigValueSupplier.class, value = "Value is not loaded from here, but from the supplier.")
 	public static String TEST_STRING_SUPPLIER;
 	
@@ -42,9 +44,11 @@ public class ConfigSupplierTest
 		@Override
 		public String supply(Field field, ConfigField configField, PropertiesParser properties, PropertiesParser overridenProperties)
 		{
-			return "My name is Lord Rex.";
+			return SUPPLIED_STRING_VALUE;
 		}
 	}
+	
+	public static final int SUPPLIED_INTEGER_VALUE = 1234;
 	
 	@ConfigField(name = "TestIntegerSupplier", valueSupplier = MyIntegerConfigValueSupplier.class, value = "Value is not loaded from here, but from the supplier.")
 	public static int TEST_INTEGER_SUPPLIER;
@@ -54,7 +58,7 @@ public class ConfigSupplierTest
 		@Override
 		public Integer supply(Field field, ConfigField configField, PropertiesParser properties, PropertiesParser overridenProperties)
 		{
-			return 1234;
+			return SUPPLIED_INTEGER_VALUE;
 		}
 	}
 }
