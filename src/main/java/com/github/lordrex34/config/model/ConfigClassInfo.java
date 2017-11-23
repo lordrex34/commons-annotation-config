@@ -26,6 +26,8 @@ import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,6 +48,7 @@ public class ConfigClassInfo
 	private static final Logger LOGGER = LoggerFactory.getLogger(ConfigClassInfo.class);
 	private final Class<?> _clazz;
 	private final ConfigClass _configClass;
+	private final List<ConfigFieldInfo> _fieldInfoClasses = new ArrayList<>();
 	
 	/**
 	 * Constructs a new info holder class.
@@ -55,6 +58,11 @@ public class ConfigClassInfo
 	{
 		_clazz = clazz;
 		_configClass = _clazz.getDeclaredAnnotation(ConfigClass.class);
+		
+		for (Field field : _clazz.getDeclaredFields())
+		{
+			_fieldInfoClasses.add(new ConfigFieldInfo(_clazz, field));
+		}
 	}
 	
 	/**
@@ -90,11 +98,7 @@ public class ConfigClassInfo
 		}
 		
 		final PropertiesParser properties = new PropertiesParser(configPath);
-		for (Field field : _clazz.getDeclaredFields())
-		{
-			final ConfigFieldInfo configFieldInfo = new ConfigFieldInfo(configPath, _clazz, field, properties, overridenProperties);
-			configFieldInfo.load();
-		}
+		_fieldInfoClasses.forEach(configFieldInfo -> configFieldInfo.load(configPath, properties, overridenProperties));
 		
 		try
 		{

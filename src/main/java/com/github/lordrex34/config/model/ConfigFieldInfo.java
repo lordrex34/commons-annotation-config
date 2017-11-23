@@ -42,24 +42,18 @@ public class ConfigFieldInfo
 {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ConfigFieldInfo.class);
 	
-	private final Path _configPath;
 	private final Class<?> _clazz;
 	private final Field _field;
-	private final PropertiesParser _properties;
-	private final PropertiesParser _overriddenProperties;
 	private final ConfigField _configField;
 	
-	public ConfigFieldInfo(Path configPath, Class<?> clazz, Field field, PropertiesParser properties, PropertiesParser overriddenProperties)
+	public ConfigFieldInfo(Class<?> clazz, Field field)
 	{
-		_configPath = configPath;
 		_clazz = clazz;
 		_field = field;
-		_properties = properties;
-		_overriddenProperties = overriddenProperties;
 		_configField = _field.getDeclaredAnnotation(ConfigField.class);
 	}
 	
-	public void load()
+	public void load(Path configPath, PropertiesParser properties, PropertiesParser overriddenProperties)
 	{
 		// Safety check.
 		if (_field == null)
@@ -89,7 +83,7 @@ public class ConfigFieldInfo
 		try
 		{
 			final String propertyKey = _configField.name();
-			ConfigManager.getInstance().registerProperty(_clazz.getPackage().getName(), _configPath, propertyKey);
+			ConfigManager.getInstance().registerProperty(_clazz.getPackage().getName(), configPath, propertyKey);
 			if (!_configField.reloadable() && ConfigManager.getInstance().isReloading())
 			{
 				LOGGER.debug("Property '{}' retained with its previous value!", propertyKey);
@@ -101,14 +95,14 @@ public class ConfigFieldInfo
 			{
 				_field.setAccessible(true);
 			}
-			_field.set(null, _configField.valueSupplier().newInstance().supply(_field, _configField, _properties, _overriddenProperties));
+			_field.set(null, _configField.valueSupplier().newInstance().supply(_field, _configField, properties, overriddenProperties));
 			_field.setAccessible(wasAccessible);
 			
 			// post load hook event for field
 			final ConfigPostLoadHook postLoadHook = _configField.postLoadHook().newInstance();
 			if ((postLoadHook != null) && !(postLoadHook instanceof EmptyConfigPostLoadHook))
 			{
-				postLoadHook.load(_properties, _overriddenProperties);
+				postLoadHook.load(properties, overriddenProperties);
 			}
 		}
 		catch (InstantiationException | IllegalAccessException e)
