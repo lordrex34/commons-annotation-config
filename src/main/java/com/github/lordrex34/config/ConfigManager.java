@@ -25,7 +25,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -51,6 +53,9 @@ public final class ConfigManager
 {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ConfigManager.class);
 	
+	/** Contains all the registered {@link ConfigClassInfo}s. */
+	private final List<ConfigClassInfo> _configRegistry = new ArrayList<>();
+	
 	/** A simple {@link AtomicBoolean} that indicates reloading process. */
 	private final AtomicBoolean _reloading = new AtomicBoolean(false);
 	
@@ -69,6 +74,15 @@ public final class ConfigManager
 	ConfigManager()
 	{
 		// visibility
+	}
+	
+	/**
+	 * Gets the configuration registry list that contains all the registered {@link ConfigClassInfo}s.
+	 * @return the configuration registry
+	 */
+	public List<ConfigClassInfo> getConfigRegistry()
+	{
+		return _configRegistry;
 	}
 	
 	/**
@@ -179,18 +193,21 @@ public final class ConfigManager
 	{
 		initOverrideProperties();
 		
-		final ConfigCounter configCount = new ConfigCounter();
+		// standard annotation based configuration classes
 		try
 		{
-			// standard annotation based configuration classes
-			ClassPathUtil.getAllClassesAnnotatedWith(classLoader, packageName, ConfigClass.class).forEach(clazz ->
-			{
-				final ConfigClassInfo configClassInfo = new ConfigClassInfo(clazz);
-				configClassInfo.load();
-				configCount.increment();
-			});
-			
-			// non-standard solution
+			ClassPathUtil.getAllClassesAnnotatedWith(classLoader, packageName, ConfigClass.class).forEach(clazz -> _configRegistry.add(new ConfigClassInfo(clazz)));
+			_configRegistry.forEach(ConfigClassInfo::load);
+			LOGGER.info("Loaded {} config file(s).", _configRegistry.size());
+		}
+		catch (IOException e)
+		{
+			LOGGER.warn("Failed to load class path.", e);
+		}
+		
+		// non-standard solution
+		try
+		{
 			ClassPathUtil.getAllClassesExtending(classLoader, packageName, IConfigLoader.class).forEach(clazz ->
 			{
 				if (Stream.of(clazz.getConstructors()).noneMatch((constructor) -> constructor.getParameterCount() == 0))
@@ -201,9 +218,9 @@ public final class ConfigManager
 				
 				try
 				{
+					// Whatever black magic the user intend to do, that does not fit into annotation configuration engine, is able to use that pattern.
 					final IConfigLoader configLoader = clazz.newInstance();
 					configLoader.load(_overridenProperties);
-					configCount.increment();
 				}
 				catch (InstantiationException | IllegalAccessException e)
 				{
@@ -215,8 +232,6 @@ public final class ConfigManager
 		{
 			LOGGER.warn("Failed to load class path.", e);
 		}
-		
-		LOGGER.info("Loaded {} config file(s).", configCount.getValue());
 	}
 	
 	/**
@@ -235,6 +250,8 @@ public final class ConfigManager
 	 */
 	public void reload(ClassLoader classLoader, String packageName)
 	{
+		_configRegistry.clear();
+		
 		if (_propertiesRegistry.containsKey(packageName))
 		{
 			_propertiesRegistry.get(packageName).clear();
@@ -267,26 +284,6 @@ public final class ConfigManager
 	public boolean isReloading()
 	{
 		return _reloading.get();
-	}
-	
-	private static final class ConfigCounter
-	{
-		private int _count;
-		
-		ConfigCounter()
-		{
-			// visibility
-		}
-		
-		public void increment()
-		{
-			_count++;
-		}
-		
-		public int getValue()
-		{
-			return _count;
-		}
 	}
 	
 	/**

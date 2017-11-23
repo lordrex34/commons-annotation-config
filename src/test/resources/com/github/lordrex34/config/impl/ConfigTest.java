@@ -33,8 +33,8 @@ import com.github.lordrex34.config.annotation.ConfigGroupEnding;
 public class ConfigTest
 {
 	@ConfigGroupBeginning(name = "Booleans")
-	@ConfigGroupEnding(name = "Booleans")
 	@ConfigField(name = "TestBoolean", value = "true")
+	@ConfigGroupEnding(name = "Booleans")
 	public static boolean TEST_BOOLEAN;
 	
 	@ConfigGroupBeginning(name = "Numbers")
@@ -58,12 +58,12 @@ public class ConfigTest
 	public static double TEST_DOUBLE;
 	
 	@ConfigGroupBeginning(name = "Strings")
-	@ConfigGroupEnding(name = "Strings")
 	@ConfigField(name = "TestString", value = "Any string is good here.")
+	@ConfigGroupEnding(name = "Strings")
 	public static String TEST_STRING;
 	
 	@ConfigGroupBeginning(name = "Enums")
-	@ConfigGroupEnding(name = "Enums")
 	@ConfigField(name = "TestEnum", value = "TEST_1")
+	@ConfigGroupEnding(name = "Enums")
 	public static EnumForConfig TEST_ENUM;
 }
