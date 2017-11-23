@@ -22,8 +22,6 @@
 package com.github.lordrex34.config;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -40,10 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.github.lordrex34.config.annotation.ConfigClass;
-import com.github.lordrex34.config.annotation.ConfigField;
-import com.github.lordrex34.config.generator.AbstractConfigGenerator;
-import com.github.lordrex34.config.postloadhooks.ConfigPostLoadHook;
-import com.github.lordrex34.config.postloadhooks.EmptyConfigPostLoadHook;
+import com.github.lordrex34.config.model.ConfigClassInfo;
 import com.github.lordrex34.config.util.ClassPathUtil;
 import com.github.lordrex34.config.util.PropertiesParser;
 
@@ -134,12 +129,21 @@ public final class ConfigManager
 	}
 	
 	/**
+	 * Gets overridden properties stored in this manager class.
+	 * @return overridden properties
+	 */
+	public PropertiesParser getOverriddenProperties()
+	{
+		return _overridenProperties;
+	}
+	
+	/**
 	 * Registers a configuration property into this manager.
 	 * @param packageName the package where configuration related classes are stored
 	 * @param configFile path of the configuration file
 	 * @param propertyKey the property key to be registered into {@code _propertiesRegistry}
 	 */
-	private void registerProperty(String packageName, Path configFile, String propertyKey)
+	public void registerProperty(String packageName, Path configFile, String propertyKey)
 	{
 		if (!_propertiesRegistry.containsKey(packageName))
 		{
@@ -166,128 +170,6 @@ public final class ConfigManager
 	}
 	
 	/**
-	 * Loads a configuration class into the manager.
-	 * @param clazz the config class itself
-	 */
-	private void loadConfigClass(Class<?> clazz)
-	{
-		if (_overridenProperties == null)
-		{
-			throw new NullPointerException("Override properties is missing!");
-		}
-		
-		final ConfigClass configClass = clazz.getDeclaredAnnotation(ConfigClass.class);
-		if (configClass == null)
-		{
-			LOGGER.warn("Class {} doesn't have @ConfigClass annotation!", clazz);
-			return;
-		}
-		
-		final Path configPath = Paths.get("", configClass.pathNames()).resolve(configClass.fileName() + configClass.fileExtension());
-		if (Files.notExists(configPath))
-		{
-			LOGGER.warn("Config File {} doesn't exist! Generating ...", configPath);
-			
-			try
-			{
-				AbstractConfigGenerator.printConfigClass(clazz);
-			}
-			catch (IOException e)
-			{
-				LOGGER.warn("Failed to generate config!", e);
-			}
-		}
-		
-		final PropertiesParser properties = new PropertiesParser(configPath);
-		for (Field field : clazz.getDeclaredFields())
-		{
-			processConfigField(configPath, clazz, field, properties);
-		}
-		
-		try
-		{
-			// post load hook event for class
-			final ConfigPostLoadHook postLoadHook = configClass.postLoadHook().newInstance();
-			if ((postLoadHook != null) && !(postLoadHook instanceof EmptyConfigPostLoadHook))
-			{
-				postLoadHook.load(properties, _overridenProperties);
-			}
-		}
-		catch (InstantiationException | IllegalAccessException e)
-		{
-			LOGGER.warn("Failed to load post load hook!", e);
-		}
-		
-		LOGGER.debug("loaded '{}'", configPath);
-	}
-	
-	/**
-	 * Processes the configuration of the fields according to properties file content.
-	 * @param configPath the {@link Path} that refers to the current properties file being read
-	 * @param clazz the {@link Class} that contains the fields
-	 * @param field the {@link Field} that will be configured
-	 * @param properties the properties parser responsible for reading properties
-	 */
-	private void processConfigField(Path configPath, Class<?> clazz, Field field, PropertiesParser properties)
-	{
-		// Safety check.
-		if (field == null)
-		{
-			return;
-		}
-		
-		// Skip inappropriate fields.
-		if (!Modifier.isStatic(field.getModifiers()) || Modifier.isFinal(field.getModifiers()))
-		{
-			LOGGER.debug("Skipping non static or final field: {}#{}", clazz.getSimpleName(), field.getName());
-			return;
-		}
-		
-		// Get the annotation.
-		final ConfigField configField = field.getDeclaredAnnotation(ConfigField.class);
-		if (configField == null)
-		{
-			return;
-		}
-		
-		// If field is just a comment holder, then do not try to load it.
-		if (configField.onlyComment())
-		{
-			return;
-		}
-		
-		try
-		{
-			final String propertyKey = configField.name();
-			ConfigManager.getInstance().registerProperty(clazz.getPackage().getName(), configPath, propertyKey);
-			if (!configField.reloadable() && ConfigManager.getInstance().isReloading())
-			{
-				LOGGER.debug("Property '{}' retained with its previous value!", propertyKey);
-				return;
-			}
-			
-			final boolean wasAccessible = field.isAccessible();
-			if (!wasAccessible)
-			{
-				field.setAccessible(true);
-			}
-			field.set(null, configField.valueSupplier().newInstance().supply(field, configField, properties, _overridenProperties));
-			field.setAccessible(wasAccessible);
-			
-			// post load hook event for field
-			final ConfigPostLoadHook postLoadHook = configField.postLoadHook().newInstance();
-			if ((postLoadHook != null) && !(postLoadHook instanceof EmptyConfigPostLoadHook))
-			{
-				postLoadHook.load(properties, _overridenProperties);
-			}
-		}
-		catch (InstantiationException | IllegalAccessException e)
-		{
-			LOGGER.warn("Failed to set field!", e);
-		}
-	}
-	
-	/**
 	 * Loads all configuration classes from the specified package and overwrites their properties according to override properties, if necessary.
 	 * @param classLoader the class loader that is used for the process
 	 * @param packageName the package where configuration related classes are stored
@@ -296,18 +178,14 @@ public final class ConfigManager
 	{
 		initOverrideProperties();
 		
-		if (_overridenProperties == null)
-		{
-			throw new NullPointerException("Override properties is missing!");
-		}
-		
 		final ConfigCounter configCount = new ConfigCounter();
 		try
 		{
 			// standard annotation based configuration classes
 			ClassPathUtil.getAllClassesAnnotatedWith(classLoader, packageName, ConfigClass.class).forEach(clazz ->
 			{
-				loadConfigClass(clazz);
+				final ConfigClassInfo configClassInfo = new ConfigClassInfo(clazz);
+				configClassInfo.load();
 				configCount.increment();
 			});
 			
@@ -347,26 +225,6 @@ public final class ConfigManager
 	public void load(String packageName)
 	{
 		load(ClassLoader.getSystemClassLoader(), packageName);
-	}
-	
-	private static final class ConfigCounter
-	{
-		private int _count;
-		
-		protected ConfigCounter()
-		{
-			// visibility
-		}
-		
-		public void increment()
-		{
-			_count++;
-		}
-		
-		public int getValue()
-		{
-			return _count;
-		}
 	}
 	
 	/**
@@ -410,6 +268,26 @@ public final class ConfigManager
 		return _reloading.get();
 	}
 	
+	private static final class ConfigCounter
+	{
+		private int _count;
+		
+		ConfigCounter()
+		{
+			// visibility
+		}
+		
+		public void increment()
+		{
+			_count++;
+		}
+		
+		public int getValue()
+		{
+			return _count;
+		}
+	}
+	
 	/**
 	 * Gets the result of two properties parser, where second is the override which overwrites the content of the first, if necessary.
 	 * @param properties the original properties file
@@ -451,7 +329,7 @@ public final class ConfigManager
 	
 	private static final class SingletonHolder
 	{
-		protected static final ConfigManager INSTANCE = new ConfigManager();
+		static final ConfigManager INSTANCE = new ConfigManager();
 	}
 	
 	public static ConfigManager getInstance()
