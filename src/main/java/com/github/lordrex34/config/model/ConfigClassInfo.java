@@ -49,14 +49,20 @@ public final class ConfigClassInfo
 {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ConfigClassInfo.class);
 	
+	/** To avoid creating the same post load hook thousand times. */
 	private static final Map<String, ConfigPostLoadHook> POST_LOAD_HOOKS = new HashMap<>();
 	
+	/** The class that is being scanned for the annotations. */
 	private final Class<?> _clazz;
+	
+	/** The configuration class annotation. */
 	private final ConfigClass _configClass;
+	
+	/** A list of the {@link ConfigFieldInfo} classes contained by this info container class. */
 	private final List<ConfigFieldInfo> _fieldInfoClasses = new ArrayList<>();
 	
 	/**
-	 * Constructs a new info holder class.
+	 * Constructs a new info container class.
 	 * @param clazz the configuration class itself
 	 */
 	public ConfigClassInfo(Class<?> clazz)
@@ -81,7 +87,7 @@ public final class ConfigClassInfo
 	}
 	
 	/**
-	 * Loads a configuration class.
+	 * Loads the configuration class that is being managed by this information container.
 	 */
 	public void load()
 	{

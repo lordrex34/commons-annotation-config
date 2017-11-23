@@ -23,6 +23,8 @@ package com.github.lordrex34.config.impl;
 
 import com.github.lordrex34.config.annotation.ConfigClass;
 import com.github.lordrex34.config.annotation.ConfigField;
+import com.github.lordrex34.config.annotation.ConfigGroupBeginning;
+import com.github.lordrex34.config.annotation.ConfigGroupEnding;
 
 /**
  * @author lord_rex
@@ -30,9 +32,12 @@ import com.github.lordrex34.config.annotation.ConfigField;
 @ConfigClass(fileName = "test")
 public class ConfigTest
 {
+	@ConfigGroupBeginning(name = "Booleans")
+	@ConfigGroupEnding(name = "Booleans")
 	@ConfigField(name = "TestBoolean", value = "true")
 	public static boolean TEST_BOOLEAN;
 	
+	@ConfigGroupBeginning(name = "Numbers")
 	@ConfigField(name = "TestByte", value = "120")
 	public static byte TEST_BYTE;
 	
@@ -48,12 +53,17 @@ public class ConfigTest
 	@ConfigField(name = "TestFloat", value = "1234.")
 	public static float TEST_FLOAT;
 	
+	@ConfigGroupEnding(name = "Numbers")
 	@ConfigField(name = "TestDouble", value = "1234.14")
 	public static double TEST_DOUBLE;
 	
+	@ConfigGroupBeginning(name = "Strings")
+	@ConfigGroupEnding(name = "Strings")
 	@ConfigField(name = "TestString", value = "Any string is good here.")
 	public static String TEST_STRING;
 	
+	@ConfigGroupBeginning(name = "Enums")
+	@ConfigGroupEnding(name = "Enums")
 	@ConfigField(name = "TestEnum", value = "TEST_1")
 	public static EnumForConfig TEST_ENUM;
 }

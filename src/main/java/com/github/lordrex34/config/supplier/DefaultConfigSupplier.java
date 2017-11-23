@@ -42,6 +42,7 @@ public class DefaultConfigSupplier implements IConfigValueSupplier<Object>
 {
 	private static final Logger LOGGER = LoggerFactory.getLogger(DefaultConfigSupplier.class);
 	
+	/** To avoid creating the same converter thousand times. */
 	private static final Map<String, IConfigConverter> CONVERTERS = new HashMap<>();
 	
 	@Override

@@ -49,15 +49,32 @@ public final class ConfigFieldInfo
 {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ConfigFieldInfo.class);
 	
+	/** To avoid creating the same value supplier thousand times. */
 	private static final Map<String, IConfigValueSupplier<?>> VALUE_SUPPLIERS = new HashMap<>();
+	
+	/** To avoid creating the same post load hook thousand times. */
 	private static final Map<String, ConfigPostLoadHook> POST_LOAD_HOOKS = new HashMap<>();
 	
+	/** The class that is being scanned. */
 	private final Class<?> _clazz;
+	
+	/** The field that contains {@link ConfigField} annotation. */
 	private final Field _field;
+	
+	/** The configuration field information annotation. */
 	private final ConfigField _configField;
+	
+	/** Group beginning marker annotation. */
 	private final ConfigGroupBeginning _beginningGroup;
+	
+	/** Group ending marker annotation. */
 	private final ConfigGroupEnding _endingGroup;
 	
+	/**
+	 * Constructs a new information container class for the field.
+	 * @param clazz the class that is being scanned
+	 * @param field the field that contains {@link ConfigField} annotation
+	 */
 	public ConfigFieldInfo(Class<?> clazz, Field field)
 	{
 		_clazz = clazz;
@@ -67,6 +84,12 @@ public final class ConfigFieldInfo
 		_endingGroup = _field.getDeclaredAnnotation(ConfigGroupEnding.class);
 	}
 	
+	/**
+	 * Loads and configures the field with its proper values.
+	 * @param configPath path of the properties file
+	 * @param properties the regular properties
+	 * @param overriddenProperties the content of {@code override.properties}
+	 */
 	public void load(Path configPath, PropertiesParser properties, PropertiesParser overriddenProperties)
 	{
 		// Skip inappropriate fields.

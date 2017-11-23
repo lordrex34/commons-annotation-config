@@ -35,7 +35,7 @@ public final class GenericUtil
 		// utility class
 	}
 	
-	public static Type[] getGenericTypes(final Field field)
+	public static Type[] getGenericTypes(Field field)
 	{
 		final Type genType = field.getGenericType();
 		if (!ParameterizedType.class.isInstance(genType))
@@ -47,7 +47,7 @@ public final class GenericUtil
 		return pType.getActualTypeArguments();
 	}
 	
-	public static Class<?> getFirstGenericTypeOfGenerizedField(final Field field)
+	public static Class<?> getFirstGenericTypeOfGenerizedField(Field field)
 	{
 		final Type[] allGenTypes = getGenericTypes(field);
 		if (allGenTypes == null)
