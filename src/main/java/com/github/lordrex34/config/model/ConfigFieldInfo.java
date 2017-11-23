@@ -59,12 +59,6 @@ public class ConfigFieldInfo
 	
 	public void load(Path configPath, PropertiesParser properties, PropertiesParser overriddenProperties)
 	{
-		// Safety check.
-		if (_field == null)
-		{
-			return;
-		}
-		
 		// Skip inappropriate fields.
 		if (!Modifier.isStatic(_field.getModifiers()) || Modifier.isFinal(_field.getModifiers()))
 		{

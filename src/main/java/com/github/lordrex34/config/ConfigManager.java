@@ -327,13 +327,13 @@ public final class ConfigManager
 		return property;
 	}
 	
-	private static final class SingletonHolder
-	{
-		static final ConfigManager INSTANCE = new ConfigManager();
-	}
-	
 	public static ConfigManager getInstance()
 	{
 		return SingletonHolder.INSTANCE;
+	}
+	
+	private static final class SingletonHolder
+	{
+		static final ConfigManager INSTANCE = new ConfigManager();
 	}
 }

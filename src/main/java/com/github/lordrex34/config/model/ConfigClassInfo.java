@@ -46,6 +46,7 @@ import com.github.lordrex34.config.util.PropertiesParser;
 public class ConfigClassInfo
 {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ConfigClassInfo.class);
+	
 	private final Class<?> _clazz;
 	private final ConfigClass _configClass;
 	private final List<ConfigFieldInfo> _fieldInfoClasses = new ArrayList<>();
@@ -58,6 +59,10 @@ public class ConfigClassInfo
 	{
 		_clazz = clazz;
 		_configClass = _clazz.getDeclaredAnnotation(ConfigClass.class);
+		if (_configClass == null)
+		{
+			throw new NullPointerException("Class " + _clazz + " doesn't have @ConfigClass annotation!");
+		}
 		
 		for (Field field : _clazz.getDeclaredFields())
 		{
@@ -74,12 +79,6 @@ public class ConfigClassInfo
 		if (overridenProperties == null)
 		{
 			throw new NullPointerException("Override properties is missing!");
-		}
-		
-		if (_configClass == null)
-		{
-			LOGGER.warn("Class {} doesn't have @ConfigClass annotation!", _clazz);
-			return;
 		}
 		
 		final Path configPath = Paths.get("", _configClass.pathNames()).resolve(_configClass.fileName() + _configClass.fileExtension());
@@ -119,11 +118,6 @@ public class ConfigClassInfo
 	
 	public void print(StringBuilder out)
 	{
-		if (_configClass == null)
-		{
-			return;
-		}
-		
 		// Header.
 		out.append("################################################################################\r\n");
 		out.append("## ").append(_configClass.fileName().replace("_", " ")).append(" Settings").append(System.lineSeparator());
