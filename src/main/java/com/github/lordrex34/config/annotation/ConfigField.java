@@ -79,7 +79,7 @@ public @interface ConfigField
 	
 	/**
 	 * The converter grants you the possibility to convert your configuration into a list, set, array or anything else.<br>
-	 * Please see {@link com.github.lordrex34.config.converter} package for further details.
+	 * Please see {@code com.github.lordrex34.config.converter} package for further details.
 	 * @return the converter
 	 */
 	Class<? extends IConfigConverter> converter() default MainConfigConverter.class;
