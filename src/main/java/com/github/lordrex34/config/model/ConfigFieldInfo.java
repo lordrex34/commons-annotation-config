@@ -133,9 +133,11 @@ public final class ConfigFieldInfo
 			}
 			
 			_field.set(null, valueSupplier.supply(_field, _configField, properties, overriddenProperties));
-			_field.setAccessible(wasAccessible);
 			
 			ConfigManager.loadPostLoadHook(POST_LOAD_HOOKS, _configField.postLoadHook(), properties, overriddenProperties);
+			
+			// restore field's visibility to the original
+			_field.setAccessible(wasAccessible);
 		}
 		catch (InstantiationException | IllegalAccessException e)
 		{
