@@ -22,13 +22,13 @@
 package com.github.lordrex34.config.impl.postloadhooks;
 
 import com.github.lordrex34.config.impl.ConfigClassPostLoadHookTest;
-import com.github.lordrex34.config.postloadhooks.ConfigPostLoadHook;
+import com.github.lordrex34.config.postloadhooks.IConfigPostLoadHook;
 import com.github.lordrex34.config.util.PropertiesParser;
 
 /**
  * @author lord_rex
  */
-public class ConfigClassTestHook implements ConfigPostLoadHook
+public class ConfigClassTestHook implements IConfigPostLoadHook
 {
 	public static final String POST_STRING_VALUE = "Value is post changed. (class)";
 	public static final int POST_INT_VALUE = 4_000;

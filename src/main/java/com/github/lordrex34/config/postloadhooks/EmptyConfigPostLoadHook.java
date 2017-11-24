@@ -24,11 +24,11 @@ package com.github.lordrex34.config.postloadhooks;
 import com.github.lordrex34.config.util.PropertiesParser;
 
 /**
- * An empty implementation of {@link ConfigPostLoadHook}.
+ * An empty implementation of {@link IConfigPostLoadHook}.
  * @author NB4L1 (original idea)
  * @author lord_rex
  */
-public final class EmptyConfigPostLoadHook implements ConfigPostLoadHook
+public final class EmptyConfigPostLoadHook implements IConfigPostLoadHook
 {
 	@Override
 	public void load(PropertiesParser properties, PropertiesParser override)

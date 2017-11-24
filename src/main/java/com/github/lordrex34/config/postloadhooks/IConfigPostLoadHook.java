@@ -29,7 +29,7 @@ import com.github.lordrex34.config.util.PropertiesParser;
  * @author NB4L1 (original idea)
  * @author lord_rex
  */
-public interface ConfigPostLoadHook
+public interface IConfigPostLoadHook
 {
 	/**
 	 * Provides you the possibility to render post-load hook events after a {@link ConfigClass} or {@link ConfigField} is loaded.

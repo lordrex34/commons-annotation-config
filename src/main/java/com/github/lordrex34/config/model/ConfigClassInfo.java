@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
 import com.github.lordrex34.config.ConfigManager;
 import com.github.lordrex34.config.annotation.ConfigClass;
 import com.github.lordrex34.config.annotation.ConfigField;
-import com.github.lordrex34.config.postloadhooks.ConfigPostLoadHook;
+import com.github.lordrex34.config.postloadhooks.IConfigPostLoadHook;
 import com.github.lordrex34.config.util.PropertiesParser;
 
 /**
@@ -50,7 +50,7 @@ public final class ConfigClassInfo
 	private static final Logger LOGGER = LoggerFactory.getLogger(ConfigClassInfo.class);
 	
 	/** To avoid creating the same post load hook thousand times. */
-	private static final Map<String, ConfigPostLoadHook> POST_LOAD_HOOKS = new HashMap<>();
+	private static final Map<String, IConfigPostLoadHook> POST_LOAD_HOOKS = new HashMap<>();
 	
 	/** The class that is being scanned for the annotations. */
 	private final Class<?> _clazz;

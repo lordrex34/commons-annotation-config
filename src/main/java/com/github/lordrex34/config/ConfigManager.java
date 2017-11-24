@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
 
 import com.github.lordrex34.config.annotation.ConfigClass;
 import com.github.lordrex34.config.model.ConfigClassInfo;
-import com.github.lordrex34.config.postloadhooks.ConfigPostLoadHook;
+import com.github.lordrex34.config.postloadhooks.IConfigPostLoadHook;
 import com.github.lordrex34.config.util.ClassPathUtil;
 import com.github.lordrex34.config.util.PropertiesParser;
 
@@ -354,12 +354,12 @@ public final class ConfigManager
 	 * @param properties regular properties
 	 * @param overriddenProperties user overridden settings
 	 */
-	public static void loadPostLoadHook(Map<String, ConfigPostLoadHook> postLoadHooks, Class<? extends ConfigPostLoadHook> postLoadHookClass, PropertiesParser properties, PropertiesParser overriddenProperties)
+	public static void loadPostLoadHook(Map<String, IConfigPostLoadHook> postLoadHooks, Class<? extends IConfigPostLoadHook> postLoadHookClass, PropertiesParser properties, PropertiesParser overriddenProperties)
 	{
 		try
 		{
 			final String postLoadHookClassName = postLoadHookClass.getName();
-			ConfigPostLoadHook postLoadHook = postLoadHooks.get(postLoadHookClassName);
+			IConfigPostLoadHook postLoadHook = postLoadHooks.get(postLoadHookClassName);
 			if (postLoadHook == null)
 			{
 				postLoadHook = postLoadHookClass.newInstance();

@@ -26,7 +26,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import com.github.lordrex34.config.postloadhooks.ConfigPostLoadHook;
+import com.github.lordrex34.config.postloadhooks.IConfigPostLoadHook;
 import com.github.lordrex34.config.postloadhooks.EmptyConfigPostLoadHook;
 
 /**
@@ -45,5 +45,5 @@ public @interface ConfigClass
 	
 	String[] comment() default {};
 	
-	Class<? extends ConfigPostLoadHook> postLoadHook() default EmptyConfigPostLoadHook.class;
+	Class<? extends IConfigPostLoadHook> postLoadHook() default EmptyConfigPostLoadHook.class;
 }

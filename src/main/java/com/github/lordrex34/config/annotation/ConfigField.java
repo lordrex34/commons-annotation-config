@@ -28,7 +28,7 @@ import java.lang.annotation.Target;
 
 import com.github.lordrex34.config.converter.IConfigConverter;
 import com.github.lordrex34.config.converter.MainConfigConverter;
-import com.github.lordrex34.config.postloadhooks.ConfigPostLoadHook;
+import com.github.lordrex34.config.postloadhooks.IConfigPostLoadHook;
 import com.github.lordrex34.config.postloadhooks.EmptyConfigPostLoadHook;
 import com.github.lordrex34.config.supplier.DefaultConfigSupplier;
 import com.github.lordrex34.config.supplier.IConfigValueSupplier;
@@ -88,5 +88,5 @@ public @interface ConfigField
 	 * Can be used to assign post-load events into a specific field or configuration class.
 	 * @return the post load hook
 	 */
-	Class<? extends ConfigPostLoadHook> postLoadHook() default EmptyConfigPostLoadHook.class;
+	Class<? extends IConfigPostLoadHook> postLoadHook() default EmptyConfigPostLoadHook.class;
 }
