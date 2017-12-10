@@ -25,11 +25,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThat;
 
-import java.io.BufferedWriter;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -50,23 +46,6 @@ public class TestConfigOverride
 	@Before
 	public void before() throws IOException
 	{
-		// create an override.properties file
-		final StringBuilder sb = new StringBuilder();
-		sb.append("TestOverrideInt = " + OVERRIDDEN_INT).append(System.lineSeparator());
-		sb.append("TestOverrideString = " + OVERRIDDEN_STRING).append(System.lineSeparator());
-		
-		final Path overridePath = Paths.get("config", "override.properties");
-		final Path overridePathParent = overridePath.getParent();
-		if (overridePathParent != null)
-		{
-			Files.createDirectories(overridePathParent);
-		}
-		
-		try (BufferedWriter bw = Files.newBufferedWriter(overridePath))
-		{
-			bw.append(sb.toString());
-		}
-		
 		_configManager = new ConfigManager();
 		_configManager.load(ITestConfigMarker.class.getPackage().getName());
 	}
