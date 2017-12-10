@@ -38,7 +38,10 @@ import com.github.lordrex34.config.impl.ITestConfigMarker;
  */
 public class TestConfigOverride
 {
+	/** Please see: {@code config/override.properties} */
 	private static final int OVERRIDDEN_INT = 300;
+	
+	/** Please see: {@code config/override.properties} */
 	private static final String OVERRIDDEN_STRING = "My overridden string. :)";
 	
 	private ConfigManager _configManager;
