@@ -28,9 +28,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +36,7 @@ import org.slf4j.LoggerFactory;
 import com.github.lordrex34.config.ConfigManager;
 import com.github.lordrex34.config.annotation.ConfigClass;
 import com.github.lordrex34.config.annotation.ConfigField;
-import com.github.lordrex34.config.postloadhooks.IConfigPostLoadHook;
+import com.github.lordrex34.config.postloadhooks.ConfigPostLoadHooks;
 import com.github.lordrex34.config.util.PropertiesParser;
 
 /**
@@ -48,9 +46,6 @@ import com.github.lordrex34.config.util.PropertiesParser;
 public final class ConfigClassInfo
 {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ConfigClassInfo.class);
-	
-	/** To avoid creating the same post load hook thousand times. */
-	private static final Map<String, IConfigPostLoadHook> POST_LOAD_HOOKS = new HashMap<>();
 	
 	/** The class that is being scanned for the annotations. */
 	private final Class<?> _clazz;
@@ -110,7 +105,7 @@ public final class ConfigClassInfo
 		final PropertiesParser properties = new PropertiesParser(configPath);
 		_fieldInfoClasses.forEach(configFieldInfo -> configFieldInfo.load(configPath, properties, overriddenProperties));
 		
-		ConfigManager.loadPostLoadHook(POST_LOAD_HOOKS, _configClass.postLoadHook(), properties, overriddenProperties);
+		ConfigPostLoadHooks.get(_configClass.postLoadHook()).load(properties, overriddenProperties);
 		
 		LOGGER.debug("loaded '{}'", configPath);
 	}

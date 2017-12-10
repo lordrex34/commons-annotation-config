@@ -21,20 +21,47 @@
  */
 package com.github.lordrex34.config.postloadhooks;
 
-import com.github.lordrex34.config.annotation.ConfigClass;
-import com.github.lordrex34.config.annotation.ConfigField;
-import com.github.lordrex34.config.util.PropertiesParser;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * @author NB4L1 (original idea)
+ * A registry to avoid creating the same post load hook thousand times.
+ * @author NB4L1 (original concept)
  * @author lord_rex
  */
-public interface IConfigPostLoadHook
+public final class ConfigPostLoadHooks
 {
+	private static final Logger LOGGER = LoggerFactory.getLogger(ConfigPostLoadHooks.class);
+	
+	/** The cache. */
+	private static final Map<String, IConfigPostLoadHook> POST_LOAD_HOOKS = new HashMap<>();
+	
+	private ConfigPostLoadHooks()
+	{
+		// utility class
+	}
+	
 	/**
-	 * Provides you the possibility to render post-load hook events after a {@link ConfigClass} or {@link ConfigField} is loaded.
-	 * @param properties the original properties file
-	 * @param overriddenProperties the override properties that overwrites original settings
+	 * Gets the post load hook from the cache. If it is not present, then it gets registered automatically.
+	 * @param postLoadHookClass the class contained by the information holder annotation
+	 * @return post load hook
 	 */
-	void load(PropertiesParser properties, PropertiesParser overriddenProperties);
+	public static IConfigPostLoadHook get(Class<? extends IConfigPostLoadHook> postLoadHookClass)
+	{
+		return POST_LOAD_HOOKS.computeIfAbsent(postLoadHookClass.getName(), k ->
+		{
+			try
+			{
+				return postLoadHookClass.newInstance();
+			}
+			catch (InstantiationException | IllegalAccessException e)
+			{
+				LOGGER.warn("Failed to load post load hook!", e);
+				return null;
+			}
+		});
+	}
 }

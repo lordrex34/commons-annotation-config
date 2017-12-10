@@ -42,7 +42,6 @@ import org.slf4j.LoggerFactory;
 
 import com.github.lordrex34.config.annotation.ConfigClass;
 import com.github.lordrex34.config.model.ConfigClassInfo;
-import com.github.lordrex34.config.postloadhooks.IConfigPostLoadHook;
 import com.github.lordrex34.config.util.ClassPathUtil;
 import com.github.lordrex34.config.util.PropertiesParser;
 
@@ -346,32 +345,6 @@ public final class ConfigManager
 			}
 		}
 		return property;
-	}
-	
-	/**
-	 * Load post-load configuration hooks by the given class.
-	 * @param postLoadHooks cache map to avoid countless creation
-	 * @param postLoadHookClass the given class
-	 * @param properties regular properties
-	 * @param overriddenProperties user overridden settings
-	 */
-	public static void loadPostLoadHook(Map<String, IConfigPostLoadHook> postLoadHooks, Class<? extends IConfigPostLoadHook> postLoadHookClass, PropertiesParser properties, PropertiesParser overriddenProperties)
-	{
-		try
-		{
-			final String postLoadHookClassName = postLoadHookClass.getName();
-			IConfigPostLoadHook postLoadHook = postLoadHooks.get(postLoadHookClassName);
-			if (postLoadHook == null)
-			{
-				postLoadHook = postLoadHookClass.newInstance();
-				postLoadHooks.put(postLoadHookClassName, postLoadHook);
-			}
-			postLoadHook.load(properties, overriddenProperties);
-		}
-		catch (InstantiationException | IllegalAccessException e)
-		{
-			LOGGER.warn("Failed to load post load hook!", e);
-		}
 	}
 	
 	public static ConfigManager getInstance()

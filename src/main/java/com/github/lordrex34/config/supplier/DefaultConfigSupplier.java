@@ -22,14 +22,13 @@
 package com.github.lordrex34.config.supplier;
 
 import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.github.lordrex34.config.ConfigManager;
 import com.github.lordrex34.config.annotation.ConfigField;
+import com.github.lordrex34.config.converter.ConfigConverters;
 import com.github.lordrex34.config.converter.IConfigConverter;
 import com.github.lordrex34.config.lang.FieldParser.FieldParserException;
 import com.github.lordrex34.config.util.PropertiesParser;
@@ -42,25 +41,14 @@ public class DefaultConfigSupplier implements IConfigValueSupplier<Object>
 {
 	private static final Logger LOGGER = LoggerFactory.getLogger(DefaultConfigSupplier.class);
 	
-	/** To avoid creating the same converter thousand times. */
-	private static final Map<String, IConfigConverter> CONVERTERS = new HashMap<>();
-	
 	@Override
-	public Object supply(Field field, ConfigField configField, PropertiesParser properties, PropertiesParser overridenProperties) throws InstantiationException, IllegalAccessException
+	public Object supply(Field field, ConfigField configField, PropertiesParser properties, PropertiesParser overridenProperties)
 	{
 		final String propertyKey = configField.name();
 		final String propertyValue = configField.value();
 		
 		final String configProperty = ConfigManager.getProperty(properties, overridenProperties, propertyKey, propertyValue);
-		
-		final Class<? extends IConfigConverter> converterClass = configField.converter();
-		final String converterClassName = converterClass.getName();
-		IConfigConverter converter = CONVERTERS.get(converterClassName);
-		if (converter == null)
-		{
-			converter = converterClass.newInstance();
-			CONVERTERS.put(converterClassName, converter);
-		}
+		final IConfigConverter converter = ConfigConverters.get(configField.converter());
 		
 		Object value;
 		try

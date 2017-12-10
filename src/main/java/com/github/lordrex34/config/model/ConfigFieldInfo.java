@@ -26,8 +26,6 @@ import java.lang.reflect.Modifier;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -37,8 +35,8 @@ import com.github.lordrex34.config.ConfigManager;
 import com.github.lordrex34.config.annotation.ConfigField;
 import com.github.lordrex34.config.annotation.ConfigGroupBeginning;
 import com.github.lordrex34.config.annotation.ConfigGroupEnding;
-import com.github.lordrex34.config.postloadhooks.IConfigPostLoadHook;
-import com.github.lordrex34.config.supplier.IConfigValueSupplier;
+import com.github.lordrex34.config.postloadhooks.ConfigPostLoadHooks;
+import com.github.lordrex34.config.supplier.ConfigValueSuppliers;
 import com.github.lordrex34.config.util.PropertiesParser;
 
 /**
@@ -48,12 +46,6 @@ import com.github.lordrex34.config.util.PropertiesParser;
 public final class ConfigFieldInfo
 {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ConfigFieldInfo.class);
-	
-	/** To avoid creating the same value supplier thousand times. */
-	private static final Map<String, IConfigValueSupplier<?>> VALUE_SUPPLIERS = new HashMap<>();
-	
-	/** To avoid creating the same post load hook thousand times. */
-	private static final Map<String, IConfigPostLoadHook> POST_LOAD_HOOKS = new HashMap<>();
 	
 	/** The class that is being scanned. */
 	private final Class<?> _clazz;
@@ -117,27 +109,21 @@ public final class ConfigFieldInfo
 			
 			// private field support
 			final boolean wasAccessible = _field.isAccessible();
-			if (!wasAccessible)
+			try
 			{
-				_field.setAccessible(true);
+				if (!wasAccessible)
+				{
+					_field.setAccessible(true);
+				}
+				
+				_field.set(null, ConfigValueSuppliers.get(_configField.valueSupplier()).supply(_field, _configField, properties, overriddenProperties));
+				ConfigPostLoadHooks.get(_configField.postLoadHook()).load(properties, overriddenProperties);
 			}
-			
-			// value suppliers
-			final Class<? extends IConfigValueSupplier<?>> valueSupplierClass = _configField.valueSupplier();
-			final String valueSupplierClassName = valueSupplierClass.getName();
-			IConfigValueSupplier<?> valueSupplier = VALUE_SUPPLIERS.get(valueSupplierClassName);
-			if (valueSupplier == null)
+			finally
 			{
-				valueSupplier = valueSupplierClass.newInstance();
-				VALUE_SUPPLIERS.put(valueSupplierClassName, valueSupplier);
+				// restore field's visibility to the original
+				_field.setAccessible(wasAccessible);
 			}
-			
-			_field.set(null, valueSupplier.supply(_field, _configField, properties, overriddenProperties));
-			
-			ConfigManager.loadPostLoadHook(POST_LOAD_HOOKS, _configField.postLoadHook(), properties, overriddenProperties);
-			
-			// restore field's visibility to the original
-			_field.setAccessible(wasAccessible);
 		}
 		catch (InstantiationException | IllegalAccessException e)
 		{

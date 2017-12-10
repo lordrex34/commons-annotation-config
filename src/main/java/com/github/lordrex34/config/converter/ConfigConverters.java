@@ -19,22 +19,48 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.github.lordrex34.config.postloadhooks;
+package com.github.lordrex34.config.converter;
 
-import com.github.lordrex34.config.annotation.ConfigClass;
-import com.github.lordrex34.config.annotation.ConfigField;
-import com.github.lordrex34.config.util.PropertiesParser;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * @author NB4L1 (original idea)
+ * A registry to avoid creating the same converter thousand times.
  * @author lord_rex
  */
-public interface IConfigPostLoadHook
+public final class ConfigConverters
 {
+	private static final Logger LOGGER = LoggerFactory.getLogger(ConfigConverters.class);
+	
+	/** The cache. */
+	private static final Map<String, IConfigConverter> CONVERTERS = new HashMap<>();
+	
+	private ConfigConverters()
+	{
+		// utility class
+	}
+	
 	/**
-	 * Provides you the possibility to render post-load hook events after a {@link ConfigClass} or {@link ConfigField} is loaded.
-	 * @param properties the original properties file
-	 * @param overriddenProperties the override properties that overwrites original settings
+	 * Gets the config converter from the cache. If it is not present, then it gets registered automatically.
+	 * @param converterClass the class contained by the information holder annotation
+	 * @return config converter
 	 */
-	void load(PropertiesParser properties, PropertiesParser overriddenProperties);
+	public static IConfigConverter get(Class<? extends IConfigConverter> converterClass)
+	{
+		return CONVERTERS.computeIfAbsent(converterClass.getName(), k ->
+		{
+			try
+			{
+				return converterClass.newInstance();
+			}
+			catch (InstantiationException | IllegalAccessException e)
+			{
+				LOGGER.warn("Failed to load converter!", e);
+				return null;
+			}
+		});
+	}
 }
