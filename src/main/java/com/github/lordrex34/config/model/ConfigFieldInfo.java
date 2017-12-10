@@ -37,6 +37,7 @@ import com.github.lordrex34.config.annotation.ConfigGroupBeginning;
 import com.github.lordrex34.config.annotation.ConfigGroupEnding;
 import com.github.lordrex34.config.postloadhooks.ConfigPostLoadHooks;
 import com.github.lordrex34.config.supplier.ConfigValueSuppliers;
+import com.github.lordrex34.config.util.ConfigPropertyRegistry;
 import com.github.lordrex34.config.util.PropertiesParser;
 
 /**
@@ -100,7 +101,7 @@ public final class ConfigFieldInfo
 		try
 		{
 			final String propertyKey = _configField.name();
-			ConfigManager.getInstance().registerProperty(_clazz.getPackage().getName(), configPath, propertyKey);
+			ConfigPropertyRegistry.add(_clazz.getPackage().getName(), configPath, propertyKey);
 			if (!_configField.reloadable() && ConfigManager.getInstance().isReloading())
 			{
 				LOGGER.debug("Property '{}' retained with its previous value!", propertyKey);

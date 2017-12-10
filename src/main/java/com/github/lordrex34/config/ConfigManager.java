@@ -27,13 +27,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 
@@ -43,7 +38,9 @@ import org.slf4j.LoggerFactory;
 import com.github.lordrex34.config.annotation.ConfigClass;
 import com.github.lordrex34.config.model.ConfigClassInfo;
 import com.github.lordrex34.config.util.ClassPathUtil;
+import com.github.lordrex34.config.util.ConfigPropertyRegistry;
 import com.github.lordrex34.config.util.PropertiesParser;
+import com.google.common.annotations.VisibleForTesting;
 
 /**
  * A manager class that handles configuration loading.
@@ -58,9 +55,6 @@ public final class ConfigManager
 	
 	/** A simple {@link AtomicBoolean} that indicates reloading process. */
 	private final AtomicBoolean _reloading = new AtomicBoolean(false);
-	
-	/** Properties registry, that is used for misplaced configuration indication. */
-	private final Map<String, Map<Path, Set<String>>> _propertiesRegistry = new TreeMap<>();
 	
 	/** Whether override system is being used or not. */
 	private boolean _overrideSystemAllowed = true;
@@ -80,6 +74,7 @@ public final class ConfigManager
 	 * A read-only view of a list that contains all the registered {@link ConfigClassInfo}s.
 	 * @return the configuration registry
 	 */
+	@VisibleForTesting
 	List<ConfigClassInfo> getConfigRegistry()
 	{
 		return Collections.unmodifiableList(_configRegistry);
@@ -147,41 +142,10 @@ public final class ConfigManager
 	 * Gets overridden properties stored in this manager class.
 	 * @return overridden properties
 	 */
+	@VisibleForTesting
 	PropertiesParser getOverriddenProperties()
 	{
 		return _overridenProperties;
-	}
-	
-	/**
-	 * Registers a configuration property into this manager.
-	 * @param packageName the package where configuration related classes are stored
-	 * @param configFile path of the configuration file
-	 * @param propertyKey the property key to be registered into {@code _propertiesRegistry}
-	 */
-	public void registerProperty(String packageName, Path configFile, String propertyKey)
-	{
-		if (!_propertiesRegistry.containsKey(packageName))
-		{
-			_propertiesRegistry.put(packageName, new HashMap<>());
-		}
-		
-		if (!_propertiesRegistry.get(packageName).containsKey(configFile))
-		{
-			_propertiesRegistry.get(packageName).put(configFile, new TreeSet<>());
-		}
-		
-		_propertiesRegistry.get(packageName).entrySet().forEach(entry ->
-		{
-			final Path entryConfigFile = entry.getKey();
-			final Set<String> entryProperties = entry.getValue();
-			
-			if (!entryConfigFile.equals(configFile) && entryProperties.contains(propertyKey))
-			{
-				LOGGER.warn("Property key '{}' is already defined in config file '{}', so now '{}' overwrites that! Please fix this!", propertyKey, entryConfigFile, configFile);
-			}
-		});
-		
-		_propertiesRegistry.get(packageName).get(configFile).add(propertyKey);
 	}
 	
 	/**
@@ -257,7 +221,7 @@ public final class ConfigManager
 		}
 		
 		_configRegistry.clear();
-		_propertiesRegistry.clear();
+		// FIXME _propertiesRegistry.clear();
 	}
 	
 	/**
@@ -274,10 +238,7 @@ public final class ConfigManager
 		
 		_configRegistry.clear();
 		
-		if (_propertiesRegistry.containsKey(packageName))
-		{
-			_propertiesRegistry.get(packageName).clear();
-		}
+		ConfigPropertyRegistry.clear(packageName);
 		
 		_reloading.set(true);
 		try
