@@ -24,7 +24,7 @@ package com.github.lordrex34.config.impl;
 /**
  * @author lord_rex
  */
-public interface IConfigMarker
+public interface ITestConfigMarker
 {
 	// marker interface
 }

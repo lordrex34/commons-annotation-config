@@ -29,7 +29,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.github.lordrex34.config.impl.ConfigArrayTest;
-import com.github.lordrex34.config.impl.IConfigMarker;
+import com.github.lordrex34.config.impl.ITestConfigMarker;
 
 /**
  * @author lord_rex
@@ -43,7 +43,7 @@ public class TestConfigArray
 		ConfigManager.getInstance().clear();
 		
 		// load configurations
-		ConfigManager.getInstance().load(IConfigMarker.class.getPackage().getName());
+		ConfigManager.getInstance().load(ITestConfigMarker.class.getPackage().getName());
 	}
 	
 	@Test

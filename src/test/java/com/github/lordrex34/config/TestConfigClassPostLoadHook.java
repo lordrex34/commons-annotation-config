@@ -29,7 +29,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.github.lordrex34.config.impl.ConfigClassPostLoadHookTest;
-import com.github.lordrex34.config.impl.IConfigMarker;
+import com.github.lordrex34.config.impl.ITestConfigMarker;
 import com.github.lordrex34.config.impl.postloadhooks.ConfigClassTestHook;
 
 /**
@@ -44,7 +44,7 @@ public class TestConfigClassPostLoadHook
 		ConfigManager.getInstance().clear();
 		
 		// load configurations
-		ConfigManager.getInstance().load(IConfigMarker.class.getPackage().getName());
+		ConfigManager.getInstance().load(ITestConfigMarker.class.getPackage().getName());
 	}
 	
 	@Test
