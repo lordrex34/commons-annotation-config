@@ -29,6 +29,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,11 +64,7 @@ public final class ConfigClassInfo
 	public ConfigClassInfo(Class<?> clazz)
 	{
 		_clazz = clazz;
-		_configClass = _clazz.getDeclaredAnnotation(ConfigClass.class);
-		if (_configClass == null)
-		{
-			throw new NullPointerException("Class " + _clazz + " doesn't have @ConfigClass annotation!");
-		}
+		_configClass = Objects.requireNonNull(_clazz.getDeclaredAnnotation(ConfigClass.class), () -> "Class " + _clazz + " doesn't have @ConfigClass annotation!");
 		
 		for (Field field : _clazz.getDeclaredFields())
 		{
