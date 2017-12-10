@@ -156,7 +156,6 @@ public final class ConfigManager
 	{
 		initOverrideProperties();
 		
-		// standard annotation based configuration classes
 		try
 		{
 			ClassPathUtil.getAllClassesAnnotatedWith(classLoader, packageName, ConfigClass.class).forEach(clazz -> _configRegistry.add(new ConfigClassInfo(clazz)));
@@ -166,34 +165,6 @@ public final class ConfigManager
 		catch (IOException e)
 		{
 			throw new IOException("Failed to load class path!");
-		}
-		
-		// non-standard solution
-		try
-		{
-			ClassPathUtil.getAllClassesExtending(classLoader, packageName, IConfigLoader.class).forEach(clazz ->
-			{
-				if (Stream.of(clazz.getConstructors()).noneMatch((constructor) -> constructor.getParameterCount() == 0))
-				{
-					// Do not load IConfigLoader if there is no proper constructor match.
-					return;
-				}
-				
-				try
-				{
-					// Whatever black magic the user intend to do, that does not fit into annotation configuration engine, is able to use that pattern.
-					final IConfigLoader configLoader = clazz.newInstance();
-					configLoader.load(_overridenProperties);
-				}
-				catch (InstantiationException | IllegalAccessException e)
-				{
-					LOGGER.warn("Failed to load config.", e);
-				}
-			});
-		}
-		catch (IOException e)
-		{
-			LOGGER.warn("Failed to load class path.", e);
 		}
 	}
 	
