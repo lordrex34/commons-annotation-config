@@ -25,9 +25,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 
@@ -50,7 +50,7 @@ public final class ConfigManager
 	private static final Logger LOGGER = LoggerFactory.getLogger(ConfigManager.class);
 	
 	/** Contains all the registered {@link ConfigClassInfo}s. */
-	private final List<ConfigClassInfo> _configRegistry = new ArrayList<>();
+	private final Set<ConfigClassInfo> _configRegistry = new HashSet<>();
 	
 	/** A simple {@link AtomicBoolean} that indicates reloading process. */
 	private static final AtomicBoolean RELOADING = new AtomicBoolean(false);
