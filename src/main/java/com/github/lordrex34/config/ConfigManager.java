@@ -26,6 +26,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -77,12 +78,12 @@ public final class ConfigManager
 	}
 	
 	/**
-	 * Gets the configuration registry list that contains all the registered {@link ConfigClassInfo}s.
+	 * A read-only view of a list that contains all the registered {@link ConfigClassInfo}s.
 	 * @return the configuration registry
 	 */
-	public List<ConfigClassInfo> getConfigRegistry()
+	List<ConfigClassInfo> getConfigRegistry()
 	{
-		return _configRegistry;
+		return Collections.unmodifiableList(_configRegistry);
 	}
 	
 	/**
@@ -147,7 +148,7 @@ public final class ConfigManager
 	 * Gets overridden properties stored in this manager class.
 	 * @return overridden properties
 	 */
-	public PropertiesParser getOverriddenProperties()
+	PropertiesParser getOverriddenProperties()
 	{
 		return _overridenProperties;
 	}
@@ -197,7 +198,7 @@ public final class ConfigManager
 		try
 		{
 			ClassPathUtil.getAllClassesAnnotatedWith(classLoader, packageName, ConfigClass.class).forEach(clazz -> _configRegistry.add(new ConfigClassInfo(clazz)));
-			_configRegistry.forEach(ConfigClassInfo::load);
+			_configRegistry.forEach(configClassInfo -> configClassInfo.load(_overridenProperties));
 			LOGGER.info("Loaded {} config file(s).", _configRegistry.size());
 		}
 		catch (IOException e)

@@ -88,15 +88,10 @@ public final class ConfigClassInfo
 	
 	/**
 	 * Loads the configuration class that is being managed by this information container.
+	 * @param overriddenProperties please see {@link ConfigManager#getOverriddenProperties}
 	 */
-	public void load()
+	public void load(PropertiesParser overriddenProperties)
 	{
-		final PropertiesParser overriddenProperties = ConfigManager.getInstance().getOverriddenProperties();
-		if (overriddenProperties == null)
-		{
-			throw new NullPointerException("Override properties is missing!");
-		}
-		
 		final Path configPath = Paths.get("", _configClass.pathNames()).resolve(_configClass.fileName() + _configClass.fileExtension());
 		if (Files.notExists(configPath))
 		{
