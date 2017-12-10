@@ -102,7 +102,7 @@ public final class ConfigFieldInfo
 		{
 			final String propertyKey = _configField.name();
 			ConfigPropertyRegistry.add(_clazz.getPackage().getName(), configPath, propertyKey);
-			if (!_configField.reloadable() && ConfigManager.getInstance().isReloading())
+			if (!_configField.reloadable() && ConfigManager.isReloading())
 			{
 				LOGGER.debug("Property '{}' retained with its previous value!", propertyKey);
 				return;

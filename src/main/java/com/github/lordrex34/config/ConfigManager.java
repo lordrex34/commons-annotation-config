@@ -54,7 +54,7 @@ public final class ConfigManager
 	private final List<ConfigClassInfo> _configRegistry = new ArrayList<>();
 	
 	/** A simple {@link AtomicBoolean} that indicates reloading process. */
-	private final AtomicBoolean _reloading = new AtomicBoolean(false);
+	private static final AtomicBoolean RELOADING = new AtomicBoolean(false);
 	
 	/** Whether override system is being used or not. */
 	private boolean _overrideSystemAllowed = true;
@@ -240,14 +240,14 @@ public final class ConfigManager
 		
 		ConfigPropertyRegistry.clear(packageName);
 		
-		_reloading.set(true);
+		RELOADING.set(true);
 		try
 		{
 			load(classLoader, packageName);
 		}
 		finally
 		{
-			_reloading.set(false);
+			RELOADING.set(false);
 		}
 	}
 	
@@ -264,9 +264,9 @@ public final class ConfigManager
 	 * Checks whether reload is in progress or not.
 	 * @return {@code true} if reload is in progress, otherwise {@code false}
 	 */
-	public boolean isReloading()
+	public static boolean isReloading()
 	{
-		return _reloading.get();
+		return RELOADING.get();
 	}
 	
 	/**
