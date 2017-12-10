@@ -104,7 +104,7 @@ public final class ConfigClassInfo
 		
 		ConfigPostLoadHooks.get(_configClass.postLoadHook()).load(properties, overriddenProperties);
 		
-		LOGGER.debug("loaded '{}'", configPath);
+		LOGGER.info("loaded '{}'", configPath);
 	}
 	
 	/**
