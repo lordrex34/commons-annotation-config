@@ -78,9 +78,10 @@ public final class ConfigPropertyRegistry
 	 */
 	public static void clear(String packageName)
 	{
-		if (PROPERTIES.containsKey(packageName))
+		final Map<Path, Set<String>> registry = PROPERTIES.get(packageName);
+		if (registry != null)
 		{
-			PROPERTIES.get(packageName).clear();
+			registry.clear();
 		}
 	}
 }
