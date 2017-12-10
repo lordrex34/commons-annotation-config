@@ -150,8 +150,9 @@ public final class ConfigManager
 	 * Loads all configuration classes from the specified package and overwrites their properties according to override properties, if necessary.
 	 * @param classLoader the class loader that is used for the process
 	 * @param packageName the package where configuration related classes are stored
+	 * @throws IOException
 	 */
-	public void load(ClassLoader classLoader, String packageName)
+	public void load(ClassLoader classLoader, String packageName) throws IOException
 	{
 		initOverrideProperties();
 		
@@ -164,7 +165,7 @@ public final class ConfigManager
 		}
 		catch (IOException e)
 		{
-			LOGGER.warn("Failed to load class path.", e);
+			throw new IOException("Failed to load class path!");
 		}
 		
 		// non-standard solution
@@ -199,8 +200,9 @@ public final class ConfigManager
 	/**
 	 * Same as {@link #load(ClassLoader, String)}, using {@link ClassLoader#getSystemClassLoader()} as the classLoader parameter.
 	 * @param packageName the package where configuration related classes are stored
+	 * @throws IOException
 	 */
-	public void load(String packageName)
+	public void load(String packageName) throws IOException
 	{
 		load(ClassLoader.getSystemClassLoader(), packageName);
 	}
@@ -209,8 +211,9 @@ public final class ConfigManager
 	 * Reloads configurations by package name.
 	 * @param classLoader the class loader that is used for the process
 	 * @param packageName the package where configuration related classes are stored
+	 * @throws IOException
 	 */
-	public void reload(ClassLoader classLoader, String packageName)
+	public void reload(ClassLoader classLoader, String packageName) throws IOException
 	{
 		if (_overridenProperties != null)
 		{
@@ -235,8 +238,9 @@ public final class ConfigManager
 	/**
 	 * Same as {@link #reload(ClassLoader, String)}, using {@link ClassLoader#getSystemClassLoader()} as the classLoader parameter.
 	 * @param packageName the package where configuration related classes are stored
+	 * @throws IOException
 	 */
-	public void reload(String packageName)
+	public void reload(String packageName) throws IOException
 	{
 		reload(ClassLoader.getSystemClassLoader(), packageName);
 	}

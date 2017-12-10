@@ -25,6 +25,8 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThat;
 
+import java.io.IOException;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -40,7 +42,7 @@ public class TestConfigClassPostLoadHook
 	private ConfigManager _configManager;
 	
 	@Before
-	public void before()
+	public void before() throws IOException
 	{
 		_configManager = new ConfigManager();
 		_configManager.load(ITestConfigMarker.class.getPackage().getName());

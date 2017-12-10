@@ -25,6 +25,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.io.IOException;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -39,7 +41,7 @@ public class TestConfigList
 	private ConfigManager _configManager;
 	
 	@Before
-	public void before()
+	public void before() throws IOException
 	{
 		_configManager = new ConfigManager();
 		_configManager.load(ITestConfigMarker.class.getPackage().getName());
