@@ -26,7 +26,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -63,21 +62,20 @@ public final class ConfigManager
 	private PropertiesParser _overridenProperties;
 	
 	/**
-	 * Constructs the {@link ConfigManager} class, triggered by the {@link SingletonHolder}.
+	 * Constructs the {@link ConfigManager} class, used by user-end implementation.
 	 */
-	ConfigManager()
+	public ConfigManager()
 	{
 		// visibility
 	}
 	
 	/**
-	 * A read-only view of a list that contains all the registered {@link ConfigClassInfo}s.
-	 * @return the configuration registry
+	 * Gets how many {@link ConfigClassInfo}s are registered in the configuration registry.
+	 * @return registry size
 	 */
-	@VisibleForTesting
-	List<ConfigClassInfo> getConfigRegistry()
+	public int getConfigRegistrySize()
 	{
-		return Collections.unmodifiableList(_configRegistry);
+		return _configRegistry.size();
 	}
 	
 	/**
@@ -208,23 +206,6 @@ public final class ConfigManager
 	}
 	
 	/**
-	 * Full wipe of the configuration manager data.<br>
-	 * Designed for testing purposes.<br>
-	 * Yes. Curse of singleton holders.<br>
-	 * <b>Not to be used for reload process!</b>
-	 */
-	public void clear()
-	{
-		if (_overridenProperties != null)
-		{
-			_overridenProperties.clear();
-		}
-		
-		_configRegistry.clear();
-		// FIXME _propertiesRegistry.clear();
-	}
-	
-	/**
 	 * Reloads configurations by package name.
 	 * @param classLoader the class loader that is used for the process
 	 * @param packageName the package where configuration related classes are stored
@@ -306,15 +287,5 @@ public final class ConfigManager
 			}
 		}
 		return property;
-	}
-	
-	public static ConfigManager getInstance()
-	{
-		return SingletonHolder.INSTANCE;
-	}
-	
-	private static final class SingletonHolder
-	{
-		static final ConfigManager INSTANCE = new ConfigManager();
 	}
 }

@@ -31,7 +31,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
 
 import com.github.lordrex34.config.impl.ConfigOverrideTest;
@@ -45,8 +45,10 @@ public class TestConfigOverride
 	private static final int OVERRIDDEN_INT = 300;
 	private static final String OVERRIDDEN_STRING = "My overridden string. :)";
 	
-	@BeforeClass
-	public static void beforeClass() throws IOException
+	private ConfigManager _configManager;
+	
+	@Before
+	public void before() throws IOException
 	{
 		// create an override.properties file
 		final StringBuilder sb = new StringBuilder();
@@ -65,18 +67,15 @@ public class TestConfigOverride
 			bw.append(sb.toString());
 		}
 		
-		// clear to avoid conflict with other tests
-		ConfigManager.getInstance().clear();
-		
-		// load configurations
-		ConfigManager.getInstance().load(ITestConfigMarker.class.getPackage().getName());
+		_configManager = new ConfigManager();
+		_configManager.load(ITestConfigMarker.class.getPackage().getName());
 	}
 	
 	@Test
 	public void test()
 	{
-		assertNotEquals(ConfigManager.getInstance().getConfigRegistry().size(), 0);
-		assertNotEquals(ConfigManager.getInstance().getOverriddenProperties().size(), 0);
+		assertNotEquals(_configManager.getConfigRegistrySize(), 0);
+		assertNotEquals(_configManager.getOverriddenProperties().size(), 0);
 		assertThat(ConfigOverrideTest.TEST_OVERRIDE_INT, is(OVERRIDDEN_INT));
 		assertThat(ConfigOverrideTest.TEST_OVERRIDE_STRING, is(OVERRIDDEN_STRING));
 	}

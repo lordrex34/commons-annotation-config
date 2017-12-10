@@ -25,7 +25,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThat;
 
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
 
 import com.github.lordrex34.config.impl.ConfigClassPostLoadHookTest;
@@ -37,20 +37,19 @@ import com.github.lordrex34.config.impl.postloadhooks.ConfigClassTestHook;
  */
 public class TestConfigClassPostLoadHook
 {
-	@BeforeClass
-	public static void beforeClass()
+	private ConfigManager _configManager;
+	
+	@Before
+	public void before()
 	{
-		// clear to avoid conflict with other tests
-		ConfigManager.getInstance().clear();
-		
-		// load configurations
-		ConfigManager.getInstance().load(ITestConfigMarker.class.getPackage().getName());
+		_configManager = new ConfigManager();
+		_configManager.load(ITestConfigMarker.class.getPackage().getName());
 	}
 	
 	@Test
 	public void test()
 	{
-		assertNotEquals(ConfigManager.getInstance().getConfigRegistry().size(), 0);
+		assertNotEquals(_configManager.getConfigRegistrySize(), 0);
 		assertThat(ConfigClassPostLoadHookTest.TEST_POST_STRING, is(ConfigClassTestHook.POST_STRING_VALUE));
 		assertThat(ConfigClassPostLoadHookTest.TEST_POST_INT, is(ConfigClassTestHook.POST_INT_VALUE));
 	}

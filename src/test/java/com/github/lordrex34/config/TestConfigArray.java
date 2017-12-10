@@ -25,7 +25,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThat;
 
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
 
 import com.github.lordrex34.config.impl.ConfigArrayTest;
@@ -36,20 +36,19 @@ import com.github.lordrex34.config.impl.ITestConfigMarker;
  */
 public class TestConfigArray
 {
-	@BeforeClass
-	public static void beforeClass()
+	private ConfigManager _configManager;
+	
+	@Before
+	public void before()
 	{
-		// clear to avoid conflict with other tests
-		ConfigManager.getInstance().clear();
-		
-		// load configurations
-		ConfigManager.getInstance().load(ITestConfigMarker.class.getPackage().getName());
+		_configManager = new ConfigManager();
+		_configManager.load(ITestConfigMarker.class.getPackage().getName());
 	}
 	
 	@Test
 	public void test()
 	{
-		assertNotEquals(ConfigManager.getInstance().getConfigRegistry().size(), 0);
+		assertNotEquals(_configManager.getConfigRegistrySize(), 0);
 		assertThat(ConfigArrayTest.TEST_STRING_ARRAY, is(ConfigArrayTest.TEST_STRING_ARRAY_VALUE.split(",")));
 		assertThat(ConfigArrayTest.TEST_INT_ARRAY[1], is(Integer.valueOf(ConfigArrayTest.TEST_INT_ARRAY_VALUE.split(",")[1])));
 	}

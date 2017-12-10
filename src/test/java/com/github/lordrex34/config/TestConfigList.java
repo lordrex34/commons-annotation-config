@@ -25,7 +25,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
 
 import com.github.lordrex34.config.impl.ConfigListTest;
@@ -36,20 +36,19 @@ import com.github.lordrex34.config.impl.ITestConfigMarker;
  */
 public class TestConfigList
 {
-	@BeforeClass
-	public static void beforeClass()
+	private ConfigManager _configManager;
+	
+	@Before
+	public void before()
 	{
-		// clear to avoid conflict with other tests
-		ConfigManager.getInstance().clear();
-		
-		// load configurations
-		ConfigManager.getInstance().load(ITestConfigMarker.class.getPackage().getName());
+		_configManager = new ConfigManager();
+		_configManager.load(ITestConfigMarker.class.getPackage().getName());
 	}
 	
 	@Test
 	public void test()
 	{
-		assertNotEquals(ConfigManager.getInstance().getConfigRegistry().size(), 0);
+		assertNotEquals(_configManager.getConfigRegistrySize(), 0);
 		
 		assertNotNull(ConfigListTest.TEST_STRING_LIST);
 		assertFalse(ConfigListTest.TEST_STRING_LIST.isEmpty());
