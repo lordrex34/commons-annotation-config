@@ -19,46 +19,17 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.github.lordrex34.config.component;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import com.github.lordrex34.config.exception.ConfigComponentLoadingException;
+package com.github.lordrex34.config.exception;
 
 /**
- * A registry to avoid creating the same component thousand times.
  * @author lord_rex
  */
-public final class ConfigComponents
+public final class ConfigOverrideLoadingException extends RuntimeException
 {
-	/** The registry. */
-	private static final Map<String, IConfigComponent> COMPONENTS = new HashMap<>();
+	private static final long serialVersionUID = 347579740374349630L;
 	
-	private ConfigComponents()
+	public ConfigOverrideLoadingException(String message, Throwable cause)
 	{
-		// utility class
-	}
-	
-	/**
-	 * Gets the component from the registry. If it is not present, then it gets registered automatically.
-	 * @param <T> any implementation of {@link IConfigComponent}
-	 * @param componentClass the class contained by the information holder annotation
-	 * @return component
-	 */
-	@SuppressWarnings("unchecked")
-	public static <T extends IConfigComponent> T get(Class<T> componentClass)
-	{
-		return (T) COMPONENTS.computeIfAbsent(componentClass.getName(), k ->
-		{
-			try
-			{
-				return componentClass.newInstance();
-			}
-			catch (InstantiationException | IllegalAccessException e)
-			{
-				throw new ConfigComponentLoadingException("Component couldn't be loaded, please check!", e);
-			}
-		});
+		super(message, cause);
 	}
 }

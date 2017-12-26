@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 
 import com.github.lordrex34.config.annotation.ConfigClass;
 import com.github.lordrex34.config.context.ConfigClassLoadingContext;
+import com.github.lordrex34.config.exception.ConfigOverrideLoadingException;
 import com.github.lordrex34.config.lang.ConfigProperties;
 import com.github.lordrex34.config.model.ConfigClassInfo;
 import com.github.lordrex34.config.model.ConfigFieldInfo;
@@ -107,7 +108,7 @@ public final class ConfigManager
 			}
 			catch (IOException e)
 			{
-				throw new Error("Failed to create override config and/or its directory!", e);
+				throw new ConfigOverrideLoadingException("Failed to create override config and/or its directory!", e);
 			}
 		}
 		
@@ -117,7 +118,7 @@ public final class ConfigManager
 		}
 		catch (IOException e)
 		{
-			throw new Error("Failed to load override input stream!", e);
+			throw new ConfigOverrideLoadingException("Failed to load override input stream!", e);
 		}
 	}
 	
