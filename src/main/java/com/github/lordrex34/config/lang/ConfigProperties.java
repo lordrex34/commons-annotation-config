@@ -41,6 +41,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -518,5 +519,35 @@ public final class ConfigProperties implements Serializable
 			LOGGER.warn("[{}] Invalid value specified for key: {} specified value: {} should be array using default value: {}", _loggingPrefix, key, value, defaultValues);
 			return Arrays.asList(defaultValues);
 		}
+	}
+	
+	// ===================================================================================
+	// Utilities
+	
+	/**
+	 * Gets the result of two properties parser, where second is the override which overwrites the content of the first, if necessary.
+	 * @param properties the original properties file
+	 * @param override the override properties that overwrites original settings
+	 * @return properties of the two properties parser
+	 */
+	public static Properties propertiesOf(ConfigProperties properties, ConfigProperties override)
+	{
+		final Properties result = new Properties();
+		//@formatter:off
+		Stream.concat(properties.entrySet().stream(), override.entrySet().stream())
+				.forEach(e -> result.setProperty(String.valueOf(e.getKey()), String.valueOf(e.getValue())));
+		//@formatter:on
+		return result;
+	}
+	
+	/**
+	 * Same as {@link #propertiesOf(ConfigProperties, ConfigProperties)}, but it returns {@link ConfigProperties}.
+	 * @param properties the original properties file
+	 * @param override the override properties that overwrites original settings
+	 * @return properties of the two properties parser
+	 */
+	public static ConfigProperties of(ConfigProperties properties, ConfigProperties override)
+	{
+		return new ConfigProperties(propertiesOf(properties, override));
 	}
 }

@@ -55,18 +55,20 @@ public final class ConfigPropertyRegistry
 	 */
 	public static void add(String packageName, Path configFile, String propertyKey)
 	{
-		PROPERTIES.putIfAbsent(packageName, new HashMap<>());
-		PROPERTIES.get(packageName).putIfAbsent(configFile, new TreeSet<>());
+		PROPERTIES.computeIfAbsent(packageName, k -> new HashMap<>()).putIfAbsent(configFile, new TreeSet<>());
 		
-		PROPERTIES.get(packageName).entrySet().forEach(entry ->
+		PROPERTIES.values().forEach(map ->
 		{
-			final Path entryConfigFile = entry.getKey();
-			final Set<String> entryProperties = entry.getValue();
-			
-			if (!entryConfigFile.equals(configFile) && entryProperties.contains(propertyKey))
+			map.entrySet().forEach(entry ->
 			{
-				LOGGER.warn("Property key '{}' is already defined in config file '{}', so now '{}' overwrites that! Please fix this!", propertyKey, entryConfigFile, configFile);
-			}
+				final Path entryConfigFile = entry.getKey();
+				final Set<String> entryProperties = entry.getValue();
+				
+				if (!entryConfigFile.equals(configFile) && entryProperties.contains(propertyKey))
+				{
+					LOGGER.warn("Property key '{}' is already defined in config file '{}', so now '{}' overwrites that! Please fix this!", propertyKey, entryConfigFile, configFile);
+				}
+			});
 		});
 		
 		PROPERTIES.get(packageName).get(configFile).add(propertyKey);

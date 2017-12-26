@@ -26,15 +26,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashSet;
-import java.util.Properties;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.github.lordrex34.config.annotation.ConfigClass;
+import com.github.lordrex34.config.context.ConfigClassLoadingContext;
 import com.github.lordrex34.config.lang.ConfigProperties;
 import com.github.lordrex34.config.model.ConfigClassInfo;
 import com.github.lordrex34.config.util.ClassPathUtil;
@@ -51,9 +49,6 @@ public final class ConfigManager
 	
 	/** Contains all the registered {@link ConfigClassInfo}s. */
 	private final Set<ConfigClassInfo> _configRegistry = new HashSet<>();
-	
-	/** A simple {@link AtomicBoolean} that indicates reloading process. */
-	private static final AtomicBoolean RELOADING = new AtomicBoolean(false);
 	
 	/** Whether override system is being used or not. */
 	private boolean _overrideSystemAllowed = true;
@@ -72,7 +67,7 @@ public final class ConfigManager
 	
 	/**
 	 * Allows/disallows based on the below {@code boolean} parameter whether override system is being used or not.<br>
-	 * For this method to take effect, it has to be used before {@link #load(String)} or {@link #load(ClassLoader, String)}.
+	 * For this method to take effect, it has to be used before {@link #load(String)} or {@link #load(ClassLoader, String, boolean)}.
 	 * @param overrideSystemAllowed user choice to allow/disallow the override system
 	 */
 	public void setOverrideSystemAllowed(boolean overrideSystemAllowed)
@@ -143,26 +138,30 @@ public final class ConfigManager
 	 * Loads all configuration classes from the specified package and overwrites their properties according to override properties, if necessary.
 	 * @param classLoader the class loader that is used for the process
 	 * @param packageName the package where configuration related classes are stored
+	 * @param reloading whether actual loading is a reload or not
 	 * @throws IOException
 	 * @throws InstantiationException
 	 * @throws IllegalAccessException
 	 * @throws IllegalArgumentException
 	 */
-	public void load(ClassLoader classLoader, String packageName) throws IOException, IllegalArgumentException, IllegalAccessException, InstantiationException
+	public void load(ClassLoader classLoader, String packageName, boolean reloading) throws IOException, IllegalArgumentException, IllegalAccessException, InstantiationException
 	{
 		initOverrideProperties();
 		
 		ClassPathUtil.getAllClassesAnnotatedWith(classLoader, packageName, ConfigClass.class).forEach(clazz -> _configRegistry.add(new ConfigClassInfo(clazz)));
+		final ConfigClassLoadingContext classLoadingContext = new ConfigClassLoadingContext();
+		classLoadingContext.setOverriddenProperties(_overridenProperties);
+		classLoadingContext.setReloading(reloading);
 		for (ConfigClassInfo configClassInfo : _configRegistry)
 		{
-			configClassInfo.load(_overridenProperties);
+			configClassInfo.load(classLoadingContext);
 		}
 		
 		LOGGER.info("Loaded {} config file(s).", _configRegistry.size());
 	}
 	
 	/**
-	 * Same as {@link #load(ClassLoader, String)}, using {@link ClassLoader#getSystemClassLoader()} as the classLoader parameter.
+	 * Same as {@link #load(ClassLoader, String, boolean)}, using {@link ClassLoader#getSystemClassLoader()} as the classLoader parameter.
 	 * @param packageName the package where configuration related classes are stored
 	 * @throws IOException
 	 * @throws InstantiationException
@@ -171,7 +170,7 @@ public final class ConfigManager
 	 */
 	public void load(String packageName) throws IOException, IllegalArgumentException, IllegalAccessException, InstantiationException
 	{
-		load(ClassLoader.getSystemClassLoader(), packageName);
+		load(ClassLoader.getSystemClassLoader(), packageName, false);
 	}
 	
 	/**
@@ -193,16 +192,7 @@ public final class ConfigManager
 		_configRegistry.clear();
 		
 		ConfigPropertyRegistry.clear(packageName);
-		
-		RELOADING.set(true);
-		try
-		{
-			load(classLoader, packageName);
-		}
-		finally
-		{
-			RELOADING.set(false);
-		}
+		load(classLoader, packageName, true);
 	}
 	
 	/**
@@ -216,30 +206,5 @@ public final class ConfigManager
 	public void reload(String packageName) throws IOException, IllegalArgumentException, IllegalAccessException, InstantiationException
 	{
 		reload(ClassLoader.getSystemClassLoader(), packageName);
-	}
-	
-	/**
-	 * Checks whether reload is in progress or not.
-	 * @return {@code true} if reload is in progress, otherwise {@code false}
-	 */
-	public static boolean isReloading()
-	{
-		return RELOADING.get();
-	}
-	
-	/**
-	 * Gets the result of two properties parser, where second is the override which overwrites the content of the first, if necessary.
-	 * @param properties the original properties file
-	 * @param override the override properties that overwrites original settings
-	 * @return properties of the two properties parser
-	 */
-	public static Properties propertiesOf(ConfigProperties properties, ConfigProperties override)
-	{
-		final Properties result = new Properties();
-		//@formatter:off
-		Stream.concat(properties.entrySet().stream(), override.entrySet().stream())
-				.forEach(e -> result.setProperty(String.valueOf(e.getKey()), String.valueOf(e.getValue())));
-		//@formatter:on
-		return result;
 	}
 }

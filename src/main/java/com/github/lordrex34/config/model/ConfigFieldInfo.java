@@ -26,16 +26,17 @@ import java.lang.reflect.Modifier;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.github.lordrex34.config.ConfigManager;
 import com.github.lordrex34.config.annotation.ConfigField;
 import com.github.lordrex34.config.annotation.ConfigGroupBeginning;
 import com.github.lordrex34.config.annotation.ConfigGroupEnding;
 import com.github.lordrex34.config.component.ConfigComponents;
+import com.github.lordrex34.config.context.ConfigFieldLoadingContext;
 import com.github.lordrex34.config.lang.ConfigProperties;
 import com.github.lordrex34.config.util.ConfigPropertyRegistry;
 
@@ -78,13 +79,12 @@ public final class ConfigFieldInfo
 	
 	/**
 	 * Loads and configures the field with its proper values.
-	 * @param configPath path of the properties file
-	 * @param properties mixture of normal and overridden properties
+	 * @param fieldLoadingContext the context of the actual loading
 	 * @throws InstantiationException
 	 * @throws IllegalAccessException
 	 * @throws IllegalArgumentException
 	 */
-	public void load(Path configPath, ConfigProperties properties) throws IllegalArgumentException, IllegalAccessException, InstantiationException
+	public void load(ConfigFieldLoadingContext fieldLoadingContext) throws IllegalArgumentException, IllegalAccessException, InstantiationException
 	{
 		// Skip constants.
 		if (Modifier.isStatic(_field.getModifiers()) && Modifier.isFinal(_field.getModifiers()))
@@ -104,9 +104,17 @@ public final class ConfigFieldInfo
 			return;
 		}
 		
+		final Path configPath = fieldLoadingContext.getConfigPath();
+		final ConfigProperties properties = fieldLoadingContext.getProperties();
+		final Boolean isReloading = fieldLoadingContext.isReloading();
+		
+		Objects.requireNonNull(configPath, "ConfigPath is null in the loading context!");
+		Objects.requireNonNull(properties, "Properties is null in the loading context!");
+		Objects.requireNonNull(isReloading, "isReloading boolean is null in the loading context!");
+		
 		final String propertyKey = _configField.name();
 		ConfigPropertyRegistry.add(_clazz.getPackage().getName(), configPath, propertyKey);
-		if (!_configField.reloadable() && ConfigManager.isReloading())
+		if (!_configField.reloadable() && isReloading)
 		{
 			LOGGER.debug("Property '{}' retained with its previous value!", propertyKey);
 			return;

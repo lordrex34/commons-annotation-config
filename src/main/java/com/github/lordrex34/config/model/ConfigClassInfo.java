@@ -30,15 +30,15 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.github.lordrex34.config.ConfigManager;
 import com.github.lordrex34.config.annotation.ConfigClass;
 import com.github.lordrex34.config.annotation.ConfigField;
 import com.github.lordrex34.config.component.ConfigComponents;
+import com.github.lordrex34.config.context.ConfigClassLoadingContext;
+import com.github.lordrex34.config.context.ConfigFieldLoadingContext;
 import com.github.lordrex34.config.lang.ConfigProperties;
 
 /**
@@ -81,13 +81,13 @@ public final class ConfigClassInfo
 	
 	/**
 	 * Loads the configuration class that is being managed by this information container.
-	 * @param overriddenProperties please see {@link ConfigManager#getOverriddenProperties}
+	 * @param classLoadingContext the context of the actual loading
 	 * @throws IOException
 	 * @throws InstantiationException
 	 * @throws IllegalAccessException
 	 * @throws IllegalArgumentException
 	 */
-	public void load(ConfigProperties overriddenProperties) throws IOException, IllegalArgumentException, IllegalAccessException, InstantiationException
+	public void load(ConfigClassLoadingContext classLoadingContext) throws IOException, IllegalArgumentException, IllegalAccessException, InstantiationException
 	{
 		final Path configPath = Paths.get("", _configClass.pathNames()).resolve(_configClass.fileName() + _configClass.fileExtension());
 		if (Files.notExists(configPath))
@@ -97,11 +97,18 @@ public final class ConfigClassInfo
 			generate();
 		}
 		
-		final Properties mixedProperties = ConfigManager.propertiesOf(new ConfigProperties(configPath), overriddenProperties);
-		final ConfigProperties properties = new ConfigProperties(mixedProperties);
+		final ConfigProperties overriddenProperties = classLoadingContext.getOverriddenProperties();
+		final Boolean isReloading = classLoadingContext.isReloading();
+		Objects.requireNonNull(overriddenProperties, "Overridden properties is null!");
+		Objects.requireNonNull(isReloading, "isReloading boolean is null in the loading context!");
+		
+		final ConfigFieldLoadingContext fieldLoadingContext = new ConfigFieldLoadingContext();
+		fieldLoadingContext.setConfigPath(configPath);
+		fieldLoadingContext.setProperties(ConfigProperties.of(new ConfigProperties(configPath), overriddenProperties));
+		fieldLoadingContext.setReloading(isReloading);
 		for (ConfigFieldInfo configFieldInfo : _fieldInfoClasses)
 		{
-			configFieldInfo.load(configPath, properties);
+			configFieldInfo.load(fieldLoadingContext);
 		}
 		
 		ConfigComponents.get(_configClass.postLoadHook()).load();
