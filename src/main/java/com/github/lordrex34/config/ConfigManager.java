@@ -218,6 +218,7 @@ public final class ConfigManager
 	 * @throws IllegalArgumentException
 	 * @throws IllegalAccessException
 	 */
+	@VisibleForTesting
 	void clearAll() throws IllegalArgumentException, IllegalAccessException
 	{
 		if (_overridenProperties != null)
