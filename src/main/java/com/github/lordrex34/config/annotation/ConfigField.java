@@ -85,7 +85,7 @@ public @interface ConfigField
 	Class<? extends IConfigConverter> converter() default MainConfigConverter.class;
 	
 	/**
-	 * Can be used to assign post-load events into a specific field or configuration class.
+	 * Can be used to assign post-load events into a specific field.
 	 * @return the post load hook
 	 */
 	Class<? extends IConfigPostLoadFieldHook> postLoadHook() default EmptyConfigPostLoadFieldHook.class;
