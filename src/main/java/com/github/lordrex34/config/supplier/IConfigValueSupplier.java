@@ -25,7 +25,7 @@ import java.lang.reflect.Field;
 
 import com.github.lordrex34.config.annotation.ConfigField;
 import com.github.lordrex34.config.component.IConfigComponent;
-import com.github.lordrex34.config.util.PropertiesParser;
+import com.github.lordrex34.config.lang.ConfigProperties;
 
 /**
  * Configuration value supplier interface.
@@ -44,5 +44,5 @@ public interface IConfigValueSupplier<T> extends IConfigComponent
 	 * @throws InstantiationException
 	 * @throws IllegalAccessException
 	 */
-	T supply(Field field, ConfigField configField, PropertiesParser properties) throws InstantiationException, IllegalAccessException;
+	T supply(Field field, ConfigField configField, ConfigProperties properties) throws InstantiationException, IllegalAccessException;
 }

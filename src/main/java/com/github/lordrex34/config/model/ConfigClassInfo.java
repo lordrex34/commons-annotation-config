@@ -39,7 +39,7 @@ import com.github.lordrex34.config.ConfigManager;
 import com.github.lordrex34.config.annotation.ConfigClass;
 import com.github.lordrex34.config.annotation.ConfigField;
 import com.github.lordrex34.config.component.ConfigComponents;
-import com.github.lordrex34.config.util.PropertiesParser;
+import com.github.lordrex34.config.lang.ConfigProperties;
 
 /**
  * @author NB4L1 (original concept)
@@ -87,7 +87,7 @@ public final class ConfigClassInfo
 	 * @throws IllegalAccessException
 	 * @throws IllegalArgumentException
 	 */
-	public void load(PropertiesParser overriddenProperties) throws IOException, IllegalArgumentException, IllegalAccessException, InstantiationException
+	public void load(ConfigProperties overriddenProperties) throws IOException, IllegalArgumentException, IllegalAccessException, InstantiationException
 	{
 		final Path configPath = Paths.get("", _configClass.pathNames()).resolve(_configClass.fileName() + _configClass.fileExtension());
 		if (Files.notExists(configPath))
@@ -97,8 +97,8 @@ public final class ConfigClassInfo
 			generate();
 		}
 		
-		final Properties mixedProperties = ConfigManager.propertiesOf(new PropertiesParser(configPath), overriddenProperties);
-		final PropertiesParser properties = new PropertiesParser(mixedProperties);
+		final Properties mixedProperties = ConfigManager.propertiesOf(new ConfigProperties(configPath), overriddenProperties);
+		final ConfigProperties properties = new ConfigProperties(mixedProperties);
 		for (ConfigFieldInfo configFieldInfo : _fieldInfoClasses)
 		{
 			configFieldInfo.load(configPath, properties);

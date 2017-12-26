@@ -36,8 +36,8 @@ import com.github.lordrex34.config.annotation.ConfigField;
 import com.github.lordrex34.config.annotation.ConfigGroupBeginning;
 import com.github.lordrex34.config.annotation.ConfigGroupEnding;
 import com.github.lordrex34.config.component.ConfigComponents;
+import com.github.lordrex34.config.lang.ConfigProperties;
 import com.github.lordrex34.config.util.ConfigPropertyRegistry;
-import com.github.lordrex34.config.util.PropertiesParser;
 
 /**
  * @author NB4L1 (original concept)
@@ -84,7 +84,7 @@ public final class ConfigFieldInfo
 	 * @throws IllegalAccessException
 	 * @throws IllegalArgumentException
 	 */
-	public void load(Path configPath, PropertiesParser properties) throws IllegalArgumentException, IllegalAccessException, InstantiationException
+	public void load(Path configPath, ConfigProperties properties) throws IllegalArgumentException, IllegalAccessException, InstantiationException
 	{
 		// Skip constants.
 		if (Modifier.isStatic(_field.getModifiers()) && Modifier.isFinal(_field.getModifiers()))

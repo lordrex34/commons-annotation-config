@@ -21,7 +21,7 @@
  */
 package com.github.lordrex34.config.postloadhooks;
 
-import com.github.lordrex34.config.util.PropertiesParser;
+import com.github.lordrex34.config.lang.ConfigProperties;
 
 /**
  * @author lord_rex
@@ -29,7 +29,7 @@ import com.github.lordrex34.config.util.PropertiesParser;
 public final class EmptyConfigPostLoadFieldHook implements IConfigPostLoadFieldHook
 {
 	@Override
-	public void load(PropertiesParser properties)
+	public void load(ConfigProperties properties)
 	{
 		// do nothing
 	}

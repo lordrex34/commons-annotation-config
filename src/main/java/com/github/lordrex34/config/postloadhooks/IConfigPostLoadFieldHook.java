@@ -22,7 +22,7 @@
 package com.github.lordrex34.config.postloadhooks;
 
 import com.github.lordrex34.config.annotation.ConfigField;
-import com.github.lordrex34.config.util.PropertiesParser;
+import com.github.lordrex34.config.lang.ConfigProperties;
 
 /**
  * @author lord_rex
@@ -33,5 +33,5 @@ public interface IConfigPostLoadFieldHook extends IConfigPostLoadHook
 	 * Provides you the possibility to render post-load hook events after a {@link ConfigField} is loaded.
 	 * @param properties mixture of normal and overridden properties
 	 */
-	void load(PropertiesParser properties);
+	void load(ConfigProperties properties);
 }

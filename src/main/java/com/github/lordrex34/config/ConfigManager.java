@@ -35,10 +35,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.github.lordrex34.config.annotation.ConfigClass;
+import com.github.lordrex34.config.lang.ConfigProperties;
 import com.github.lordrex34.config.model.ConfigClassInfo;
 import com.github.lordrex34.config.util.ClassPathUtil;
 import com.github.lordrex34.config.util.ConfigPropertyRegistry;
-import com.github.lordrex34.config.util.PropertiesParser;
 import com.google.common.annotations.VisibleForTesting;
 
 /**
@@ -59,7 +59,7 @@ public final class ConfigManager
 	private boolean _overrideSystemAllowed = true;
 	
 	/** The parsed overridden properties. */
-	private PropertiesParser _overridenProperties;
+	private ConfigProperties _overridenProperties;
 	
 	/**
 	 * Gets how many {@link ConfigClassInfo}s are registered in the configuration registry.
@@ -92,9 +92,10 @@ public final class ConfigManager
 	
 	/**
 	 * A method designed to initialize override properties.<br>
-	 * In case override system is disabled, it initializes an empty instance of {@link PropertiesParser}.
+	 * In case override system is disabled, it initializes an empty instance of {@link ConfigProperties}.
+	 * @throws IOException
 	 */
-	private void initOverrideProperties()
+	private void initOverrideProperties() throws IOException
 	{
 		if (isOverrideSystemAllowed())
 		{
@@ -118,13 +119,13 @@ public final class ConfigManager
 				}
 			}
 			
-			_overridenProperties = new PropertiesParser(overridePath);
+			_overridenProperties = new ConfigProperties(overridePath);
 			
 			LOGGER.info("loaded '{}' with {} overridden properti(es).", overridePath, _overridenProperties.size());
 		}
 		else
 		{
-			_overridenProperties = PropertiesParser.EMPTY;
+			_overridenProperties = ConfigProperties.EMPTY;
 		}
 	}
 	
@@ -133,7 +134,7 @@ public final class ConfigManager
 	 * @return overridden properties
 	 */
 	@VisibleForTesting
-	PropertiesParser getOverriddenProperties()
+	ConfigProperties getOverriddenProperties()
 	{
 		return _overridenProperties;
 	}
@@ -232,7 +233,7 @@ public final class ConfigManager
 	 * @param override the override properties that overwrites original settings
 	 * @return properties of the two properties parser
 	 */
-	public static Properties propertiesOf(PropertiesParser properties, PropertiesParser override)
+	public static Properties propertiesOf(ConfigProperties properties, ConfigProperties override)
 	{
 		final Properties result = new Properties();
 		//@formatter:off

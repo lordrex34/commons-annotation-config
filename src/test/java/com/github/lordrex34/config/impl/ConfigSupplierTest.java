@@ -25,8 +25,8 @@ import java.lang.reflect.Field;
 
 import com.github.lordrex34.config.annotation.ConfigClass;
 import com.github.lordrex34.config.annotation.ConfigField;
+import com.github.lordrex34.config.lang.ConfigProperties;
 import com.github.lordrex34.config.supplier.IConfigValueSupplier;
-import com.github.lordrex34.config.util.PropertiesParser;
 
 /**
  * @author lord_rex
@@ -42,7 +42,7 @@ public class ConfigSupplierTest
 	public static final class MyStringConfigValueSupplier implements IConfigValueSupplier<String>
 	{
 		@Override
-		public String supply(Field field, ConfigField configField, PropertiesParser properties)
+		public String supply(Field field, ConfigField configField, ConfigProperties properties)
 		{
 			return SUPPLIED_STRING_VALUE;
 		}
@@ -56,7 +56,7 @@ public class ConfigSupplierTest
 	public static final class MyIntegerConfigValueSupplier implements IConfigValueSupplier<Integer>
 	{
 		@Override
-		public Integer supply(Field field, ConfigField configField, PropertiesParser properties)
+		public Integer supply(Field field, ConfigField configField, ConfigProperties properties)
 		{
 			return SUPPLIED_INTEGER_VALUE;
 		}

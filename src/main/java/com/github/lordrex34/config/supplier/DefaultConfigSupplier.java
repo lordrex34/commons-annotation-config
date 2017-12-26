@@ -26,8 +26,8 @@ import java.lang.reflect.Field;
 import com.github.lordrex34.config.annotation.ConfigField;
 import com.github.lordrex34.config.component.ConfigComponents;
 import com.github.lordrex34.config.converter.IConfigConverter;
+import com.github.lordrex34.config.lang.ConfigProperties;
 import com.github.lordrex34.config.lang.FieldParser.FieldParserException;
-import com.github.lordrex34.config.util.PropertiesParser;
 
 /**
  * This is the configuration value supplier used by {@link ConfigField} annotation by default.
@@ -36,12 +36,12 @@ import com.github.lordrex34.config.util.PropertiesParser;
 public class DefaultConfigSupplier implements IConfigValueSupplier<Object>
 {
 	@Override
-	public Object supply(Field field, ConfigField configField, PropertiesParser properties)
+	public Object supply(Field field, ConfigField configField, ConfigProperties properties)
 	{
 		final String propertyKey = configField.name();
 		final String propertyValue = configField.value();
 		
-		final String configProperty = properties.getValue(propertyKey, propertyValue);
+		final String configProperty = properties.getProperty(propertyKey, propertyValue);
 		final IConfigConverter converter = ConfigComponents.get(configField.converter());
 		
 		Object value;

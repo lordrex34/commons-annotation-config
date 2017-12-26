@@ -23,8 +23,8 @@ package com.github.lordrex34.config.impl;
 
 import com.github.lordrex34.config.annotation.ConfigClass;
 import com.github.lordrex34.config.annotation.ConfigField;
+import com.github.lordrex34.config.lang.ConfigProperties;
 import com.github.lordrex34.config.postloadhooks.IConfigPostLoadFieldHook;
-import com.github.lordrex34.config.util.PropertiesParser;
 
 /**
  * @author lord_rex
@@ -40,7 +40,7 @@ public class ConfigFieldPostLoadHookTest
 	public static final class MyStringPostLoadHook implements IConfigPostLoadFieldHook
 	{
 		@Override
-		public void load(PropertiesParser properties)
+		public void load(ConfigProperties properties)
 		{
 			TEST_POST_STRING = POST_STRING_VALUE;
 		}
@@ -51,7 +51,7 @@ public class ConfigFieldPostLoadHookTest
 	public static final class MyIntPostLoadHook implements IConfigPostLoadFieldHook
 	{
 		@Override
-		public void load(PropertiesParser properties)
+		public void load(ConfigProperties properties)
 		{
 			TEST_POST_INT = POST_INT_VALUE;
 		}
