@@ -21,23 +21,24 @@
  */
 package com.github.lordrex34.config;
 
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
-import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
 
 import com.github.lordrex34.config.annotation.ConfigClass;
 import com.github.lordrex34.config.annotation.ConfigField;
+import com.github.lordrex34.config.annotation.ConfigGroupBeginning;
+import com.github.lordrex34.config.annotation.ConfigGroupEnding;
 
 /**
  * @author lord_rex
  */
-public class TestConfigList
+public class TestConfig
 {
 	private ConfigManager _configManager;
 	
@@ -52,43 +53,48 @@ public class TestConfigList
 	public void test()
 	{
 		assertNotEquals(_configManager.getConfigRegistrySize(), 0);
-		
-		assertNotNull(ConfigListTest.TEST_STRING_LIST);
-		assertFalse(ConfigListTest.TEST_STRING_LIST.isEmpty());
-		
-		assertNotNull(ConfigListTest.TEST_INT_LIST);
-		assertFalse(ConfigListTest.TEST_INT_LIST.isEmpty());
+		assertTrue(ConfigTest.TEST_BOOLEAN);
+		assertEquals(ConfigTest.TEST_STRING, ConfigTest.TEST_STRING_VALUE);
 	}
 	
-	@ConfigClass(fileName = "list_test")
-	public static class ConfigListTest
+	@ConfigClass(fileName = "test")
+	public static class ConfigTest
 	{
-		@ConfigField(name = "TestBooleanList", value = "true,false,true")
-		public static List<Boolean> TEST_BOOLEAN_LIST;
+		@ConfigGroupBeginning(name = "Booleans")
+		@ConfigField(name = "TestBoolean", value = "true")
+		@ConfigGroupEnding(name = "Booleans")
+		public static boolean TEST_BOOLEAN;
 		
-		@ConfigField(name = "TestByteList", value = "1,2,3")
-		public static List<Byte> TEST_BYTE_LIST;
+		@ConfigGroupBeginning(name = "Numbers")
+		@ConfigField(name = "TestByte", value = "120")
+		public static byte TEST_BYTE;
 		
-		@ConfigField(name = "TestShortList", value = "111,221,443")
-		public static List<Short> TEST_SHORT_LIST;
+		@ConfigField(name = "TestShort", value = "9870")
+		public static short TEST_SHORT;
 		
-		@ConfigField(name = "TestIntList", value = "1222,4442,9993")
-		public static List<Integer> TEST_INT_LIST;
+		@ConfigField(name = "TestInt", value = "129834")
+		public static int TEST_INT;
 		
-		@ConfigField(name = "TestLongList", value = "12252353252352,443252353253242,993252362673293")
-		public static List<Long> TEST_LONG_LIST;
+		@ConfigField(name = "TestLong", value = "712983235535234")
+		public static long TEST_LONG;
 		
-		@ConfigField(name = "TestFloatList", value = "1.,3.2,5.")
-		public static List<Float> TEST_FLOAT_LIST;
+		@ConfigField(name = "TestFloat", value = "1234.")
+		public static float TEST_FLOAT;
 		
-		@ConfigField(name = "TestDoubleList", value = "4.1,2.3,9.7")
-		public static List<Double> TEST_DOUBLE_LIST;
+		@ConfigGroupEnding(name = "Numbers")
+		@ConfigField(name = "TestDouble", value = "1234.14")
+		public static double TEST_DOUBLE;
 		
-		@ConfigField(name = "TestStringList", value = "This,is,a,string,array,test.")
-		public static List<String> TEST_STRING_LIST;
+		public static final String TEST_STRING_VALUE = "Any string is good here.";
 		
-		@ConfigField(name = "TestEnumList", value = "TEST_1,TEST_2")
-		public static List<EnumForConfig> TEST_ENUM_LIST;
+		@ConfigGroupBeginning(name = "Strings")
+		@ConfigField(name = "TestString", value = TEST_STRING_VALUE)
+		@ConfigGroupEnding(name = "Strings")
+		public static String TEST_STRING;
+		
+		@ConfigGroupBeginning(name = "Enums")
+		@ConfigField(name = "TestEnum", value = "TEST_1")
+		@ConfigGroupEnding(name = "Enums")
+		public static EnumForConfig TEST_ENUM;
 	}
-	
 }

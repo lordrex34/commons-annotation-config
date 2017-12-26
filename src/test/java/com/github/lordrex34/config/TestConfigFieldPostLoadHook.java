@@ -30,8 +30,10 @@ import java.io.IOException;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.github.lordrex34.config.impl.ConfigFieldPostLoadHookTest;
-import com.github.lordrex34.config.impl.ITestConfigMarker;
+import com.github.lordrex34.config.annotation.ConfigClass;
+import com.github.lordrex34.config.annotation.ConfigField;
+import com.github.lordrex34.config.lang.ConfigProperties;
+import com.github.lordrex34.config.postloadhooks.IConfigPostLoadFieldHook;
 
 /**
  * @author lord_rex
@@ -53,5 +55,37 @@ public class TestConfigFieldPostLoadHook
 		assertNotEquals(_configManager.getConfigRegistrySize(), 0);
 		assertThat(ConfigFieldPostLoadHookTest.TEST_POST_STRING, is(ConfigFieldPostLoadHookTest.POST_STRING_VALUE));
 		assertThat(ConfigFieldPostLoadHookTest.TEST_POST_INT, is(ConfigFieldPostLoadHookTest.POST_INT_VALUE));
+	}
+	
+	@ConfigClass(fileName = "field_post_load_hook_test")
+	public static class ConfigFieldPostLoadHookTest
+	{
+		@ConfigField(name = "TestPostString", value = "Any string is good here.", postLoadHook = MyStringPostLoadHook.class)
+		public static String TEST_POST_STRING;
+		
+		public static final String POST_STRING_VALUE = "Value is post changed. (field)";
+		
+		public static final class MyStringPostLoadHook implements IConfigPostLoadFieldHook
+		{
+			@Override
+			public void load(ConfigProperties properties)
+			{
+				TEST_POST_STRING = POST_STRING_VALUE;
+			}
+		}
+		
+		public static final int POST_INT_VALUE = 9_000;
+		
+		public static final class MyIntPostLoadHook implements IConfigPostLoadFieldHook
+		{
+			@Override
+			public void load(ConfigProperties properties)
+			{
+				TEST_POST_INT = POST_INT_VALUE;
+			}
+		}
+		
+		@ConfigField(name = "TestPostInt", value = "129834", postLoadHook = MyIntPostLoadHook.class)
+		public static int TEST_POST_INT;
 	}
 }

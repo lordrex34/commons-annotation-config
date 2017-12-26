@@ -32,8 +32,8 @@ import java.io.InputStream;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.github.lordrex34.config.impl.ConfigOverrideTest;
-import com.github.lordrex34.config.impl.ITestConfigMarker;
+import com.github.lordrex34.config.annotation.ConfigClass;
+import com.github.lordrex34.config.annotation.ConfigField;
 
 /**
  * @author lord_rex
@@ -67,5 +67,15 @@ public class TestConfigOverride
 		assertNotEquals(_configManager.getOverriddenProperties().size(), 0);
 		assertThat(ConfigOverrideTest.TEST_OVERRIDE_INT, is(OVERRIDDEN_INT));
 		assertThat(ConfigOverrideTest.TEST_OVERRIDE_STRING, is(OVERRIDDEN_STRING));
+	}
+	
+	@ConfigClass(fileName = "override_test")
+	public static class ConfigOverrideTest
+	{
+		@ConfigField(name = "TestOverrideInt", value = "1")
+		public static int TEST_OVERRIDE_INT;
+		
+		@ConfigField(name = "TestOverrideString", value = "These configuration will be overridden.")
+		public static String TEST_OVERRIDE_STRING;
 	}
 }

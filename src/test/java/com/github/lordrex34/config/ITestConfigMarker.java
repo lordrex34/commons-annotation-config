@@ -19,14 +19,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.github.lordrex34.config.impl;
+package com.github.lordrex34.config;
 
 /**
  * @author lord_rex
  */
-public enum EnumForConfig
+public interface ITestConfigMarker
 {
-	TEST_1,
-	TEST_2,
-	TEST_3;
+	// marker interface
 }

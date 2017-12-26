@@ -30,8 +30,8 @@ import java.io.IOException;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.github.lordrex34.config.impl.ConfigArrayTest;
-import com.github.lordrex34.config.impl.ITestConfigMarker;
+import com.github.lordrex34.config.annotation.ConfigClass;
+import com.github.lordrex34.config.annotation.ConfigField;
 
 /**
  * @author lord_rex
@@ -53,5 +53,38 @@ public class TestConfigArray
 		assertNotEquals(_configManager.getConfigRegistrySize(), 0);
 		assertThat(ConfigArrayTest.TEST_STRING_ARRAY, is(ConfigArrayTest.TEST_STRING_ARRAY_VALUE.split(",")));
 		assertThat(ConfigArrayTest.TEST_INT_ARRAY[1], is(Integer.valueOf(ConfigArrayTest.TEST_INT_ARRAY_VALUE.split(",")[1])));
+	}
+	
+	@ConfigClass(fileName = "array_test")
+	public static class ConfigArrayTest
+	{
+		@ConfigField(name = "TestBooleanArray", value = "true,false,true")
+		public static boolean[] TEST_BOOLEAN_ARRAY;
+		
+		@ConfigField(name = "TestByteArray", value = "1,2,3")
+		public static byte[] TEST_BYTE_ARRAY;
+		
+		@ConfigField(name = "TestShortArray", value = "111,221,443")
+		public static short[] TEST_SHORT_ARRAY;
+		
+		public static final String TEST_INT_ARRAY_VALUE = "1222,4442,9993";
+		@ConfigField(name = "TestIntArray", value = "1222,4442,9993")
+		public static int[] TEST_INT_ARRAY;
+		
+		@ConfigField(name = "TestLongArray", value = "12252353252352,443252353253242,993252362673293")
+		public static long[] TEST_LONG_ARRAY;
+		
+		@ConfigField(name = "TestFloatArray", value = "1.,3.2,5.")
+		public static float[] TEST_FLOAT_ARRAY;
+		
+		@ConfigField(name = "TestDoubleArray", value = "4.1,2.3,9.7")
+		public static double[] TEST_DOUBLE_ARRAY;
+		
+		public static final String TEST_STRING_ARRAY_VALUE = "This,is,a,string,array,test.";
+		@ConfigField(name = "TestStringArray", value = TEST_STRING_ARRAY_VALUE)
+		public static String[] TEST_STRING_ARRAY;
+		
+		@ConfigField(name = "TestEnumArray", value = "TEST_1,TEST_2")
+		public static EnumForConfig[] TEST_ENUM_ARRAY;
 	}
 }
