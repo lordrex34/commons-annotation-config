@@ -24,6 +24,7 @@ package com.github.lordrex34.config.supplier;
 import java.lang.reflect.Field;
 
 import com.github.lordrex34.config.annotation.ConfigField;
+import com.github.lordrex34.config.component.IConfigComponent;
 import com.github.lordrex34.config.util.PropertiesParser;
 
 /**
@@ -32,7 +33,7 @@ import com.github.lordrex34.config.util.PropertiesParser;
  * @param <T> the type that is being supplied
  */
 @FunctionalInterface
-public interface IConfigValueSupplier<T>
+public interface IConfigValueSupplier<T> extends IConfigComponent
 {
 	/**
 	 * Supplies a value to the field that is being configured.

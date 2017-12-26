@@ -23,13 +23,14 @@ package com.github.lordrex34.config.postloadhooks;
 
 import com.github.lordrex34.config.annotation.ConfigClass;
 import com.github.lordrex34.config.annotation.ConfigField;
+import com.github.lordrex34.config.component.IConfigComponent;
 import com.github.lordrex34.config.util.PropertiesParser;
 
 /**
  * @author NB4L1 (original idea)
  * @author lord_rex
  */
-public interface IConfigPostLoadHook
+public interface IConfigPostLoadHook extends IConfigComponent
 {
 	/**
 	 * Provides you the possibility to render post-load hook events after a {@link ConfigClass} or {@link ConfigField} is loaded.

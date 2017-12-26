@@ -23,13 +23,15 @@ package com.github.lordrex34.config.converter;
 
 import java.lang.reflect.Field;
 
+import com.github.lordrex34.config.component.IConfigComponent;
+
 /**
  * An interface used by the converters inside this package.
  * @author NB4L1 (original idea)
  * @author _dev_ (original idea)
  * @author lord_rex
  */
-public interface IConfigConverter
+public interface IConfigConverter extends IConfigComponent
 {
 	/**
 	 * Converts from {@link String} into {@link Object} according to the implementation.

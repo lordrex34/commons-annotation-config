@@ -35,8 +35,7 @@ import com.github.lordrex34.config.ConfigManager;
 import com.github.lordrex34.config.annotation.ConfigField;
 import com.github.lordrex34.config.annotation.ConfigGroupBeginning;
 import com.github.lordrex34.config.annotation.ConfigGroupEnding;
-import com.github.lordrex34.config.postloadhooks.ConfigPostLoadHooks;
-import com.github.lordrex34.config.supplier.ConfigValueSuppliers;
+import com.github.lordrex34.config.component.ConfigComponents;
 import com.github.lordrex34.config.util.ConfigPropertyRegistry;
 import com.github.lordrex34.config.util.PropertiesParser;
 
@@ -123,8 +122,8 @@ public final class ConfigFieldInfo
 				_field.setAccessible(true);
 			}
 			
-			_field.set(null, ConfigValueSuppliers.get(_configField.valueSupplier()).supply(_field, _configField, properties, overriddenProperties));
-			ConfigPostLoadHooks.get(_configField.postLoadHook()).load(properties, overriddenProperties);
+			_field.set(null, ConfigComponents.get(_configField.valueSupplier()).supply(_field, _configField, properties, overriddenProperties));
+			ConfigComponents.get(_configField.postLoadHook()).load(properties, overriddenProperties);
 		}
 		finally
 		{

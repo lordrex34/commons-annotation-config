@@ -19,48 +19,13 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.github.lordrex34.config.converter;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+package com.github.lordrex34.config.component;
 
 /**
- * A registry to avoid creating the same converter thousand times.
+ * The purpose of this interface is to provide a parent for possible component implementations.
  * @author lord_rex
  */
-public final class ConfigConverters
+public interface IConfigComponent
 {
-	private static final Logger LOGGER = LoggerFactory.getLogger(ConfigConverters.class);
-	
-	/** The cache. */
-	private static final Map<String, IConfigConverter> CONVERTERS = new HashMap<>();
-	
-	private ConfigConverters()
-	{
-		// utility class
-	}
-	
-	/**
-	 * Gets the config converter from the cache. If it is not present, then it gets registered automatically.
-	 * @param converterClass the class contained by the information holder annotation
-	 * @return config converter
-	 */
-	public static IConfigConverter get(Class<? extends IConfigConverter> converterClass)
-	{
-		return CONVERTERS.computeIfAbsent(converterClass.getName(), k ->
-		{
-			try
-			{
-				return converterClass.newInstance();
-			}
-			catch (InstantiationException | IllegalAccessException e)
-			{
-				LOGGER.warn("Failed to load converter!", e);
-				return null;
-			}
-		});
-	}
+	// to be inherited
 }

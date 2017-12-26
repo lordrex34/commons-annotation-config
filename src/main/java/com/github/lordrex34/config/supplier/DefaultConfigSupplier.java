@@ -25,7 +25,7 @@ import java.lang.reflect.Field;
 
 import com.github.lordrex34.config.ConfigManager;
 import com.github.lordrex34.config.annotation.ConfigField;
-import com.github.lordrex34.config.converter.ConfigConverters;
+import com.github.lordrex34.config.component.ConfigComponents;
 import com.github.lordrex34.config.converter.IConfigConverter;
 import com.github.lordrex34.config.lang.FieldParser.FieldParserException;
 import com.github.lordrex34.config.util.PropertiesParser;
@@ -43,7 +43,7 @@ public class DefaultConfigSupplier implements IConfigValueSupplier<Object>
 		final String propertyValue = configField.value();
 		
 		final String configProperty = ConfigManager.getProperty(properties, overridenProperties, propertyKey, propertyValue);
-		final IConfigConverter converter = ConfigConverters.get(configField.converter());
+		final IConfigConverter converter = ConfigComponents.get(configField.converter());
 		
 		Object value;
 		try

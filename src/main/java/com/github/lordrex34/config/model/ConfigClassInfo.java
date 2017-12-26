@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
 import com.github.lordrex34.config.ConfigManager;
 import com.github.lordrex34.config.annotation.ConfigClass;
 import com.github.lordrex34.config.annotation.ConfigField;
-import com.github.lordrex34.config.postloadhooks.ConfigPostLoadHooks;
+import com.github.lordrex34.config.component.ConfigComponents;
 import com.github.lordrex34.config.util.PropertiesParser;
 
 /**
@@ -102,7 +102,7 @@ public final class ConfigClassInfo
 			configFieldInfo.load(configPath, properties, overriddenProperties);
 		}
 		
-		ConfigPostLoadHooks.get(_configClass.postLoadHook()).load(properties, overriddenProperties);
+		ConfigComponents.get(_configClass.postLoadHook()).load(properties, overriddenProperties);
 		
 		LOGGER.info("loaded '{}'", configPath);
 	}

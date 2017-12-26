@@ -19,48 +19,43 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.github.lordrex34.config.postloadhooks;
+package com.github.lordrex34.config.component;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
- * A registry to avoid creating the same post load hook thousand times.
- * @author NB4L1 (original concept)
+ * A registry to avoid creating the same component thousand times.
  * @author lord_rex
  */
-public final class ConfigPostLoadHooks
+public final class ConfigComponents
 {
-	private static final Logger LOGGER = LoggerFactory.getLogger(ConfigPostLoadHooks.class);
+	/** The registry. */
+	private static final Map<String, IConfigComponent> COMPONENTS = new HashMap<>();
 	
-	/** The cache. */
-	private static final Map<String, IConfigPostLoadHook> POST_LOAD_HOOKS = new HashMap<>();
-	
-	private ConfigPostLoadHooks()
+	private ConfigComponents()
 	{
 		// utility class
 	}
 	
 	/**
-	 * Gets the post load hook from the cache. If it is not present, then it gets registered automatically.
-	 * @param postLoadHookClass the class contained by the information holder annotation
-	 * @return post load hook
+	 * Gets the component from the registry. If it is not present, then it gets registered automatically.
+	 * @param <T> any implementation of {@link IConfigComponent}
+	 * @param componentClass the class contained by the information holder annotation
+	 * @return component
 	 */
-	public static IConfigPostLoadHook get(Class<? extends IConfigPostLoadHook> postLoadHookClass)
+	@SuppressWarnings("unchecked")
+	public static <T extends IConfigComponent> T get(Class<T> componentClass)
 	{
-		return POST_LOAD_HOOKS.computeIfAbsent(postLoadHookClass.getName(), k ->
+		return (T) COMPONENTS.computeIfAbsent(componentClass.getName(), k ->
 		{
 			try
 			{
-				return postLoadHookClass.newInstance();
+				return componentClass.newInstance();
 			}
 			catch (InstantiationException | IllegalAccessException e)
 			{
-				LOGGER.warn("Failed to load post load hook!", e);
-				return null;
+				throw new RuntimeException("Component couldn't be loaded, please check!", e);
 			}
 		});
 	}
