@@ -191,4 +191,55 @@ public final class ConfigFieldInfo
 			out.append(System.lineSeparator());
 		}
 	}
+	
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = 1;
+		result = (prime * result) + ((_clazz == null) ? 0 : _clazz.hashCode());
+		result = (prime * result) + ((_field == null) ? 0 : _field.hashCode());
+		return result;
+	}
+	
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+		{
+			return true;
+		}
+		if (obj == null)
+		{
+			return false;
+		}
+		if (!(obj instanceof ConfigFieldInfo))
+		{
+			return false;
+		}
+		ConfigFieldInfo other = (ConfigFieldInfo) obj;
+		if (_clazz == null)
+		{
+			if (other._clazz != null)
+			{
+				return false;
+			}
+		}
+		else if (!_clazz.equals(other._clazz))
+		{
+			return false;
+		}
+		if (_field == null)
+		{
+			if (other._field != null)
+			{
+				return false;
+			}
+		}
+		else if (!_field.equals(other._field))
+		{
+			return false;
+		}
+		return true;
+	}
 }

@@ -157,4 +157,43 @@ public final class ConfigClassInfo
 		
 		LOGGER.info("Generated: '{}'", configPath);
 	}
+	
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = 1;
+		result = (prime * result) + ((_clazz == null) ? 0 : _clazz.hashCode());
+		return result;
+	}
+	
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+		{
+			return true;
+		}
+		if (obj == null)
+		{
+			return false;
+		}
+		if (!(obj instanceof ConfigClassInfo))
+		{
+			return false;
+		}
+		ConfigClassInfo other = (ConfigClassInfo) obj;
+		if (_clazz == null)
+		{
+			if (other._clazz != null)
+			{
+				return false;
+			}
+		}
+		else if (!_clazz.equals(other._clazz))
+		{
+			return false;
+		}
+		return true;
+	}
 }
