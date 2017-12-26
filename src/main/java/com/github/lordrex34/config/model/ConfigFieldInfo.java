@@ -88,11 +88,16 @@ public final class ConfigFieldInfo
 	 */
 	public void load(Path configPath, PropertiesParser properties, PropertiesParser overriddenProperties) throws IllegalArgumentException, IllegalAccessException, InstantiationException
 	{
-		// Skip inappropriate fields.
-		if (!Modifier.isStatic(_field.getModifiers()) || Modifier.isFinal(_field.getModifiers()))
+		// Skip constants.
+		if (Modifier.isStatic(_field.getModifiers()) && Modifier.isFinal(_field.getModifiers()))
 		{
-			LOGGER.debug("Skipping non static or final field: {}#{}", _clazz.getSimpleName(), _field.getName());
 			return;
+		}
+		
+		// Fail inappropriate fields.
+		if (!Modifier.isStatic(_field.getModifiers()))
+		{
+			throw new IllegalArgumentException("Field '" + _field.getName() + "' in class '" + _clazz.getName() + "' is non-static. Please fix it!");
 		}
 		
 		// If field is just a comment holder, then do not try to load it.
