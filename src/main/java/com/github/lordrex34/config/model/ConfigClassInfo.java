@@ -30,6 +30,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -96,13 +97,14 @@ public final class ConfigClassInfo
 			generate();
 		}
 		
-		final PropertiesParser properties = new PropertiesParser(configPath);
+		final Properties mixedProperties = ConfigManager.propertiesOf(new PropertiesParser(configPath), overriddenProperties);
+		final PropertiesParser properties = new PropertiesParser(mixedProperties);
 		for (ConfigFieldInfo configFieldInfo : _fieldInfoClasses)
 		{
-			configFieldInfo.load(configPath, properties, overriddenProperties);
+			configFieldInfo.load(configPath, properties);
 		}
 		
-		ConfigComponents.get(_configClass.postLoadHook()).load(properties, overriddenProperties);
+		ConfigComponents.get(_configClass.postLoadHook()).load();
 		
 		LOGGER.info("loaded '{}'", configPath);
 	}

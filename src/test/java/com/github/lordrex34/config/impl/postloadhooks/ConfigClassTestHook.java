@@ -22,19 +22,18 @@
 package com.github.lordrex34.config.impl.postloadhooks;
 
 import com.github.lordrex34.config.impl.ConfigClassPostLoadHookTest;
-import com.github.lordrex34.config.postloadhooks.IConfigPostLoadHook;
-import com.github.lordrex34.config.util.PropertiesParser;
+import com.github.lordrex34.config.postloadhooks.IConfigPostLoadClassHook;
 
 /**
  * @author lord_rex
  */
-public class ConfigClassTestHook implements IConfigPostLoadHook
+public class ConfigClassTestHook implements IConfigPostLoadClassHook
 {
 	public static final String POST_STRING_VALUE = "Value is post changed. (class)";
 	public static final int POST_INT_VALUE = 4_000;
 	
 	@Override
-	public void load(PropertiesParser properties, PropertiesParser override)
+	public void load()
 	{
 		ConfigClassPostLoadHookTest.TEST_POST_STRING = POST_STRING_VALUE;
 		ConfigClassPostLoadHookTest.TEST_POST_INT = POST_INT_VALUE;

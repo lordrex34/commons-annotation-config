@@ -79,13 +79,12 @@ public final class ConfigFieldInfo
 	/**
 	 * Loads and configures the field with its proper values.
 	 * @param configPath path of the properties file
-	 * @param properties the regular properties
-	 * @param overriddenProperties the content of {@code override.properties}
+	 * @param properties mixture of normal and overridden properties
 	 * @throws InstantiationException
 	 * @throws IllegalAccessException
 	 * @throws IllegalArgumentException
 	 */
-	public void load(Path configPath, PropertiesParser properties, PropertiesParser overriddenProperties) throws IllegalArgumentException, IllegalAccessException, InstantiationException
+	public void load(Path configPath, PropertiesParser properties) throws IllegalArgumentException, IllegalAccessException, InstantiationException
 	{
 		// Skip constants.
 		if (Modifier.isStatic(_field.getModifiers()) && Modifier.isFinal(_field.getModifiers()))
@@ -122,8 +121,8 @@ public final class ConfigFieldInfo
 				_field.setAccessible(true);
 			}
 			
-			_field.set(null, ConfigComponents.get(_configField.valueSupplier()).supply(_field, _configField, properties, overriddenProperties));
-			ConfigComponents.get(_configField.postLoadHook()).load(properties, overriddenProperties);
+			_field.set(null, ConfigComponents.get(_configField.valueSupplier()).supply(_field, _configField, properties));
+			ConfigComponents.get(_configField.postLoadHook()).load(properties);
 		}
 		finally
 		{

@@ -42,7 +42,7 @@ public class ConfigSupplierTest
 	public static final class MyStringConfigValueSupplier implements IConfigValueSupplier<String>
 	{
 		@Override
-		public String supply(Field field, ConfigField configField, PropertiesParser properties, PropertiesParser overridenProperties)
+		public String supply(Field field, ConfigField configField, PropertiesParser properties)
 		{
 			return SUPPLIED_STRING_VALUE;
 		}
@@ -56,7 +56,7 @@ public class ConfigSupplierTest
 	public static final class MyIntegerConfigValueSupplier implements IConfigValueSupplier<Integer>
 	{
 		@Override
-		public Integer supply(Field field, ConfigField configField, PropertiesParser properties, PropertiesParser overridenProperties)
+		public Integer supply(Field field, ConfigField configField, PropertiesParser properties)
 		{
 			return SUPPLIED_INTEGER_VALUE;
 		}

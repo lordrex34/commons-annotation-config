@@ -73,6 +73,12 @@ public final class PropertiesParser
 		this(file.toPath());
 	}
 	
+	public PropertiesParser(Properties properties)
+	{
+		_filename = null;
+		properties.entrySet().forEach(e -> _properties.setProperty(String.valueOf(e.getKey()), String.valueOf(e.getValue())));
+	}
+	
 	private void load(Path path)
 	{
 		if (Strings.isNullOrEmpty(_filename))
@@ -113,8 +119,19 @@ public final class PropertiesParser
 	
 	public String getValue(String key)
 	{
-		String value = _properties.getProperty(key);
+		final String value = _properties.getProperty(key);
 		return value != null ? value.trim() : null;
+	}
+	
+	public String getValue(String key, String defaultValue)
+	{
+		String value = getValue(key);
+		if (value == null)
+		{
+			LOGGER.warn("Missing property for key: {} using default value: {}", key, defaultValue);
+			return defaultValue;
+		}
+		return value;
 	}
 	
 	public boolean getBoolean(String key, boolean defaultValue)

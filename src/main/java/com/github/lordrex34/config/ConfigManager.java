@@ -237,31 +237,8 @@ public final class ConfigManager
 		final Properties result = new Properties();
 		//@formatter:off
 		Stream.concat(properties.entrySet().stream(), override.entrySet().stream())
-				.forEach(e -> result.setProperty(e.getKey().toString(), e.getValue().toString()));
+				.forEach(e -> result.setProperty(String.valueOf(e.getKey()), String.valueOf(e.getValue())));
 		//@formatter:on
 		return result;
-	}
-	
-	/**
-	 * Gets the right property regarding all possible user input.
-	 * @param properties the original properties file
-	 * @param override the override properties that overwrites original settings
-	 * @param propertyKey the property key can be found in properties files (user-friendly form)
-	 * @param defaultValue a default value in case nothing could be loaded from the properties files
-	 * @return the right property
-	 */
-	public static String getProperty(PropertiesParser properties, PropertiesParser override, String propertyKey, String defaultValue)
-	{
-		String property = override.getValue(propertyKey);
-		if (property == null)
-		{
-			property = properties.getValue(propertyKey);
-			if (property == null)
-			{
-				LOGGER.warn("Property key '{}' is missing, using default value!", propertyKey);
-				return defaultValue;
-			}
-		}
-		return property;
 	}
 }

@@ -39,11 +39,10 @@ public interface IConfigValueSupplier<T> extends IConfigComponent
 	 * Supplies a value to the field that is being configured.
 	 * @param field the {@link Field} that is being configured.
 	 * @param configField the {@link ConfigField} that is being processed
-	 * @param properties the properties of the original {@code .properties} files
-	 * @param overridenProperties the properties of {@code override.properties} or nothing
+	 * @param properties mixture of normal and overridden properties
 	 * @return the supplied value
 	 * @throws InstantiationException
 	 * @throws IllegalAccessException
 	 */
-	T supply(Field field, ConfigField configField, PropertiesParser properties, PropertiesParser overridenProperties) throws InstantiationException, IllegalAccessException;
+	T supply(Field field, ConfigField configField, PropertiesParser properties) throws InstantiationException, IllegalAccessException;
 }

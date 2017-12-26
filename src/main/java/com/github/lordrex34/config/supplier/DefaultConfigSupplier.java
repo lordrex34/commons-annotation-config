@@ -23,7 +23,6 @@ package com.github.lordrex34.config.supplier;
 
 import java.lang.reflect.Field;
 
-import com.github.lordrex34.config.ConfigManager;
 import com.github.lordrex34.config.annotation.ConfigField;
 import com.github.lordrex34.config.component.ConfigComponents;
 import com.github.lordrex34.config.converter.IConfigConverter;
@@ -37,12 +36,12 @@ import com.github.lordrex34.config.util.PropertiesParser;
 public class DefaultConfigSupplier implements IConfigValueSupplier<Object>
 {
 	@Override
-	public Object supply(Field field, ConfigField configField, PropertiesParser properties, PropertiesParser overridenProperties)
+	public Object supply(Field field, ConfigField configField, PropertiesParser properties)
 	{
 		final String propertyKey = configField.name();
 		final String propertyValue = configField.value();
 		
-		final String configProperty = ConfigManager.getProperty(properties, overridenProperties, propertyKey, propertyValue);
+		final String configProperty = properties.getValue(propertyKey, propertyValue);
 		final IConfigConverter converter = ConfigComponents.get(configField.converter());
 		
 		Object value;

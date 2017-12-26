@@ -23,7 +23,7 @@ package com.github.lordrex34.config.impl;
 
 import com.github.lordrex34.config.annotation.ConfigClass;
 import com.github.lordrex34.config.annotation.ConfigField;
-import com.github.lordrex34.config.postloadhooks.IConfigPostLoadHook;
+import com.github.lordrex34.config.postloadhooks.IConfigPostLoadFieldHook;
 import com.github.lordrex34.config.util.PropertiesParser;
 
 /**
@@ -37,10 +37,10 @@ public class ConfigFieldPostLoadHookTest
 	
 	public static final String POST_STRING_VALUE = "Value is post changed. (field)";
 	
-	public static final class MyStringPostLoadHook implements IConfigPostLoadHook
+	public static final class MyStringPostLoadHook implements IConfigPostLoadFieldHook
 	{
 		@Override
-		public void load(PropertiesParser properties, PropertiesParser override)
+		public void load(PropertiesParser properties)
 		{
 			TEST_POST_STRING = POST_STRING_VALUE;
 		}
@@ -48,10 +48,10 @@ public class ConfigFieldPostLoadHookTest
 	
 	public static final int POST_INT_VALUE = 9_000;
 	
-	public static final class MyIntPostLoadHook implements IConfigPostLoadHook
+	public static final class MyIntPostLoadHook implements IConfigPostLoadFieldHook
 	{
 		@Override
-		public void load(PropertiesParser properties, PropertiesParser override)
+		public void load(PropertiesParser properties)
 		{
 			TEST_POST_INT = POST_INT_VALUE;
 		}
