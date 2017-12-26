@@ -81,26 +81,26 @@ public final class ConfigClassInfo
 	/**
 	 * Loads the configuration class that is being managed by this information container.
 	 * @param overriddenProperties please see {@link ConfigManager#getOverriddenProperties}
+	 * @throws IOException
+	 * @throws InstantiationException
+	 * @throws IllegalAccessException
+	 * @throws IllegalArgumentException
 	 */
-	public void load(PropertiesParser overriddenProperties)
+	public void load(PropertiesParser overriddenProperties) throws IOException, IllegalArgumentException, IllegalAccessException, InstantiationException
 	{
 		final Path configPath = Paths.get("", _configClass.pathNames()).resolve(_configClass.fileName() + _configClass.fileExtension());
 		if (Files.notExists(configPath))
 		{
 			LOGGER.warn("Config File {} doesn't exist! Generating ...", configPath);
 			
-			try
-			{
-				generate();
-			}
-			catch (IOException e)
-			{
-				LOGGER.warn("Failed to generate config!", e);
-			}
+			generate();
 		}
 		
 		final PropertiesParser properties = new PropertiesParser(configPath);
-		_fieldInfoClasses.forEach(configFieldInfo -> configFieldInfo.load(configPath, properties, overriddenProperties));
+		for (ConfigFieldInfo configFieldInfo : _fieldInfoClasses)
+		{
+			configFieldInfo.load(configPath, properties, overriddenProperties);
+		}
 		
 		ConfigPostLoadHooks.get(_configClass.postLoadHook()).load(properties, overriddenProperties);
 		

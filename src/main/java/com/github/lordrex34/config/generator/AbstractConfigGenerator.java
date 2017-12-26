@@ -23,9 +23,6 @@ package com.github.lordrex34.config.generator;
 
 import java.io.IOException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.github.lordrex34.config.annotation.ConfigClass;
 import com.github.lordrex34.config.model.ConfigClassInfo;
 import com.github.lordrex34.config.util.ClassPathUtil;
@@ -37,39 +34,25 @@ import com.github.lordrex34.config.util.ClassPathUtil;
  */
 public abstract class AbstractConfigGenerator
 {
-	private static final Logger LOGGER = LoggerFactory.getLogger(AbstractConfigGenerator.class);
-	
 	/**
 	 * Constructs {@link AbstractConfigGenerator}, and also starts the properties file generation process.
 	 * @param classLoader the class loader that is used for the process
+	 * @throws IOException
 	 */
-	public AbstractConfigGenerator(ClassLoader classLoader)
+	public AbstractConfigGenerator(ClassLoader classLoader) throws IOException
 	{
-		try
+		for (Class<?> clazz : ClassPathUtil.getAllClassesAnnotatedWith(classLoader, getPackageName(), ConfigClass.class))
 		{
-			ClassPathUtil.getAllClassesAnnotatedWith(classLoader, getPackageName(), ConfigClass.class).forEach(clazz ->
-			{
-				try
-				{
-					final ConfigClassInfo configClassInfo = new ConfigClassInfo(clazz);
-					configClassInfo.generate();
-				}
-				catch (IOException e)
-				{
-					LOGGER.warn("Failed to generate config.", e);
-				}
-			});
-		}
-		catch (IOException e)
-		{
-			LOGGER.warn("Failed to scan for configs", e);
+			final ConfigClassInfo configClassInfo = new ConfigClassInfo(clazz);
+			configClassInfo.generate();
 		}
 	}
 	
 	/**
 	 * Same as {@link #AbstractConfigGenerator(ClassLoader)}, using {@link ClassLoader#getSystemClassLoader()} as the classLoader parameter.
+	 * @throws IOException
 	 */
-	public AbstractConfigGenerator()
+	public AbstractConfigGenerator() throws IOException
 	{
 		this(ClassLoader.getSystemClassLoader());
 	}
@@ -78,8 +61,9 @@ public abstract class AbstractConfigGenerator
 	 * A simple static method to simplify properties file generation, in case you don't want to create your own generator implementation.
 	 * @param classLoader the class loader that is used for the process
 	 * @param packageName the package where configuration related classes are stored
+	 * @throws IOException
 	 */
-	public static void generateAll(ClassLoader classLoader, String packageName)
+	public static void generateAll(ClassLoader classLoader, String packageName) throws IOException
 	{
 		new AbstractConfigGenerator(classLoader)
 		{
@@ -94,8 +78,9 @@ public abstract class AbstractConfigGenerator
 	/**
 	 * Same as {@link #generateAll(ClassLoader, String)}, using {@link ClassLoader#getSystemClassLoader()} as the classLoader parameter.
 	 * @param packageName
+	 * @throws IOException
 	 */
-	public static void generateAll(String packageName)
+	public static void generateAll(String packageName) throws IOException
 	{
 		generateAll(ClassLoader.getSystemClassLoader(), packageName);
 	}

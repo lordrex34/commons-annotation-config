@@ -82,8 +82,11 @@ public final class ConfigFieldInfo
 	 * @param configPath path of the properties file
 	 * @param properties the regular properties
 	 * @param overriddenProperties the content of {@code override.properties}
+	 * @throws InstantiationException
+	 * @throws IllegalAccessException
+	 * @throws IllegalArgumentException
 	 */
-	public void load(Path configPath, PropertiesParser properties, PropertiesParser overriddenProperties)
+	public void load(Path configPath, PropertiesParser properties, PropertiesParser overriddenProperties) throws IllegalArgumentException, IllegalAccessException, InstantiationException
 	{
 		// Skip inappropriate fields.
 		if (!Modifier.isStatic(_field.getModifiers()) || Modifier.isFinal(_field.getModifiers()))
@@ -98,37 +101,30 @@ public final class ConfigFieldInfo
 			return;
 		}
 		
+		final String propertyKey = _configField.name();
+		ConfigPropertyRegistry.add(_clazz.getPackage().getName(), configPath, propertyKey);
+		if (!_configField.reloadable() && ConfigManager.isReloading())
+		{
+			LOGGER.debug("Property '{}' retained with its previous value!", propertyKey);
+			return;
+		}
+		
+		// private field support
+		final boolean wasAccessible = _field.isAccessible();
 		try
 		{
-			final String propertyKey = _configField.name();
-			ConfigPropertyRegistry.add(_clazz.getPackage().getName(), configPath, propertyKey);
-			if (!_configField.reloadable() && ConfigManager.isReloading())
+			if (!wasAccessible)
 			{
-				LOGGER.debug("Property '{}' retained with its previous value!", propertyKey);
-				return;
+				_field.setAccessible(true);
 			}
 			
-			// private field support
-			final boolean wasAccessible = _field.isAccessible();
-			try
-			{
-				if (!wasAccessible)
-				{
-					_field.setAccessible(true);
-				}
-				
-				_field.set(null, ConfigValueSuppliers.get(_configField.valueSupplier()).supply(_field, _configField, properties, overriddenProperties));
-				ConfigPostLoadHooks.get(_configField.postLoadHook()).load(properties, overriddenProperties);
-			}
-			finally
-			{
-				// restore field's visibility to the original
-				_field.setAccessible(wasAccessible);
-			}
+			_field.set(null, ConfigValueSuppliers.get(_configField.valueSupplier()).supply(_field, _configField, properties, overriddenProperties));
+			ConfigPostLoadHooks.get(_configField.postLoadHook()).load(properties, overriddenProperties);
 		}
-		catch (InstantiationException | IllegalAccessException e)
+		finally
 		{
-			LOGGER.warn("Failed to set field!", e);
+			// restore field's visibility to the original
+			_field.setAccessible(wasAccessible);
 		}
 	}
 	

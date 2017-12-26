@@ -62,14 +62,6 @@ public final class ConfigManager
 	private PropertiesParser _overridenProperties;
 	
 	/**
-	 * Constructs the {@link ConfigManager} class, used by user-end implementation.
-	 */
-	public ConfigManager()
-	{
-		// visibility
-	}
-	
-	/**
 	 * Gets how many {@link ConfigClassInfo}s are registered in the configuration registry.
 	 * @return registry size
 	 */
@@ -151,29 +143,32 @@ public final class ConfigManager
 	 * @param classLoader the class loader that is used for the process
 	 * @param packageName the package where configuration related classes are stored
 	 * @throws IOException
+	 * @throws InstantiationException
+	 * @throws IllegalAccessException
+	 * @throws IllegalArgumentException
 	 */
-	public void load(ClassLoader classLoader, String packageName) throws IOException
+	public void load(ClassLoader classLoader, String packageName) throws IOException, IllegalArgumentException, IllegalAccessException, InstantiationException
 	{
 		initOverrideProperties();
 		
-		try
+		ClassPathUtil.getAllClassesAnnotatedWith(classLoader, packageName, ConfigClass.class).forEach(clazz -> _configRegistry.add(new ConfigClassInfo(clazz)));
+		for (ConfigClassInfo configClassInfo : _configRegistry)
 		{
-			ClassPathUtil.getAllClassesAnnotatedWith(classLoader, packageName, ConfigClass.class).forEach(clazz -> _configRegistry.add(new ConfigClassInfo(clazz)));
-			_configRegistry.forEach(configClassInfo -> configClassInfo.load(_overridenProperties));
-			LOGGER.info("Loaded {} config file(s).", _configRegistry.size());
+			configClassInfo.load(_overridenProperties);
 		}
-		catch (IOException e)
-		{
-			throw new IOException("Failed to load class path!");
-		}
+		
+		LOGGER.info("Loaded {} config file(s).", _configRegistry.size());
 	}
 	
 	/**
 	 * Same as {@link #load(ClassLoader, String)}, using {@link ClassLoader#getSystemClassLoader()} as the classLoader parameter.
 	 * @param packageName the package where configuration related classes are stored
 	 * @throws IOException
+	 * @throws InstantiationException
+	 * @throws IllegalAccessException
+	 * @throws IllegalArgumentException
 	 */
-	public void load(String packageName) throws IOException
+	public void load(String packageName) throws IOException, IllegalArgumentException, IllegalAccessException, InstantiationException
 	{
 		load(ClassLoader.getSystemClassLoader(), packageName);
 	}
@@ -183,8 +178,11 @@ public final class ConfigManager
 	 * @param classLoader the class loader that is used for the process
 	 * @param packageName the package where configuration related classes are stored
 	 * @throws IOException
+	 * @throws InstantiationException
+	 * @throws IllegalAccessException
+	 * @throws IllegalArgumentException
 	 */
-	public void reload(ClassLoader classLoader, String packageName) throws IOException
+	public void reload(ClassLoader classLoader, String packageName) throws IOException, IllegalArgumentException, IllegalAccessException, InstantiationException
 	{
 		if (_overridenProperties != null)
 		{
@@ -210,8 +208,11 @@ public final class ConfigManager
 	 * Same as {@link #reload(ClassLoader, String)}, using {@link ClassLoader#getSystemClassLoader()} as the classLoader parameter.
 	 * @param packageName the package where configuration related classes are stored
 	 * @throws IOException
+	 * @throws InstantiationException
+	 * @throws IllegalAccessException
+	 * @throws IllegalArgumentException
 	 */
-	public void reload(String packageName) throws IOException
+	public void reload(String packageName) throws IOException, IllegalArgumentException, IllegalAccessException, InstantiationException
 	{
 		reload(ClassLoader.getSystemClassLoader(), packageName);
 	}

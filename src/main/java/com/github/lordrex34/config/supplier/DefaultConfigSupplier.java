@@ -23,9 +23,6 @@ package com.github.lordrex34.config.supplier;
 
 import java.lang.reflect.Field;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.github.lordrex34.config.ConfigManager;
 import com.github.lordrex34.config.annotation.ConfigField;
 import com.github.lordrex34.config.converter.ConfigConverters;
@@ -39,8 +36,6 @@ import com.github.lordrex34.config.util.PropertiesParser;
  */
 public class DefaultConfigSupplier implements IConfigValueSupplier<Object>
 {
-	private static final Logger LOGGER = LoggerFactory.getLogger(DefaultConfigSupplier.class);
-	
 	@Override
 	public Object supply(Field field, ConfigField configField, PropertiesParser properties, PropertiesParser overridenProperties)
 	{
@@ -57,8 +52,7 @@ public class DefaultConfigSupplier implements IConfigValueSupplier<Object>
 		}
 		catch (FieldParserException e)
 		{
-			value = converter.convertFromString(field, field.getType(), propertyValue);
-			LOGGER.warn("Property '{}' has incorrect syntax! Using default value instead: {}", propertyKey, propertyValue);
+			throw new FieldParserException("Property '" + propertyKey + "' has incorrect syntax! Please check!");
 		}
 		
 		return value;

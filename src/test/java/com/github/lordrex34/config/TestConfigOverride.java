@@ -47,7 +47,7 @@ public class TestConfigOverride
 	private ConfigManager _configManager;
 	
 	@Before
-	public void before() throws IOException
+	public void before() throws IOException, IllegalArgumentException, IllegalAccessException, InstantiationException
 	{
 		_configManager = new ConfigManager();
 		_configManager.load(ITestConfigMarker.class.getPackage().getName());
