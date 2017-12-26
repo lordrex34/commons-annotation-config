@@ -57,7 +57,7 @@ import com.github.lordrex34.config.util.TimeUtil;
  * @author savormix (re-designed java 8 concept)
  * @author NosBit (the getters)
  */
-public final class ConfigProperties implements Serializable
+public class ConfigProperties implements Serializable
 {
 	private static final long serialVersionUID = -6418707730244047405L;
 	
@@ -232,14 +232,14 @@ public final class ConfigProperties implements Serializable
 		return Collections.unmodifiableSet(_map.entrySet());
 	}
 	
+	// ===================================================================================
+	// getProperty
+	
 	public String getProperty(String key)
 	{
 		final String value = _map.get(key);
 		return value != null ? value.trim() : null;
 	}
-	
-	// ===================================================================================
-	// Parsers
 	
 	public String getProperty(String key, String defaultValue)
 	{
@@ -251,6 +251,9 @@ public final class ConfigProperties implements Serializable
 		}
 		return value;
 	}
+	
+	// ===================================================================================
+	// Parsers
 	
 	public boolean getBoolean(String key, boolean defaultValue)
 	{

@@ -22,6 +22,7 @@
 package com.github.lordrex34.config;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -50,11 +51,29 @@ public final class ConfigManager
 	/** Contains all the registered {@link ConfigClassInfo}s. */
 	private final Set<ConfigClassInfo> _configRegistry = new HashSet<>();
 	
-	/** Whether override system is being used or not. */
-	private boolean _overrideSystemAllowed = true;
+	/** Input stream of the override system. */
+	private final InputStream _overrideInputStream;
 	
 	/** The parsed overridden properties. */
 	private ConfigProperties _overridenProperties;
+	
+	/**
+	 * Constructs the {@link ConfigManager} class, used by user-end implementation.
+	 * @param overrideInputStream By setting this to {@code null} you can disable the override system.<br>
+	 *            You can as well set this to whatever you want. See tests for example.
+	 */
+	public ConfigManager(InputStream overrideInputStream)
+	{
+		_overrideInputStream = overrideInputStream;
+	}
+	
+	/**
+	 * Constructs the {@link ConfigManager} class, used by user-end implementation.
+	 */
+	public ConfigManager()
+	{
+		this(defaultOverrideInputStream());
+	}
 	
 	/**
 	 * Gets how many {@link ConfigClassInfo}s are registered in the configuration registry.
@@ -66,61 +85,37 @@ public final class ConfigManager
 	}
 	
 	/**
-	 * Allows/disallows based on the below {@code boolean} parameter whether override system is being used or not.<br>
-	 * For this method to take effect, it has to be used before {@link #load(String)} or {@link #load(ClassLoader, String, boolean)}.
-	 * @param overrideSystemAllowed user choice to allow/disallow the override system
+	 * Creates the default {@link InputStream} for the override system.
+	 * @return default override input stream
 	 */
-	public void setOverrideSystemAllowed(boolean overrideSystemAllowed)
+	private static InputStream defaultOverrideInputStream()
 	{
-		_overrideSystemAllowed = overrideSystemAllowed;
-	}
-	
-	/**
-	 * Checks whether the override system is allowed or not.<br>
-	 * When it's disabled {@code config/override.properties} won't be used.
-	 * @return {@code true} when override system is allowed, otherwise {@code false}
-	 */
-	public boolean isOverrideSystemAllowed()
-	{
-		return _overrideSystemAllowed;
-	}
-	
-	/**
-	 * A method designed to initialize override properties.<br>
-	 * In case override system is disabled, it initializes an empty instance of {@link ConfigProperties}.
-	 * @throws IOException
-	 */
-	private void initOverrideProperties() throws IOException
-	{
-		if (isOverrideSystemAllowed())
+		final Path overridePath = Paths.get("config", "override.properties");
+		if (Files.notExists(overridePath))
 		{
-			final Path overridePath = Paths.get("config", "override.properties");
-			if (Files.notExists(overridePath))
+			try
 			{
-				try
+				final Path overridePathParent = overridePath.getParent();
+				if (overridePathParent != null)
 				{
-					final Path overridePathParent = overridePath.getParent();
-					if (overridePathParent != null)
-					{
-						Files.createDirectories(overridePathParent);
-					}
-					Files.createFile(overridePath);
-					LOGGER.info("Generated empty file: '{}'", overridePath);
+					Files.createDirectories(overridePathParent);
 				}
-				catch (IOException e)
-				{
-					// Disaster, disaster! Read-only FS alert! NOW!!
-					throw new Error("Failed to create override config and/or its directory!", e);
-				}
+				Files.createFile(overridePath);
+				LOGGER.info("Generated empty file: '{}'", overridePath);
 			}
-			
-			_overridenProperties = new ConfigProperties(overridePath);
-			
-			LOGGER.info("loaded '{}' with {} overridden properti(es).", overridePath, _overridenProperties.size());
+			catch (IOException e)
+			{
+				throw new Error("Failed to create override config and/or its directory!", e);
+			}
 		}
-		else
+		
+		try
 		{
-			_overridenProperties = ConfigProperties.EMPTY;
+			return Files.newInputStream(overridePath);
+		}
+		catch (IOException e)
+		{
+			throw new Error("Failed to load override input stream!", e);
 		}
 	}
 	
@@ -146,7 +141,15 @@ public final class ConfigManager
 	 */
 	public void load(ClassLoader classLoader, String packageName, boolean reloading) throws IOException, IllegalArgumentException, IllegalAccessException, InstantiationException
 	{
-		initOverrideProperties();
+		if (_overrideInputStream != null)
+		{
+			_overridenProperties = new ConfigProperties(_overrideInputStream);
+			LOGGER.info("Loaded {} overridden properti(es).", _overridenProperties.size());
+		}
+		else
+		{
+			_overridenProperties = ConfigProperties.EMPTY;
+		}
 		
 		ClassPathUtil.getAllClassesAnnotatedWith(classLoader, packageName, ConfigClass.class).forEach(clazz -> _configRegistry.add(new ConfigClassInfo(clazz)));
 		final ConfigClassLoadingContext classLoadingContext = new ConfigClassLoadingContext();

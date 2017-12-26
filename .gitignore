@@ -8,6 +8,7 @@ bin/
 # Idea
 *.iml
 */.idea/
+/out/
 
 # Gradle
 /.gradle/
@@ -20,3 +21,6 @@ gradle.properties
 # Cache folders
 */.cache/
 build/
+
+# This project
+/config/

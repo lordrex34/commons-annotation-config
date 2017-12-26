@@ -25,7 +25,9 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThat;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -38,10 +40,7 @@ import com.github.lordrex34.config.impl.ITestConfigMarker;
  */
 public class TestConfigOverride
 {
-	/** Please see: {@code config/override.properties} */
 	private static final int OVERRIDDEN_INT = 300;
-	
-	/** Please see: {@code config/override.properties} */
 	private static final String OVERRIDDEN_STRING = "My overridden string. :)";
 	
 	private ConfigManager _configManager;
@@ -49,8 +48,16 @@ public class TestConfigOverride
 	@Before
 	public void before() throws IOException, IllegalArgumentException, IllegalAccessException, InstantiationException
 	{
-		_configManager = new ConfigManager();
+		_configManager = new ConfigManager(overrideInputStream());
 		_configManager.load(ITestConfigMarker.class.getPackage().getName());
+	}
+	
+	private InputStream overrideInputStream()
+	{
+		final StringBuffer buffer = new StringBuffer();
+		buffer.append("TestOverrideInt = ").append(OVERRIDDEN_INT).append(System.lineSeparator());
+		buffer.append("TestOverrideString = ").append(OVERRIDDEN_STRING).append(System.lineSeparator());
+		return new ByteArrayInputStream(buffer.toString().getBytes());
 	}
 	
 	@Test
