@@ -62,26 +62,22 @@ public final class ConfigProperties implements Serializable
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(ConfigProperties.class);
 	
-	public static final ConfigProperties EMPTY = new ConfigProperties((Void) null);
+	public static final ConfigProperties EMPTY = new ConfigProperties(Collections.emptyMap());
 	
 	private final Map<String, String> _map;
 	private String _loggingPrefix = getClass().getSimpleName();
 	
 	// ===================================================================================
 	// Default constructors
-	private ConfigProperties(Void empty)
-	{
-		_map = Collections.emptyMap();
-	}
-	
-	public ConfigProperties()
-	{
-		_map = new HashMap<>();
-	}
 	
 	public ConfigProperties(Map<String, String> map)
 	{
 		_map = map;
+	}
+	
+	public ConfigProperties()
+	{
+		this(new HashMap<>());
 	}
 	
 	// ===================================================================================
