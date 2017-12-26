@@ -88,14 +88,19 @@ public class ConfigProperties implements Serializable
 	{
 		this();
 		_loggingPrefix = file.toString();
-		load(new FileInputStream(file));
+		
+		load(file);
 	}
 	
 	public ConfigProperties(Path path) throws IOException
 	{
 		this();
 		_loggingPrefix = path.toString();
-		load(Files.newBufferedReader(path));
+		
+		try (Reader reader = Files.newBufferedReader(path))
+		{
+			load(reader);
+		}
 	}
 	
 	public ConfigProperties(String name) throws IOException
@@ -107,13 +112,21 @@ public class ConfigProperties implements Serializable
 	public ConfigProperties(InputStream inStream) throws IOException
 	{
 		this();
-		load(inStream);
+		
+		try (InputStream in = inStream)
+		{
+			load(in);
+		}
 	}
 	
 	public ConfigProperties(Reader reader) throws IOException
 	{
 		this();
-		load(reader);
+		
+		try (Reader in = reader)
+		{
+			load(in);
+		}
 	}
 	
 	public ConfigProperties(Node node)
@@ -139,22 +152,25 @@ public class ConfigProperties implements Serializable
 	
 	public void load(String name) throws IOException
 	{
-		load(new FileInputStream(name));
+		try (InputStream is = new FileInputStream(name))
+		{
+			load(is);
+		}
 	}
 	
 	public void load(File file) throws IOException
 	{
-		load(new FileInputStream(file));
+		try (InputStream is = new FileInputStream(file))
+		{
+			load(is);
+		}
 	}
 	
 	public void load(InputStream inStream) throws IOException
 	{
 		final Properties prop = new Properties();
 		
-		try (InputStream in = inStream)
-		{
-			prop.load(in);
-		}
+		prop.load(inStream);
 		
 		load(prop);
 	}
@@ -163,10 +179,7 @@ public class ConfigProperties implements Serializable
 	{
 		final Properties prop = new Properties();
 		
-		try (Reader in = reader)
-		{
-			prop.load(in);
-		}
+		prop.load(reader);
 		
 		load(prop);
 	}
