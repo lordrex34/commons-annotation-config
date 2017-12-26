@@ -89,7 +89,7 @@ public final class FieldParser
 		{
 			return Boolean.parseBoolean(value);
 		}
-		catch (final RuntimeException e)
+		catch (RuntimeException e)
 		{
 			throw new FieldParserException(Boolean.class, value, e);
 		}
@@ -106,7 +106,7 @@ public final class FieldParser
 		{
 			return Byte.decode(value);
 		}
-		catch (final RuntimeException e)
+		catch (RuntimeException e)
 		{
 			throw new FieldParserException(Byte.class, value, e);
 		}
@@ -123,7 +123,7 @@ public final class FieldParser
 		{
 			return Short.decode(value);
 		}
-		catch (final RuntimeException e)
+		catch (RuntimeException e)
 		{
 			throw new FieldParserException(Short.class, value, e);
 		}
@@ -140,7 +140,7 @@ public final class FieldParser
 		{
 			return Integer.decode(value);
 		}
-		catch (final RuntimeException e)
+		catch (RuntimeException e)
 		{
 			throw new FieldParserException(Integer.class, value, e);
 		}
@@ -157,7 +157,7 @@ public final class FieldParser
 		{
 			return Long.decode(value);
 		}
-		catch (final RuntimeException e)
+		catch (RuntimeException e)
 		{
 			throw new FieldParserException(Long.class, value, e);
 		}
@@ -174,7 +174,7 @@ public final class FieldParser
 		{
 			return Float.parseFloat(value);
 		}
-		catch (final RuntimeException e)
+		catch (RuntimeException e)
 		{
 			throw new FieldParserException(Float.class, value, e);
 		}
@@ -191,7 +191,7 @@ public final class FieldParser
 		{
 			return Double.parseDouble(value);
 		}
-		catch (final RuntimeException e)
+		catch (RuntimeException e)
 		{
 			throw new FieldParserException(Double.class, value, e);
 		}
@@ -218,7 +218,7 @@ public final class FieldParser
 		{
 			return Enum.valueOf(enumClass, value);
 		}
-		catch (final RuntimeException e)
+		catch (RuntimeException e)
 		{
 			throw new FieldParserException(enumClass, value, e);
 		}

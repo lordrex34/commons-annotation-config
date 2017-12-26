@@ -80,6 +80,15 @@ public final class ConfigClassInfo
 	}
 	
 	/**
+	 * Gets all registered field info classes inside this class.
+	 * @return the fieldInfoClasses
+	 */
+	public List<ConfigFieldInfo> getFieldInfoClasses()
+	{
+		return _fieldInfoClasses;
+	}
+	
+	/**
 	 * Loads the configuration class that is being managed by this information container.
 	 * @param classLoadingContext the context of the actual loading
 	 * @throws IOException

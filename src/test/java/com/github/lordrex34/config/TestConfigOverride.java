@@ -38,17 +38,17 @@ import com.github.lordrex34.config.annotation.ConfigField;
 /**
  * @author lord_rex
  */
-public class TestConfigOverride
+public class TestConfigOverride extends AbstractConfigTest
 {
 	private static final int OVERRIDDEN_INT = 300;
 	private static final String OVERRIDDEN_STRING = "My overridden string. :)";
 	
-	private ConfigManager _configManager;
-	
+	@Override
 	@Before
 	public void before() throws IOException, IllegalArgumentException, IllegalAccessException, InstantiationException
 	{
 		_configManager = new ConfigManager(overrideInputStream());
+		_configManager.clearAll();
 		_configManager.load(ITestConfigMarker.class.getPackage().getName());
 	}
 	

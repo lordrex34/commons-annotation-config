@@ -86,4 +86,12 @@ public final class ConfigPropertyRegistry
 			registry.clear();
 		}
 	}
+	
+	/**
+	 * Clears all the entries from the registry.
+	 */
+	public static void clearAll()
+	{
+		PROPERTIES.clear();
+	}
 }

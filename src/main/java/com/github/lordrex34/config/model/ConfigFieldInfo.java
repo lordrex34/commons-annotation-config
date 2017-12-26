@@ -78,6 +78,15 @@ public final class ConfigFieldInfo
 	}
 	
 	/**
+	 * Gets the field that is being wrapped by this class.
+	 * @return the field
+	 */
+	public Field getField()
+	{
+		return _field;
+	}
+	
+	/**
 	 * Loads and configures the field with its proper values.
 	 * @param fieldLoadingContext the context of the actual loading
 	 * @throws InstantiationException

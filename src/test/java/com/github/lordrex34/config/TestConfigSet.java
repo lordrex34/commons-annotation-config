@@ -25,10 +25,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 
-import java.io.IOException;
 import java.util.Set;
 
-import org.junit.Before;
 import org.junit.Test;
 
 import com.github.lordrex34.config.annotation.ConfigClass;
@@ -37,17 +35,8 @@ import com.github.lordrex34.config.annotation.ConfigField;
 /**
  * @author lord_rex
  */
-public class TestConfigSet
+public class TestConfigSet extends AbstractConfigTest
 {
-	private ConfigManager _configManager;
-	
-	@Before
-	public void before() throws IOException, IllegalArgumentException, IllegalAccessException, InstantiationException
-	{
-		_configManager = new ConfigManager();
-		_configManager.load(ITestConfigMarker.class.getPackage().getName());
-	}
-	
 	@Test
 	public void test()
 	{

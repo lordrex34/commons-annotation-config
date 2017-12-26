@@ -25,9 +25,6 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThat;
 
-import java.io.IOException;
-
-import org.junit.Before;
 import org.junit.Test;
 
 import com.github.lordrex34.config.annotation.ConfigClass;
@@ -37,17 +34,8 @@ import com.github.lordrex34.config.postloadhooks.IConfigPostLoadClassHook;
 /**
  * @author lord_rex
  */
-public class TestConfigClassPostLoadHook
+public class TestConfigClassPostLoadHook extends AbstractConfigTest
 {
-	private ConfigManager _configManager;
-	
-	@Before
-	public void before() throws IOException, IllegalArgumentException, IllegalAccessException, InstantiationException
-	{
-		_configManager = new ConfigManager();
-		_configManager.load(ITestConfigMarker.class.getPackage().getName());
-	}
-	
 	@Test
 	public void test()
 	{
