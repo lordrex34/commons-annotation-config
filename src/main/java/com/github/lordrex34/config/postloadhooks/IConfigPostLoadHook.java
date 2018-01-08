@@ -19,31 +19,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.github.lordrex34.config.annotation;
+package com.github.lordrex34.config.postloadhooks;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
-import com.github.lordrex34.config.postloadhooks.EmptyConfigPostLoadClassHook;
-import com.github.lordrex34.config.postloadhooks.IConfigPostLoadClassHook;
+import com.github.lordrex34.config.component.IConfigComponent;
 
 /**
  * @author NB4L1 (original idea)
  * @author lord_rex
  */
-@Target(ElementType.TYPE)
-@Retention(RetentionPolicy.RUNTIME)
-public @interface ConfigClass
+interface IConfigPostLoadHook extends IConfigComponent
 {
-	String[] pathNames() default "config";
-	
-	String fileName();
-	
-	String fileExtension() default ".properties";
-	
-	String[] comment() default {};
-	
-	Class<? extends IConfigPostLoadClassHook> postLoadHook() default EmptyConfigPostLoadClassHook.class;
+	// to be inherited
 }

@@ -19,19 +19,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.github.lordrex34.config;
-
-import com.github.lordrex34.config.util.PropertiesParser;
+package com.github.lordrex34.config.postloadhooks;
 
 /**
- * This class is designed for non-annotation based configuration loading.
  * @author lord_rex
  */
-public interface IConfigLoader
+public final class EmptyConfigPostLoadClassHook implements IConfigPostLoadClassHook
 {
-	/**
-	 * The load event itself, triggered by {@link ConfigManager#load}.
-	 * @param override the override properties that overwrites original settings
-	 */
-	void load(PropertiesParser override);
+	@Override
+	public void load()
+	{
+		// do nothing
+	}
 }

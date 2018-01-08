@@ -19,31 +19,31 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.github.lordrex34.config.annotation;
+package com.github.lordrex34.config.supplier;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.reflect.Field;
 
-import com.github.lordrex34.config.postloadhooks.EmptyConfigPostLoadClassHook;
-import com.github.lordrex34.config.postloadhooks.IConfigPostLoadClassHook;
+import com.github.lordrex34.config.annotation.ConfigField;
+import com.github.lordrex34.config.component.IConfigComponent;
+import com.github.lordrex34.config.lang.ConfigProperties;
 
 /**
- * @author NB4L1 (original idea)
+ * Configuration value supplier interface.
  * @author lord_rex
+ * @param <T> the type that is being supplied
  */
-@Target(ElementType.TYPE)
-@Retention(RetentionPolicy.RUNTIME)
-public @interface ConfigClass
+@FunctionalInterface
+public interface IConfigValueSupplier<T> extends IConfigComponent
 {
-	String[] pathNames() default "config";
-	
-	String fileName();
-	
-	String fileExtension() default ".properties";
-	
-	String[] comment() default {};
-	
-	Class<? extends IConfigPostLoadClassHook> postLoadHook() default EmptyConfigPostLoadClassHook.class;
+	/**
+	 * Supplies a value to the field that is being configured.
+	 * @param clazz the {@link Class} that is being configured.
+	 * @param field the {@link Field} that is being configured.
+	 * @param configField the {@link ConfigField} that is being processed
+	 * @param properties mixture of normal and overridden properties
+	 * @return the supplied value
+	 * @throws InstantiationException
+	 * @throws IllegalAccessException
+	 */
+	T supply(Class<?> clazz, Field field, ConfigField configField, ConfigProperties properties) throws InstantiationException, IllegalAccessException;
 }

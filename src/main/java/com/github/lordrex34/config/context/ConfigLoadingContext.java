@@ -19,31 +19,48 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.github.lordrex34.config.annotation;
+package com.github.lordrex34.config.context;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.nio.file.Path;
 
-import com.github.lordrex34.config.postloadhooks.EmptyConfigPostLoadClassHook;
-import com.github.lordrex34.config.postloadhooks.IConfigPostLoadClassHook;
+import com.github.lordrex34.config.lang.ConfigProperties;
 
 /**
- * @author NB4L1 (original idea)
  * @author lord_rex
  */
-@Target(ElementType.TYPE)
-@Retention(RetentionPolicy.RUNTIME)
-public @interface ConfigClass
+abstract class ConfigLoadingContext
 {
-	String[] pathNames() default "config";
+	private ConfigProperties _properties;
+	private Path _configPath;
+	private Boolean _reloading;
 	
-	String fileName();
+	public ConfigProperties getProperties()
+	{
+		return _properties;
+	}
 	
-	String fileExtension() default ".properties";
+	public void setProperties(ConfigProperties properties)
+	{
+		_properties = properties;
+	}
 	
-	String[] comment() default {};
+	public Path getConfigPath()
+	{
+		return _configPath;
+	}
 	
-	Class<? extends IConfigPostLoadClassHook> postLoadHook() default EmptyConfigPostLoadClassHook.class;
+	public void setConfigPath(Path configPath)
+	{
+		_configPath = configPath;
+	}
+	
+	public Boolean isReloading()
+	{
+		return _reloading;
+	}
+	
+	public void setReloading(Boolean reloading)
+	{
+		_reloading = reloading;
+	}
 }

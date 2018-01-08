@@ -28,8 +28,10 @@ import java.lang.annotation.Target;
 
 import com.github.lordrex34.config.converter.IConfigConverter;
 import com.github.lordrex34.config.converter.MainConfigConverter;
-import com.github.lordrex34.config.postloadhooks.ConfigPostLoadHook;
-import com.github.lordrex34.config.postloadhooks.EmptyConfigPostLoadHook;
+import com.github.lordrex34.config.postloadhooks.EmptyConfigPostLoadFieldHook;
+import com.github.lordrex34.config.postloadhooks.IConfigPostLoadFieldHook;
+import com.github.lordrex34.config.supplier.DefaultConfigSupplier;
+import com.github.lordrex34.config.supplier.IConfigValueSupplier;
 
 /**
  * @author NB4L1 (original idea)
@@ -44,6 +46,12 @@ public @interface ConfigField
 	 * @return name
 	 */
 	String name();
+	
+	/**
+	 * Here you may specify your own configuration value supplier for your field.
+	 * @return the configuration value supplier
+	 */
+	Class<? extends IConfigValueSupplier<?>> valueSupplier() default DefaultConfigSupplier.class;
 	
 	/**
 	 * A default value used both for generation, and in case the property key is missing, it is going to be loaded.
@@ -71,14 +79,14 @@ public @interface ConfigField
 	
 	/**
 	 * The converter grants you the possibility to convert your configuration into a list, set, array or anything else.<br>
-	 * Please see {@link com.github.lordrex34.config.converter} package for further details.
+	 * Please see {@code com.github.lordrex34.config.converter} package for further details.
 	 * @return the converter
 	 */
 	Class<? extends IConfigConverter> converter() default MainConfigConverter.class;
 	
 	/**
-	 * Can be used to assign post-load events into a specific field or configuration class.
+	 * Can be used to assign post-load events into a specific field.
 	 * @return the post load hook
 	 */
-	Class<? extends ConfigPostLoadHook> postLoadHook() default EmptyConfigPostLoadHook.class;
+	Class<? extends IConfigPostLoadFieldHook> postLoadHook() default EmptyConfigPostLoadFieldHook.class;
 }
