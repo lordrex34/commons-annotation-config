@@ -47,8 +47,8 @@ public class TestConfigOverride extends AbstractConfigTest
 	@Before
 	public void before() throws IOException, IllegalArgumentException, IllegalAccessException, InstantiationException
 	{
+		clearAll(ITestConfigMarker.class.getPackage().getName());
 		_configManager = new ConfigManager(overrideInputStream());
-		_configManager.clearAll();
 		_configManager.load(ITestConfigMarker.class.getPackage().getName());
 	}
 	

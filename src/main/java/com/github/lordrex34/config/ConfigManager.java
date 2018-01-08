@@ -23,7 +23,6 @@ package com.github.lordrex34.config;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -38,7 +37,6 @@ import com.github.lordrex34.config.context.ConfigClassLoadingContext;
 import com.github.lordrex34.config.exception.ConfigOverrideLoadingException;
 import com.github.lordrex34.config.lang.ConfigProperties;
 import com.github.lordrex34.config.model.ConfigClassInfo;
-import com.github.lordrex34.config.model.ConfigFieldInfo;
 import com.github.lordrex34.config.util.ClassPathUtil;
 import com.github.lordrex34.config.util.ConfigPropertyRegistry;
 import com.google.common.annotations.VisibleForTesting;
@@ -212,47 +210,5 @@ public final class ConfigManager
 	public void reload(String packageName) throws IOException, IllegalArgumentException, IllegalAccessException, InstantiationException
 	{
 		reload(ClassLoader.getSystemClassLoader(), packageName);
-	}
-	
-	/**
-	 * Clears everything from the manager. Clears also the values of the fields. Usable only for tests.
-	 * @throws IllegalArgumentException
-	 * @throws IllegalAccessException
-	 */
-	@VisibleForTesting
-	void clearAll() throws IllegalArgumentException, IllegalAccessException
-	{
-		if (_overridenProperties != null)
-		{
-			_overridenProperties.clear();
-		}
-		
-		for (ConfigClassInfo configClassInfo : _configRegistry)
-		{
-			for (ConfigFieldInfo configFieldInfo : configClassInfo.getFieldInfoClasses())
-			{
-				final Field field = configFieldInfo.getField();
-				
-				// private field support
-				final boolean wasAccessible = field.isAccessible();
-				try
-				{
-					if (!wasAccessible)
-					{
-						field.setAccessible(true);
-					}
-					
-					field.set(null, null);
-				}
-				finally
-				{
-					// restore field's visibility to the original
-					field.setAccessible(wasAccessible);
-				}
-			}
-		}
-		
-		_configRegistry.clear();
-		ConfigPropertyRegistry.clearAll();
 	}
 }
