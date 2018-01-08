@@ -19,31 +19,17 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.github.lordrex34.config.annotation;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
-import com.github.lordrex34.config.postloadhooks.EmptyConfigPostLoadClassHook;
-import com.github.lordrex34.config.postloadhooks.IConfigPostLoadClassHook;
+package com.github.lordrex34.config.exception;
 
 /**
- * @author NB4L1 (original idea)
  * @author lord_rex
  */
-@Target(ElementType.TYPE)
-@Retention(RetentionPolicy.RUNTIME)
-public @interface ConfigClass
+public final class ConfigOverrideLoadingException extends RuntimeException
 {
-	String[] pathNames() default "config";
+	private static final long serialVersionUID = 347579740374349630L;
 	
-	String fileName();
-	
-	String fileExtension() default ".properties";
-	
-	String[] comment() default {};
-	
-	Class<? extends IConfigPostLoadClassHook> postLoadHook() default EmptyConfigPostLoadClassHook.class;
+	public ConfigOverrideLoadingException(String message, Throwable cause)
+	{
+		super(message, cause);
+	}
 }

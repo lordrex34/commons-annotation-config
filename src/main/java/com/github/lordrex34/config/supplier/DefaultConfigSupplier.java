@@ -19,42 +19,41 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.github.lordrex34.config.util;
+package com.github.lordrex34.config.supplier;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
+
+import com.github.lordrex34.config.annotation.ConfigField;
+import com.github.lordrex34.config.component.ConfigComponents;
+import com.github.lordrex34.config.converter.IConfigConverter;
+import com.github.lordrex34.config.lang.ConfigProperties;
+import com.github.lordrex34.config.lang.FieldParser.FieldParserException;
 
 /**
+ * This is the configuration value supplier used by {@link ConfigField} annotation by default.
  * @author lord_rex
  */
-public final class GenericUtil
+public class DefaultConfigSupplier implements IConfigValueSupplier<Object>
 {
-	private GenericUtil()
+	@Override
+	public Object supply(Field field, ConfigField configField, ConfigProperties properties)
 	{
-		// utility class
-	}
-	
-	public static Type[] getGenericTypes(Field field)
-	{
-		final Type genType = field.getGenericType();
-		if (!ParameterizedType.class.isInstance(genType))
+		final String propertyKey = configField.name();
+		final String propertyValue = configField.value();
+		
+		final String configProperty = properties.getProperty(propertyKey, propertyValue);
+		final IConfigConverter converter = ConfigComponents.get(configField.converter());
+		
+		Object value;
+		try
 		{
-			return null;
+			value = converter.convertFromString(field, field.getType(), configProperty);
+		}
+		catch (FieldParserException e)
+		{
+			throw new FieldParserException("Property '" + propertyKey + "' has incorrect syntax! Please check!");
 		}
 		
-		final ParameterizedType pType = (ParameterizedType) genType;
-		return pType.getActualTypeArguments();
-	}
-	
-	public static Class<?> getFirstGenericTypeOfGenerizedField(Field field)
-	{
-		final Type[] allGenTypes = getGenericTypes(field);
-		if (allGenTypes == null)
-		{
-			return Object.class; // missing wildcard declaration
-		}
-		
-		return (Class<?>) allGenTypes[0];
+		return value;
 	}
 }

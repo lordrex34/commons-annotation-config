@@ -19,19 +19,30 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.github.lordrex34.config;
+package com.github.lordrex34.config.supplier;
 
-import com.github.lordrex34.config.util.PropertiesParser;
+import java.lang.reflect.Field;
+
+import com.github.lordrex34.config.annotation.ConfigField;
+import com.github.lordrex34.config.component.IConfigComponent;
+import com.github.lordrex34.config.lang.ConfigProperties;
 
 /**
- * This class is designed for non-annotation based configuration loading.
+ * Configuration value supplier interface.
  * @author lord_rex
+ * @param <T> the type that is being supplied
  */
-public interface IConfigLoader
+@FunctionalInterface
+public interface IConfigValueSupplier<T> extends IConfigComponent
 {
 	/**
-	 * The load event itself, triggered by {@link ConfigManager#load}.
-	 * @param override the override properties that overwrites original settings
+	 * Supplies a value to the field that is being configured.
+	 * @param field the {@link Field} that is being configured.
+	 * @param configField the {@link ConfigField} that is being processed
+	 * @param properties mixture of normal and overridden properties
+	 * @return the supplied value
+	 * @throws InstantiationException
+	 * @throws IllegalAccessException
 	 */
-	void load(PropertiesParser override);
+	T supply(Field field, ConfigField configField, ConfigProperties properties) throws InstantiationException, IllegalAccessException;
 }

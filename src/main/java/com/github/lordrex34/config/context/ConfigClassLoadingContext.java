@@ -19,20 +19,26 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.github.lordrex34.config.postloadhooks;
+package com.github.lordrex34.config.context;
 
-import com.github.lordrex34.config.util.PropertiesParser;
+import com.github.lordrex34.config.lang.ConfigProperties;
+import com.github.lordrex34.config.model.ConfigClassInfo;
 
 /**
- * An empty implementation of {@link ConfigPostLoadHook}.
- * @author NB4L1 (original idea)
+ * Used for loading {@link ConfigClassInfo}.
  * @author lord_rex
  */
-public final class EmptyConfigPostLoadHook implements ConfigPostLoadHook
+public final class ConfigClassLoadingContext extends ConfigLoadingContext
 {
-	@Override
-	public void load(PropertiesParser properties, PropertiesParser override)
+	private ConfigProperties _overriddenProperties;
+	
+	public ConfigProperties getOverriddenProperties()
 	{
-		// do nothing
+		return _overriddenProperties;
+	}
+	
+	public void setOverriddenProperties(ConfigProperties overriddenProperties)
+	{
+		_overriddenProperties = overriddenProperties;
 	}
 }

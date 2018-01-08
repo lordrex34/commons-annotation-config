@@ -22,32 +22,24 @@
 package com.github.lordrex34.config;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
+import java.util.HashSet;
 import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.github.lordrex34.config.annotation.ConfigClass;
-import com.github.lordrex34.config.annotation.ConfigField;
-import com.github.lordrex34.config.converter.IConfigConverter;
-import com.github.lordrex34.config.generator.AbstractConfigGenerator;
-import com.github.lordrex34.config.lang.FieldParser.FieldParserException;
-import com.github.lordrex34.config.postloadhooks.ConfigPostLoadHook;
-import com.github.lordrex34.config.postloadhooks.EmptyConfigPostLoadHook;
+import com.github.lordrex34.config.context.ConfigClassLoadingContext;
+import com.github.lordrex34.config.exception.ConfigOverrideLoadingException;
+import com.github.lordrex34.config.lang.ConfigProperties;
+import com.github.lordrex34.config.model.ConfigClassInfo;
 import com.github.lordrex34.config.util.ClassPathUtil;
-import com.github.lordrex34.config.util.PropertiesParser;
+import com.github.lordrex34.config.util.ConfigPropertyRegistry;
+import com.google.common.annotations.VisibleForTesting;
 
 /**
  * A manager class that handles configuration loading.
@@ -57,404 +49,166 @@ public final class ConfigManager
 {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ConfigManager.class);
 	
-	/** A simple {@link AtomicBoolean} that indicates reloading process. */
-	private final AtomicBoolean _reloading = new AtomicBoolean(false);
+	/** Contains all the registered {@link ConfigClassInfo}s. */
+	private final Set<ConfigClassInfo> _configRegistry = new HashSet<>();
 	
-	/** Properties registry, that is used for misplaced configuration indication. */
-	private final Map<String, Map<Path, Set<String>>> _propertiesRegistry = new TreeMap<>();
-	
-	/** Whether override system is being used or not. */
-	private boolean _overrideSystemAllowed = true;
+	/** Input stream of the override system. */
+	private final InputStream _overrideInputStream;
 	
 	/** The parsed overridden properties. */
-	private PropertiesParser _overridenProperties;
+	private ConfigProperties _overridenProperties;
 	
 	/**
-	 * Constructs the {@link ConfigManager} class, triggered by the {@link SingletonHolder}.
+	 * Constructs the {@link ConfigManager} class, used by user-end implementation.
+	 * @param overrideInputStream By setting this to {@code null} you can disable the override system.<br>
+	 *            You can as well set this to whatever you want. See tests for example.
 	 */
-	ConfigManager()
+	public ConfigManager(InputStream overrideInputStream)
 	{
-		// visibility
+		_overrideInputStream = overrideInputStream;
 	}
 	
 	/**
-	 * Allows/disallows based on the below {@code boolean} parameter whether override system is being used or not.<br>
-	 * For this method to take effect, it has to be used before {@link #load(String)} or {@link #load(ClassLoader, String)}.
-	 * @param overrideSystemAllowed user choice to allow/disallow the override system
+	 * Constructs the {@link ConfigManager} class, used by user-end implementation.
 	 */
-	public void setOverrideSystemAllowed(boolean overrideSystemAllowed)
+	public ConfigManager()
 	{
-		_overrideSystemAllowed = overrideSystemAllowed;
+		this(defaultOverrideInputStream());
 	}
 	
 	/**
-	 * Checks whether the override system is allowed or not.<br>
-	 * When it's disabled {@code config/override.properties} won't be used.
-	 * @return {@code true} when override system is allowed, otherwise {@code false}
+	 * Gets how many {@link ConfigClassInfo}s are registered in the configuration registry.
+	 * @return registry size
 	 */
-	public boolean isOverrideSystemAllowed()
+	public int getConfigRegistrySize()
 	{
-		return _overrideSystemAllowed;
+		return _configRegistry.size();
 	}
 	
 	/**
-	 * A method designed to initialize override properties.<br>
-	 * In case override system is disabled, it initializes an empty instance of {@link PropertiesParser}.
+	 * Creates the default {@link InputStream} for the override system.
+	 * @return default override input stream
 	 */
-	private void initOverrideProperties()
+	private static InputStream defaultOverrideInputStream()
 	{
-		if (isOverrideSystemAllowed())
+		final Path overridePath = Paths.get("config", "override.properties");
+		if (Files.notExists(overridePath))
 		{
-			final Path overridePath = Paths.get("config", "override.properties");
-			if (Files.notExists(overridePath))
-			{
-				try
-				{
-					final Path overridePathParent = overridePath.getParent();
-					if (overridePathParent != null)
-					{
-						Files.createDirectories(overridePathParent);
-					}
-					Files.createFile(overridePath);
-					LOGGER.info("Generated empty file: '{}'", overridePath);
-				}
-				catch (IOException e)
-				{
-					// Disaster, disaster! Read-only FS alert! NOW!!
-					throw new Error("Failed to create override config and/or its directory!", e);
-				}
-			}
-			
-			_overridenProperties = new PropertiesParser(overridePath);
-			
-			LOGGER.info("loaded '{}' with {} overridden properti(es).", overridePath, _overridenProperties.size());
-		}
-		else
-		{
-			_overridenProperties = PropertiesParser.EMPTY;
-		}
-	}
-	
-	/**
-	 * Registers a configuration property into this manager.
-	 * @param packageName the package where configuration related classes are stored
-	 * @param configFile path of the configuration file
-	 * @param propertyKey the property key to be registered into {@code _propertiesRegistry}
-	 */
-	private void registerProperty(String packageName, Path configFile, String propertyKey)
-	{
-		if (!_propertiesRegistry.containsKey(packageName))
-		{
-			_propertiesRegistry.put(packageName, new HashMap<>());
-		}
-		
-		if (!_propertiesRegistry.get(packageName).containsKey(configFile))
-		{
-			_propertiesRegistry.get(packageName).put(configFile, new TreeSet<>());
-		}
-		
-		_propertiesRegistry.get(packageName).entrySet().forEach(entry ->
-		{
-			final Path entryConfigFile = entry.getKey();
-			final Set<String> entryProperties = entry.getValue();
-			
-			if (entryProperties.contains(propertyKey))
-			{
-				LOGGER.warn("Property key '{}' is already defined in config file '{}', so now '{}' overwrites that! Please fix this!", propertyKey, entryConfigFile, configFile);
-			}
-		});
-		
-		_propertiesRegistry.get(packageName).get(configFile).add(propertyKey);
-	}
-	
-	/**
-	 * Gets the right property regarding all possible user input.
-	 * @param properties the original properties file
-	 * @param override the override properties that overwrites original settings
-	 * @param propertyKey the property key can be found in properties files (user-friendly form)
-	 * @param defaultValue a default value in case nothing could be loaded from the properties files
-	 * @return the right property
-	 */
-	private static String getProperty(PropertiesParser properties, PropertiesParser override, String propertyKey, String defaultValue)
-	{
-		String property = override.getValue(propertyKey);
-		if (property == null)
-		{
-			property = properties.getValue(propertyKey);
-			if (property == null)
-			{
-				LOGGER.warn("Property key '{}' is missing, using default value!", propertyKey);
-				return defaultValue;
-			}
-		}
-		return property;
-	}
-	
-	/**
-	 * Loads a configuration class into the manager.
-	 * @param clazz the config class itself
-	 */
-	private void loadConfigClass(Class<?> clazz)
-	{
-		if (_overridenProperties == null)
-		{
-			throw new NullPointerException("Override properties is missing!");
-		}
-		
-		final ConfigClass configClass = clazz.getDeclaredAnnotation(ConfigClass.class);
-		if (configClass == null)
-		{
-			LOGGER.warn("Class {} doesn't have @ConfigClass annotation!", clazz);
-			return;
-		}
-		
-		final Path configPath = Paths.get("", configClass.pathNames()).resolve(configClass.fileName() + configClass.fileExtension());
-		if (Files.notExists(configPath))
-		{
-			LOGGER.warn("Config File {} doesn't exist! Generating ...", configPath);
-			
 			try
 			{
-				AbstractConfigGenerator.printConfigClass(clazz);
+				final Path overridePathParent = overridePath.getParent();
+				if (overridePathParent != null)
+				{
+					Files.createDirectories(overridePathParent);
+				}
+				Files.createFile(overridePath);
+				LOGGER.info("Generated empty file: '{}'", overridePath);
 			}
 			catch (IOException e)
 			{
-				LOGGER.warn("Failed to generate config!", e);
-			}
-		}
-		
-		final PropertiesParser properties = new PropertiesParser(configPath);
-		for (Field field : clazz.getDeclaredFields())
-		{
-			if (field == null)
-			{
-				continue;
-			}
-			
-			// Skip inappropriate fields.
-			if (!Modifier.isStatic(field.getModifiers()) || Modifier.isFinal(field.getModifiers()))
-			{
-				LOGGER.debug("Skipping non static or final field: {}#{}", clazz.getSimpleName(), field.getName());
-				continue;
-			}
-			
-			final ConfigField configField = field.getDeclaredAnnotation(ConfigField.class);
-			if (configField != null)
-			{
-				// If field is just a comment holder, then do not try to load it.
-				if (configField.onlyComment())
-				{
-					continue;
-				}
-				
-				try
-				{
-					final String propertyKey = configField.name();
-					final String propertyValue = configField.value();
-					ConfigManager.getInstance().registerProperty(clazz.getPackage().getName(), configPath, propertyKey);
-					if (!configField.reloadable() && ConfigManager.getInstance().isReloading())
-					{
-						LOGGER.debug("Property '{}' retained with its previous value!", propertyKey);
-						continue;
-					}
-					
-					final String configProperty = getProperty(properties, _overridenProperties, propertyKey, propertyValue);
-					final IConfigConverter converter = configField.converter().newInstance();
-					Object value;
-					try
-					{
-						value = converter.convertFromString(field, field.getType(), configProperty);
-					}
-					catch (FieldParserException e)
-					{
-						value = converter.convertFromString(field, field.getType(), propertyValue);
-						LOGGER.warn("Property '{}' has incorrect syntax! Using default value instead: {}", propertyKey, propertyValue);
-					}
-					final boolean wasAccessible = field.isAccessible();
-					if (!wasAccessible)
-					{
-						field.setAccessible(true);
-					}
-					field.set(null, value);
-					field.setAccessible(wasAccessible);
-					
-					// post load hook event for field
-					final ConfigPostLoadHook postLoadHook = configField.postLoadHook().newInstance();
-					if ((postLoadHook != null) && !(postLoadHook instanceof EmptyConfigPostLoadHook))
-					{
-						postLoadHook.load(properties, _overridenProperties);
-					}
-				}
-				catch (InstantiationException | IllegalAccessException e)
-				{
-					LOGGER.warn("Failed to set field!", e);
-				}
+				throw new ConfigOverrideLoadingException("Failed to create override config and/or its directory!", e);
 			}
 		}
 		
 		try
 		{
-			// post load hook event for class
-			final ConfigPostLoadHook postLoadHook = configClass.postLoadHook().newInstance();
-			if ((postLoadHook != null) && !(postLoadHook instanceof EmptyConfigPostLoadHook))
-			{
-				postLoadHook.load(properties, _overridenProperties);
-			}
+			return Files.newInputStream(overridePath);
 		}
-		catch (InstantiationException | IllegalAccessException e)
+		catch (IOException e)
 		{
-			LOGGER.warn("Failed to load post load hook!", e);
+			throw new ConfigOverrideLoadingException("Failed to load override input stream!", e);
 		}
-		
-		LOGGER.debug("loaded '{}'", configPath);
+	}
+	
+	/**
+	 * Gets overridden properties stored in this manager class.
+	 * @return overridden properties
+	 */
+	@VisibleForTesting
+	ConfigProperties getOverriddenProperties()
+	{
+		return _overridenProperties;
 	}
 	
 	/**
 	 * Loads all configuration classes from the specified package and overwrites their properties according to override properties, if necessary.
 	 * @param classLoader the class loader that is used for the process
 	 * @param packageName the package where configuration related classes are stored
+	 * @param reloading whether actual loading is a reload or not
+	 * @throws IOException
+	 * @throws InstantiationException
+	 * @throws IllegalAccessException
+	 * @throws IllegalArgumentException
 	 */
-	public void load(ClassLoader classLoader, String packageName)
+	public void load(ClassLoader classLoader, String packageName, boolean reloading) throws IOException, IllegalArgumentException, IllegalAccessException, InstantiationException
 	{
-		initOverrideProperties();
-		
-		if (_overridenProperties == null)
+		if (_overrideInputStream != null)
 		{
-			throw new NullPointerException("Override properties is missing!");
+			_overridenProperties = new ConfigProperties(_overrideInputStream);
+			LOGGER.info("Loaded {} overridden properti(es).", _overridenProperties.size());
+		}
+		else
+		{
+			_overridenProperties = ConfigProperties.EMPTY;
 		}
 		
-		final ConfigCounter configCount = new ConfigCounter();
-		try
+		ClassPathUtil.getAllClassesAnnotatedWith(classLoader, packageName, ConfigClass.class).forEach(clazz -> _configRegistry.add(new ConfigClassInfo(clazz)));
+		final ConfigClassLoadingContext classLoadingContext = new ConfigClassLoadingContext();
+		classLoadingContext.setOverriddenProperties(_overridenProperties);
+		classLoadingContext.setReloading(reloading);
+		for (ConfigClassInfo configClassInfo : _configRegistry)
 		{
-			// standard annotation based configuration classes
-			ClassPathUtil.getAllClassesAnnotatedWith(classLoader, packageName, ConfigClass.class).forEach(clazz ->
-			{
-				loadConfigClass(clazz);
-				configCount.increment();
-			});
-			
-			// non-standard solution
-			ClassPathUtil.getAllClassesExtending(classLoader, packageName, IConfigLoader.class).forEach(clazz ->
-			{
-				if (Stream.of(clazz.getConstructors()).noneMatch((constructor) -> constructor.getParameterCount() == 0))
-				{
-					// Do not load IConfigLoader if there is no proper constructor match.
-					return;
-				}
-				
-				try
-				{
-					final IConfigLoader configLoader = clazz.newInstance();
-					configLoader.load(_overridenProperties);
-					configCount.increment();
-				}
-				catch (InstantiationException | IllegalAccessException e)
-				{
-					LOGGER.warn("Failed to load config.", e);
-				}
-			});
-		}
-		catch (IOException e)
-		{
-			LOGGER.warn("Failed to load class path.", e);
+			configClassInfo.load(classLoadingContext);
 		}
 		
-		LOGGER.info("Loaded {} config file(s).", configCount.getValue());
+		LOGGER.info("Loaded {} config file(s).", _configRegistry.size());
 	}
 	
 	/**
-	 * Same as {@link #load(ClassLoader, String)}, using {@link ClassLoader#getSystemClassLoader()} as the classLoader parameter.
-	 * @param packageName
+	 * Same as {@link #load(ClassLoader, String, boolean)}, using {@link ClassLoader#getSystemClassLoader()} as the classLoader parameter.
+	 * @param packageName the package where configuration related classes are stored
+	 * @throws IOException
+	 * @throws InstantiationException
+	 * @throws IllegalAccessException
+	 * @throws IllegalArgumentException
 	 */
-	public void load(String packageName)
+	public void load(String packageName) throws IOException, IllegalArgumentException, IllegalAccessException, InstantiationException
 	{
-		load(ClassLoader.getSystemClassLoader(), packageName);
-	}
-	
-	private static final class ConfigCounter
-	{
-		private int _count;
-		
-		protected ConfigCounter()
-		{
-			// visibility
-		}
-		
-		public void increment()
-		{
-			_count++;
-		}
-		
-		public int getValue()
-		{
-			return _count;
-		}
+		load(ClassLoader.getSystemClassLoader(), packageName, false);
 	}
 	
 	/**
 	 * Reloads configurations by package name.
 	 * @param classLoader the class loader that is used for the process
 	 * @param packageName the package where configuration related classes are stored
+	 * @throws IOException
+	 * @throws InstantiationException
+	 * @throws IllegalAccessException
+	 * @throws IllegalArgumentException
 	 */
-	public void reload(ClassLoader classLoader, String packageName)
+	public void reload(ClassLoader classLoader, String packageName) throws IOException, IllegalArgumentException, IllegalAccessException, InstantiationException
 	{
-		if (_propertiesRegistry.containsKey(packageName))
+		if (_overridenProperties != null)
 		{
-			_propertiesRegistry.get(packageName).clear();
+			_overridenProperties.clear();
 		}
 		
-		_reloading.set(true);
-		try
-		{
-			load(classLoader, packageName);
-		}
-		finally
-		{
-			_reloading.set(false);
-		}
+		_configRegistry.clear();
+		
+		ConfigPropertyRegistry.clear(packageName);
+		load(classLoader, packageName, true);
 	}
 	
 	/**
 	 * Same as {@link #reload(ClassLoader, String)}, using {@link ClassLoader#getSystemClassLoader()} as the classLoader parameter.
-	 * @param packageName
+	 * @param packageName the package where configuration related classes are stored
+	 * @throws IOException
+	 * @throws InstantiationException
+	 * @throws IllegalAccessException
+	 * @throws IllegalArgumentException
 	 */
-	public void reload(String packageName)
+	public void reload(String packageName) throws IOException, IllegalArgumentException, IllegalAccessException, InstantiationException
 	{
 		reload(ClassLoader.getSystemClassLoader(), packageName);
-	}
-	
-	/**
-	 * Checks whether reload is in progress or not.
-	 * @return {@code true} if reload is in progress, otherwise {@code false}
-	 */
-	public boolean isReloading()
-	{
-		return _reloading.get();
-	}
-	
-	/**
-	 * Gets the result of two properties parser, where second is the override which overwrites the content of the first, if necessary.
-	 * @param properties the original properties file
-	 * @param override the override properties that overwrites original settings
-	 * @return properties of the two properties parser
-	 */
-	public static Properties propertiesOf(PropertiesParser properties, PropertiesParser override)
-	{
-		final Properties result = new Properties();
-		//@formatter:off
-		Stream.concat(properties.entrySet().stream(), override.entrySet().stream())
-				.forEach(e -> result.setProperty(e.getKey().toString(), e.getValue().toString()));
-		//@formatter:on
-		return result;
-	}
-	
-	private static final class SingletonHolder
-	{
-		protected static final ConfigManager INSTANCE = new ConfigManager();
-	}
-	
-	public static ConfigManager getInstance()
-	{
-		return SingletonHolder.INSTANCE;
 	}
 }
