@@ -169,22 +169,28 @@ public final class ConfigManager
 	
 	/**
 	 * Gets the right property regarding all possible user input.
+	 * @param configClass the config class
+	 * @param field the field of the config class
 	 * @param properties the original properties file
 	 * @param override the override properties that overwrites original settings
 	 * @param propertyKey the property key can be found in properties files (user-friendly form)
 	 * @param defaultValue a default value in case nothing could be loaded from the properties files
 	 * @return the right property
 	 */
-	private static String getProperty(PropertiesParser properties, PropertiesParser override, String propertyKey, String defaultValue)
+	private static String getProperty(Class<?> configClass, Field field, PropertiesParser properties, PropertiesParser override, String propertyKey, String defaultValue)
 	{
-		String property = override.getValue(propertyKey);
+		String property = System.getenv((configClass.getSimpleName() + "_" + field.getName()).toUpperCase());
 		if (property == null)
 		{
-			property = properties.getValue(propertyKey);
+			property = override.getValue(propertyKey);
 			if (property == null)
 			{
-				LOGGER.warn("Property key '{}' is missing, using default value!", propertyKey);
-				return defaultValue;
+				property = properties.getValue(propertyKey);
+				if (property == null)
+				{
+					LOGGER.warn("Property key '{}' is missing, using default value!", propertyKey);
+					return defaultValue;
+				}
 			}
 		}
 		return property;
@@ -258,7 +264,7 @@ public final class ConfigManager
 						continue;
 					}
 					
-					final String configProperty = getProperty(properties, _overridenProperties, propertyKey, propertyValue);
+					final String configProperty = getProperty(clazz, field, properties, _overridenProperties, propertyKey, propertyValue);
 					final IConfigConverter converter = configField.converter().newInstance();
 					Object value;
 					try
