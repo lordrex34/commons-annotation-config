@@ -1,10 +1,8 @@
 plugins {
 	id "com.github.unafraid.gradle.git-repo-plugin" version "2.0.4"
-	id "de.sebastianboegl.shadow.transformer.log4j" version "2.1.0"
 }
 
 apply plugin: "com.github.unafraid.gradle.git-repo-plugin"
-apply plugin: "de.sebastianboegl.shadow.transformer.log4j"
 apply plugin: "eclipse"
 apply plugin: "java"
 apply plugin: "maven"
