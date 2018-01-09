@@ -57,6 +57,21 @@ public class DefaultConfigSupplier implements IConfigValueSupplier<Object>
 		return value;
 	}
 	
+	/**
+	 * This method provides property value
+	 * <ul>
+	 * <li>using environment variable with syntax: <code>(clazz.getSimpleName() + "_" + field.getName()).toUpperCase()</code></li>
+	 * <li>using system variable with syntax: <code>(clazz.getSimpleName() + "." + field.getName()</code></li>
+	 * <li>"override.properties"</li>
+	 * <li>&lt;config name&gt;.properties</li>
+	 * </ul> 
+	 * @param clazz
+	 * @param field
+	 * @param propertyKey
+	 * @param propertyValue
+	 * @param properties
+	 * @return the value either environment variable, system property or value specified by the properties files
+	 */
 	private String getProperty(Class<?> clazz, Field field, String propertyKey, String propertyValue, ConfigProperties properties)
 	{
 		String configProperty = System.getenv((clazz.getSimpleName() + "_" + field.getName()).toUpperCase());
