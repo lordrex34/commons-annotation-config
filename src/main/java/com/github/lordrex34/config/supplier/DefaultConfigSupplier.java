@@ -36,12 +36,12 @@ import com.github.lordrex34.config.lang.FieldParser.FieldParserException;
 public class DefaultConfigSupplier implements IConfigValueSupplier<Object>
 {
 	@Override
-	public Object supply(Field field, ConfigField configField, ConfigProperties properties)
+	public Object supply(Class<?> clazz, Field field, ConfigField configField, ConfigProperties properties)
 	{
 		final String propertyKey = configField.name();
 		final String propertyValue = configField.value();
 		
-		final String configProperty = properties.getProperty(propertyKey, propertyValue);
+		final String configProperty = getProperty(clazz, field, propertyKey, propertyValue, properties);
 		final IConfigConverter converter = ConfigComponents.get(configField.converter());
 		
 		Object value;
@@ -55,5 +55,34 @@ public class DefaultConfigSupplier implements IConfigValueSupplier<Object>
 		}
 		
 		return value;
+	}
+	
+	/**
+	 * This method provides property value
+	 * <ul>
+	 * <li>using environment variable with syntax: <code>(clazz.getSimpleName() + "_" + field.getName()).toUpperCase()</code></li>
+	 * <li>using system variable with syntax: <code>(clazz.getSimpleName() + "." + field.getName()</code></li>
+	 * <li>"override.properties"</li>
+	 * <li>&lt;config name&gt;.properties</li>
+	 * </ul> 
+	 * @param clazz
+	 * @param field
+	 * @param propertyKey
+	 * @param propertyValue
+	 * @param properties
+	 * @return the value either environment variable, system property or value specified by the properties files
+	 */
+	private String getProperty(Class<?> clazz, Field field, String propertyKey, String propertyValue, ConfigProperties properties)
+	{
+		String configProperty = System.getenv((clazz.getSimpleName() + "_" + field.getName()).toUpperCase());
+		if (configProperty == null)
+		{
+			configProperty = System.getProperty(clazz.getSimpleName() + "." + field.getName());
+			if (configProperty == null)
+			{
+				configProperty = properties.getProperty(propertyKey, propertyValue);
+			}
+		}
+		return configProperty;
 	}
 }

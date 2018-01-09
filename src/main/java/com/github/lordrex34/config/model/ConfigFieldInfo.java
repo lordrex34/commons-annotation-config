@@ -138,7 +138,7 @@ public final class ConfigFieldInfo
 				_field.setAccessible(true);
 			}
 			
-			_field.set(null, ConfigComponents.get(_configField.valueSupplier()).supply(_field, _configField, properties));
+			_field.set(null, ConfigComponents.get(_configField.valueSupplier()).supply(_clazz, _field, _configField, properties));
 			ConfigComponents.get(_configField.postLoadHook()).load(properties);
 		}
 		finally

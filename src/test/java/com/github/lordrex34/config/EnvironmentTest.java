@@ -19,31 +19,29 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.github.lordrex34.config.supplier;
+package com.github.lordrex34.config;
 
-import java.lang.reflect.Field;
-
+import org.junit.Assert;
+import org.junit.Test;
+import com.github.lordrex34.config.annotation.ConfigClass;
 import com.github.lordrex34.config.annotation.ConfigField;
-import com.github.lordrex34.config.component.IConfigComponent;
-import com.github.lordrex34.config.lang.ConfigProperties;
 
 /**
- * Configuration value supplier interface.
- * @author lord_rex
- * @param <T> the type that is being supplied
+ * @author UnAfraid
  */
-@FunctionalInterface
-public interface IConfigValueSupplier<T> extends IConfigComponent
+public class EnvironmentTest extends AbstractConfigTest
 {
-	/**
-	 * Supplies a value to the field that is being configured.
-	 * @param clazz the {@link Class} that is being configured.
-	 * @param field the {@link Field} that is being configured.
-	 * @param configField the {@link ConfigField} that is being processed
-	 * @param properties mixture of normal and overridden properties
-	 * @return the supplied value
-	 * @throws InstantiationException
-	 * @throws IllegalAccessException
-	 */
-	T supply(Class<?> clazz, Field field, ConfigField configField, ConfigProperties properties) throws InstantiationException, IllegalAccessException;
+	@Test
+	public void testEnv()
+	{
+		Assert.assertNotNull(EnvTest.VALUE);
+		Assert.assertNotEquals(EnvTest.VALUE, "empty");
+	}
+
+	@ConfigClass(pathNames = "build", fileName = "test/EnvTest")
+	public static class EnvTest 
+	{
+		@ConfigField(name = "Value", value = "empty")
+		public static String VALUE;
+	}
 }
