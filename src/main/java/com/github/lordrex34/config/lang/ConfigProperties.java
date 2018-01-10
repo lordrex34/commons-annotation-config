@@ -22,10 +22,8 @@
 package com.github.lordrex34.config.lang;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Reader;
 import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.nio.file.Files;
@@ -84,49 +82,25 @@ public class ConfigProperties implements Serializable
 	// ===================================================================================
 	// Special Constructors
 	
-	public ConfigProperties(File file) throws IOException
-	{
-		this();
-		_loggingPrefix = file.toString();
-		
-		load(file);
-	}
-	
 	public ConfigProperties(Path path) throws IOException
 	{
 		this();
 		_loggingPrefix = path.toString();
-		
-		try (Reader reader = Files.newBufferedReader(path))
-		{
-			load(reader);
-		}
+		load(path);
+	}
+	
+	public ConfigProperties(File file) throws IOException
+	{
+		this();
+		_loggingPrefix = file.toString();
+		load(file);
 	}
 	
 	public ConfigProperties(String name) throws IOException
 	{
-		this(Paths.get(name));
+		this();
 		_loggingPrefix = name;
-	}
-	
-	public ConfigProperties(InputStream inStream) throws IOException
-	{
-		this();
-		
-		try (InputStream in = inStream)
-		{
-			load(in);
-		}
-	}
-	
-	public ConfigProperties(Reader reader) throws IOException
-	{
-		this();
-		
-		try (Reader in = reader)
-		{
-			load(in);
-		}
+		load(name);
 	}
 	
 	public ConfigProperties(Node node)
@@ -150,38 +124,26 @@ public class ConfigProperties implements Serializable
 	// ===================================================================================
 	// Loaders
 	
-	public void load(String name) throws IOException
+	public void load(Path path) throws IOException
 	{
-		try (InputStream is = new FileInputStream(name))
+		final Properties prop = new Properties();
+		
+		try (InputStream in = Files.newInputStream(path))
 		{
-			load(is);
+			prop.load(in);
 		}
+		
+		load(prop);
 	}
 	
 	public void load(File file) throws IOException
 	{
-		try (InputStream is = new FileInputStream(file))
-		{
-			load(is);
-		}
+		load(file.toPath());
 	}
 	
-	public void load(InputStream inStream) throws IOException
+	public void load(String name) throws IOException
 	{
-		final Properties prop = new Properties();
-		
-		prop.load(inStream);
-		
-		load(prop);
-	}
-	
-	public void load(Reader reader) throws IOException
-	{
-		final Properties prop = new Properties();
-		
-		prop.load(reader);
-		
-		load(prop);
+		load(Paths.get(name));
 	}
 	
 	public void load(Node node)

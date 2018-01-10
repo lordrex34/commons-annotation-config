@@ -27,6 +27,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashSet;
+import java.util.Properties;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -142,26 +143,35 @@ public final class ConfigManager
 	 */
 	public void load(ClassLoader classLoader, String packageName, boolean reloading) throws IOException, IllegalArgumentException, IllegalAccessException, InstantiationException
 	{
-		if (_overrideInputStream != null)
+		if ((_overridenProperties == null) || reloading)
 		{
-			_overridenProperties = new ConfigProperties(_overrideInputStream);
-			LOGGER.info("Loaded {} overridden properti(es).", _overridenProperties.size());
-		}
-		else
-		{
-			_overridenProperties = ConfigProperties.EMPTY;
+			if (_overrideInputStream != null)
+			{
+				final Properties overriddenProperties = new Properties();
+				overriddenProperties.load(_overrideInputStream);
+				_overridenProperties = new ConfigProperties(overriddenProperties);
+				LOGGER.info("Loaded {} overridden properti(es).", _overridenProperties.size());
+			}
+			else
+			{
+				_overridenProperties = ConfigProperties.EMPTY;
+			}
 		}
 		
-		ClassPathUtil.getAllClassesAnnotatedWith(classLoader, packageName, ConfigClass.class).forEach(clazz -> _configRegistry.add(new ConfigClassInfo(clazz)));
+		final Set<ConfigClassInfo> configRegistry = new HashSet<>();
+		ClassPathUtil.getAllClassesAnnotatedWith(classLoader, packageName, ConfigClass.class).forEach(clazz -> configRegistry.add(new ConfigClassInfo(clazz)));
 		final ConfigClassLoadingContext classLoadingContext = new ConfigClassLoadingContext();
 		classLoadingContext.setOverriddenProperties(_overridenProperties);
 		classLoadingContext.setReloading(reloading);
-		for (ConfigClassInfo configClassInfo : _configRegistry)
+		for (ConfigClassInfo configClassInfo : configRegistry)
 		{
 			configClassInfo.load(classLoadingContext);
 		}
 		
-		LOGGER.info("Loaded {} config file(s).", _configRegistry.size());
+		// Register everything into the manager's registry.
+		_configRegistry.addAll(configRegistry);
+		
+		LOGGER.info("Loaded {} config file(s).", configRegistry.size());
 	}
 	
 	/**
