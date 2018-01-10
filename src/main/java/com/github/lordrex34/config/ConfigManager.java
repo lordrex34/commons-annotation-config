@@ -27,6 +27,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashSet;
+import java.util.Properties;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -144,7 +145,9 @@ public final class ConfigManager
 	{
 		if (_overrideInputStream != null)
 		{
-			_overridenProperties = new ConfigProperties(_overrideInputStream);
+			final Properties overriddenProperties = new Properties();
+			overriddenProperties.load(_overrideInputStream);
+			_overridenProperties = new ConfigProperties(overriddenProperties);
 			LOGGER.info("Loaded {} overridden properti(es).", _overridenProperties.size());
 		}
 		else
