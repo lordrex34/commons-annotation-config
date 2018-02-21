@@ -32,8 +32,8 @@ eclipse {
 }
 
 dependencies {
-	compile(group: "org.slf4j", name: "slf4j-api", version: "1.7.12")
-	compile(group: "com.google.guava", name: "guava", version: "22.0")
+	compile(group: "org.slf4j", name: "slf4j-api", version: "1.7.25")
+	compile(group: "com.google.guava", name: "guava", version: "24.0-jre")
 	
 	testCompile(group: 'junit', name: 'junit', version: '4.12')
 }
@@ -148,7 +148,7 @@ uploadArchives {
 
 
 task wrapper(type: Wrapper) {
-	gradleVersion = "3.5"
+	gradleVersion = "4.5.1"
 }
 
 def getRepositoryUsername() {
