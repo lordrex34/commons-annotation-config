@@ -44,17 +44,14 @@ public class DefaultConfigSupplier implements IConfigValueSupplier<Object>
 		final String configProperty = getProperty(clazz, field, propertyKey, propertyValue, properties);
 		final IConfigConverter converter = ConfigComponents.get(configField.converter());
 		
-		Object value;
 		try
 		{
-			value = converter.convertFromString(field, field.getType(), configProperty);
+			return converter.convertFromString(field, field.getType(), configProperty);
 		}
 		catch (FieldParserException e)
 		{
 			throw new FieldParserException("Property '" + propertyKey + "' has incorrect syntax! Please check!");
 		}
-		
-		return value;
 	}
 	
 	/**
@@ -64,7 +61,7 @@ public class DefaultConfigSupplier implements IConfigValueSupplier<Object>
 	 * <li>using system variable with syntax: <code>(clazz.getSimpleName() + "." + field.getName()</code></li>
 	 * <li>"override.properties"</li>
 	 * <li>&lt;config name&gt;.properties</li>
-	 * </ul> 
+	 * </ul>
 	 * @param clazz
 	 * @param field
 	 * @param propertyKey
