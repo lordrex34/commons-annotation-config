@@ -25,7 +25,7 @@ import java.io.IOException;
 
 import com.github.lordrex34.config.annotation.ConfigClass;
 import com.github.lordrex34.config.model.ConfigClassInfo;
-import com.github.lordrex34.config.util.ClassPathUtil;
+import com.github.lordrex34.reflection.util.ClassPathUtil;
 
 /**
  * @author NB4L1
