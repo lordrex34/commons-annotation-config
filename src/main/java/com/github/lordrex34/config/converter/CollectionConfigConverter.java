@@ -28,7 +28,7 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
 
-import com.github.lordrex34.config.util.GenericUtil;
+import com.github.lordrex34.reflection.util.GenericUtil;
 
 /**
  * @author _dev_
@@ -51,7 +51,7 @@ public abstract class CollectionConfigConverter implements IConfigConverter
 		Collection<Object> result = null;
 		final String[] splitted = value.split(",");
 		
-		final Class<?> elementType = GenericUtil.getFirstGenericTypeOfGenerizedField(field);
+		final Class<?> elementType = GenericUtil.typeOf(field, 0);
 		if (type == Set.class)
 		{
 			// for enums, impose enum order
@@ -99,7 +99,7 @@ public abstract class CollectionConfigConverter implements IConfigConverter
 			return "";
 		}
 		
-		final Class<?> elementType = GenericUtil.getFirstGenericTypeOfGenerizedField(field);
+		final Class<?> elementType = GenericUtil.typeOf(field, 0);
 		if (elementType.isEnum() && (type == Set.class))
 		{
 			final Class<? extends Enum> c = elementType.asSubclass(Enum.class);
