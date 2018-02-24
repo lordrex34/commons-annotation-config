@@ -38,8 +38,8 @@ import com.github.lordrex34.config.context.ConfigClassLoadingContext;
 import com.github.lordrex34.config.exception.ConfigOverrideLoadingException;
 import com.github.lordrex34.config.lang.ConfigProperties;
 import com.github.lordrex34.config.model.ConfigClassInfo;
-import com.github.lordrex34.config.util.ClassPathUtil;
 import com.github.lordrex34.config.util.ConfigPropertyRegistry;
+import com.github.lordrex34.reflection.util.ClassPathUtil;
 import com.google.common.annotations.VisibleForTesting;
 
 /**
