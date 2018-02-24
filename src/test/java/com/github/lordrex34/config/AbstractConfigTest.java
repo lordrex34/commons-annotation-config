@@ -28,8 +28,8 @@ import java.lang.reflect.Modifier;
 import org.junit.Before;
 
 import com.github.lordrex34.config.annotation.ConfigClass;
-import com.github.lordrex34.config.util.ClassPathUtil;
 import com.github.lordrex34.config.util.ConfigPropertyRegistry;
+import com.github.lordrex34.reflection.util.ClassPathUtil;
 
 /**
  * @author lord_rex
