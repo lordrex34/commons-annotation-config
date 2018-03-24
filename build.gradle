@@ -10,7 +10,7 @@ apply plugin: "maven-publish"
 apply plugin: "signing"
 apply plugin: "findbugs"
 
-sourceCompatibility = JavaVersion.VERSION_1_8
+sourceCompatibility = JavaVersion.VERSION_1_9
 
 gitPublishConfig {
 	org = "lordrex34"
