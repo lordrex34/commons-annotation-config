@@ -67,7 +67,7 @@ public abstract class AbstractConfigTest
 				}
 				
 				// private field support
-				final boolean wasAccessible = field.isAccessible();
+				final boolean wasAccessible = field.canAccess(null);
 				try
 				{
 					if (!wasAccessible)

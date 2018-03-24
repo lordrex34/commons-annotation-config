@@ -21,6 +21,7 @@
  */
 package com.github.lordrex34.config.component;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -53,9 +54,9 @@ public final class ConfigComponents
 		{
 			try
 			{
-				return componentClass.newInstance();
+				return componentClass.getConstructor().newInstance();
 			}
-			catch (InstantiationException | IllegalAccessException e)
+			catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e)
 			{
 				throw new ConfigComponentLoadingException("Component couldn't be loaded, please check!", e);
 			}
