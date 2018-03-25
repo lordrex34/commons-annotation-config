@@ -54,7 +54,7 @@ public class TestMultipleConfigLoad extends AbstractConfigTest
 	@ConfigClass(fileName = "test")
 	public static class ConfigTest
 	{
-		@ConfigField(name = "TestString", value = "Foo")
-		public static String TEST_STRING;
+		@ConfigField(name = "TestFooString", value = "Foo")
+		public static String TEST_FOO_STRING;
 	}
 }
