@@ -165,7 +165,7 @@ public final class ConfigFieldInfo
 	 * Prints the necessary field information into a {@link StringBuilder}.
 	 * @param out the {@link StringBuilder} that receives the output
 	 */
-	public void print(StringBuilder out)
+	public void print(StringBuilder out) throws IllegalAccessException, InstantiationException
 	{
 		if (_beginningGroup != null)
 		{
@@ -202,16 +202,11 @@ public final class ConfigFieldInfo
 					out.append("# Available: ").append(collection.toString().replace("[", "").replace("]", "").replace(" ", "")).append(System.lineSeparator());
 				}
 			}
-			try
-			{
-				final IConfigValueSupplier<?> supplier = ConfigComponents.get(_configField.valueSupplier());
-				final Object value = supplier.supply(_clazz, _field, _configField, new ConfigProperties(), true);
-				out.append(_configField.name()).append(" = ").append(value).append(System.lineSeparator());
-			}
-			catch (Exception e)
-			{
-				throw new RuntimeException(e);
-			}
+			
+			final IConfigValueSupplier<?> supplier = ConfigComponents.get(_configField.valueSupplier());
+			final Object value = supplier.supply(_clazz, _field, _configField, new ConfigProperties(), true);
+			out.append(_configField.name()).append(" = ").append(value).append(System.lineSeparator());
+			
 			out.append(System.lineSeparator());
 		}
 		

@@ -129,7 +129,7 @@ public final class ConfigClassInfo
 	 * Prints the necessary class information into a {@link StringBuilder}.
 	 * @param out the {@link StringBuilder} that receives the output
 	 */
-	public void print(StringBuilder out)
+	public void print(StringBuilder out) throws InstantiationException, IllegalAccessException
 	{
 		// Header.
 		out.append("################################################################################\r\n");
@@ -148,14 +148,17 @@ public final class ConfigClassInfo
 			out.append(System.lineSeparator());
 		}
 		
-		_fieldInfoClasses.forEach(configFieldInfo -> configFieldInfo.print(out));
+		for (ConfigFieldInfo configFieldInfo : _fieldInfoClasses)
+		{
+			configFieldInfo.print(out);
+		}
 	}
 	
 	/**
 	 * Generates a properties file based on the annotation input from the configuration class and its fields.
 	 * @throws IOException
 	 */
-	public void generate() throws IOException
+	public void generate() throws IOException, IllegalAccessException, InstantiationException
 	{
 		final StringBuilder out = new StringBuilder();
 		
