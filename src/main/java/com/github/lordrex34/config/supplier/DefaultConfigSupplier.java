@@ -22,6 +22,7 @@
 package com.github.lordrex34.config.supplier;
 
 import java.lang.reflect.Field;
+import java.util.Collection;
 
 import com.github.lordrex34.config.annotation.ConfigField;
 import com.github.lordrex34.config.component.ConfigComponents;
@@ -46,6 +47,10 @@ public class DefaultConfigSupplier implements IConfigValueSupplier<Object>
 		
 		try
 		{
+			if (generating && (field.getType().isArray() || Collection.class.isAssignableFrom(field.getType())))
+			{
+				return propertyValue;
+			}
 			return converter.convertFromString(field, field.getType(), configProperty);
 		}
 		catch (FieldParserException e)
