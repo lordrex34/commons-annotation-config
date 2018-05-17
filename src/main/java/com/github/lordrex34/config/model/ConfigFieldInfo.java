@@ -21,6 +21,7 @@
  */
 package com.github.lordrex34.config.model;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.nio.file.Path;
@@ -38,6 +39,8 @@ import com.github.lordrex34.config.annotation.ConfigGroupEnding;
 import com.github.lordrex34.config.component.ConfigComponents;
 import com.github.lordrex34.config.context.ConfigFieldLoadingContext;
 import com.github.lordrex34.config.lang.ConfigProperties;
+import com.github.lordrex34.config.supplier.IConfigGeneratedValueSupplier;
+import com.github.lordrex34.config.supplier.IConfigValueSupplier;
 import com.github.lordrex34.config.util.ConfigPropertyRegistry;
 
 /**
@@ -189,7 +192,16 @@ public final class ConfigFieldInfo
 					out.append("# Available: ").append(collection.toString().replace("[", "").replace("]", "").replace(" ", "")).append(System.lineSeparator());
 				}
 			}
-			out.append(_configField.name()).append(" = ").append(_configField.value()).append(System.lineSeparator());
+			try
+			{
+				final IConfigGeneratedValueSupplier<?> supplier = ConfigComponents.get(_configField.generatedValueSupplier());
+				final Object value = supplier.supply(_clazz, _field, _configField, new ConfigProperties());
+				out.append(_configField.name()).append(" = ").append(value).append(System.lineSeparator());
+			}
+			catch (Exception e)
+			{
+				throw new RuntimeException(e);
+			}
 			out.append(System.lineSeparator());
 		}
 		

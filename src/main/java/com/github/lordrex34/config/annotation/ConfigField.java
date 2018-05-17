@@ -31,6 +31,8 @@ import com.github.lordrex34.config.converter.MainConfigConverter;
 import com.github.lordrex34.config.postloadhooks.EmptyConfigPostLoadFieldHook;
 import com.github.lordrex34.config.postloadhooks.IConfigPostLoadFieldHook;
 import com.github.lordrex34.config.supplier.DefaultConfigSupplier;
+import com.github.lordrex34.config.supplier.DefaultGeneratedConfigSupplier;
+import com.github.lordrex34.config.supplier.IConfigGeneratedValueSupplier;
 import com.github.lordrex34.config.supplier.IConfigValueSupplier;
 
 /**
@@ -52,6 +54,12 @@ public @interface ConfigField
 	 * @return the configuration value supplier
 	 */
 	Class<? extends IConfigValueSupplier<?>> valueSupplier() default DefaultConfigSupplier.class;
+
+	/**
+	 * Here you may specify your own configuration generated value supplier for your field.
+	 * @return the configuration value supplier
+	 */
+	Class<? extends IConfigGeneratedValueSupplier<?>> generatedValueSupplier() default DefaultGeneratedConfigSupplier.class;
 	
 	/**
 	 * A default value used both for generation, and in case the property key is missing, it is going to be loaded.
