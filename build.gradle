@@ -1,5 +1,5 @@
 plugins {
-	id "com.github.unafraid.gradle.git-repo-plugin" version "2.0.4"
+    id "com.github.unafraid.gradle.git-repo-plugin" version "2.0.4"
 }
 
 apply plugin: "com.github.unafraid.gradle.git-repo-plugin"
@@ -13,148 +13,148 @@ apply plugin: "findbugs"
 sourceCompatibility = JavaVersion.VERSION_1_9
 
 gitPublishConfig {
-	org = "lordrex34"
-	repo = "commons-annotation-config"
-	branch = "releases"
+    org = "lordrex34"
+    repo = "commons-annotation-config"
+    branch = "releases"
 }
 
 group = "com.github.lordrex34.config"
 version = "1.0.5"
 
 repositories {
-	mavenCentral()
+    mavenCentral()
 }
 
 eclipse {
-	project {
-		natures("org.springsource.ide.eclipse.gradle.core.nature")
-	}
+    project {
+        natures("org.springsource.ide.eclipse.gradle.core.nature")
+    }
 }
 
 dependencies {
-	compile(group: "com.github.lordrex34.reflection", name: "commons-reflection-utils", version: "1.0.1")
-	testCompile(group: 'junit', name: 'junit', version: '4.12')
+    compile(group: "com.github.lordrex34.reflection", name: "commons-reflection-utils", version: "1.0.1")
+    testCompile(group: 'junit', name: 'junit', version: '4.12')
     testRuntime(group: "org.apache.logging.log4j", name: "log4j-slf4j-impl", version: "2.9.1")
     testRuntime(group: "org.apache.logging.log4j", name: "log4j-core", version: "2.9.1")
 }
 
 test {
-	environment "ENVTEST_VALUE", "Environment Test."
+    environment "ENVTEST_VALUE", "Environment Test."
 }
 
 findbugs {
-	findbugsTest.enabled = false
+    findbugsTest.enabled = false
 }
 
 tasks.withType(FindBugs) {
-	reports {
-		xml.enabled false
-		html.enabled true
-	}
-	excludeFilter = file("excludeFilter.xml")
+    reports {
+        xml.enabled false
+        html.enabled true
+    }
+    excludeFilter = file("excludeFilter.xml")
 }
 
 tasks.withType(JavaCompile) {
-	options.encoding = "UTF-8"
+    options.encoding = "UTF-8"
 }
 
 tasks.withType(Javadoc) {
-	options.addStringOption("Xdoclint:none", "-quiet")
+    options.addStringOption("Xdoclint:none", "-quiet")
 }
 
 task javadocJar(type: Jar) {
-	classifier = "javadoc"
-	from javadoc
+    classifier = "javadoc"
+    from javadoc
 }
 
 task sourcesJar(type: Jar) {
-	classifier = "sources"
-	from sourceSets.main.allSource
+    classifier = "sources"
+    from sourceSets.main.allSource
 }
 
 artifacts {
-	archives javadocJar, sourcesJar
+    archives javadocJar, sourcesJar
 }
 
 signing {
-	required { gradle.taskGraph.hasTask("uploadArchives") }
-	sign configurations.archives
+    required { gradle.taskGraph.hasTask("uploadArchives") }
+    sign configurations.archives
 }
 
 publishing {
-	publications {
-		mavenJava(MavenPublication) {
-			from components.java
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
 
-			artifact sourcesJar
-		}
-	}
-	repositories {
-		maven {
-			url "file://${gitPublishConfig.home}/${gitPublishConfig.org}/${gitPublishConfig.repo}/releases"
-		}
-	}
+            artifact sourcesJar
+        }
+    }
+    repositories {
+        maven {
+            url "file://${gitPublishConfig.home}/${gitPublishConfig.org}/${gitPublishConfig.repo}/releases"
+        }
+    }
 }
 
 uploadArchives {
-	repositories {
-		mavenDeployer {
-			beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
 
-			repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2") {
-				authentication(userName: getRepositoryUsername(), password: getRepositoryPassword())
-			}
+            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2") {
+                authentication(userName: getRepositoryUsername(), password: getRepositoryPassword())
+            }
 
-			snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots") {
-				authentication(userName: getRepositoryUsername(), password: getRepositoryPassword())
-			}
+            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots") {
+                authentication(userName: getRepositoryUsername(), password: getRepositoryPassword())
+            }
 
-			pom.project {
-				name project.name
-				packaging "jar"
-				description "An annotation based configuration API for static fields."
-				url "https://github.com/lordrex34/commons-annotation-config"
+            pom.project {
+                name project.name
+                packaging "jar"
+                description "An annotation based configuration API for static fields."
+                url "https://github.com/lordrex34/commons-annotation-config"
 
-				scm {
-					connection "scm:git:git@github.com:lordrex34/commons-annotation-config.git"
-					developerConnection "scm:git:git@github.com:lordrex34/commons-annotation-config.git"
-					url "git@github.com:lordrex34/commons-annotation-config.git"
-				}
+                scm {
+                    connection "scm:git:git@github.com:lordrex34/commons-annotation-config.git"
+                    developerConnection "scm:git:git@github.com:lordrex34/commons-annotation-config.git"
+                    url "git@github.com:lordrex34/commons-annotation-config.git"
+                }
 
-				licenses {
-					license {
-						name "MIT License"
-						url "https://opensource.org/licenses/MIT"
-						distribution "repo"
-					}
-				}
+                licenses {
+                    license {
+                        name "MIT License"
+                        url "https://opensource.org/licenses/MIT"
+                        distribution "repo"
+                    }
+                }
 
-				developers {
-					developer {
-						id "lordrex34"
-						name "Reginald Ravenhorst"
-						email "lordrex34@gmail.com"
-						organization "RaveN Network"
-						organizationUrl "https://github.com/lordrex34"
-						roles {
-							role "developer"
-						}
-					}
-				}
-			}
-		}
-	}
+                developers {
+                    developer {
+                        id "lordrex34"
+                        name "Reginald Ravenhorst"
+                        email "lordrex34@gmail.com"
+                        organization "RaveN Network"
+                        organizationUrl "https://github.com/lordrex34"
+                        roles {
+                            role "developer"
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 
 task wrapper(type: Wrapper) {
-	gradleVersion = "4.5.1"
+    gradleVersion = "4.5.1"
 }
 
 def getRepositoryUsername() {
-	return hasProperty("ossrhUsername") ? ossrhUsername : ""
+    return hasProperty("ossrhUsername") ? ossrhUsername : ""
 }
 
 def getRepositoryPassword() {
-	return hasProperty("ossrhPassword") ? ossrhPassword : ""
+    return hasProperty("ossrhPassword") ? ossrhPassword : ""
 }
