@@ -39,7 +39,7 @@ public abstract class AbstractConfigGenerator
 	 * @param classLoader the class loader that is used for the process
 	 * @throws IOException
 	 */
-	public AbstractConfigGenerator(ClassLoader classLoader) throws IOException
+	public AbstractConfigGenerator(ClassLoader classLoader) throws IOException, InstantiationException, IllegalAccessException
 	{
 		for (Class<?> clazz : ClassPathUtil.getAllClassesAnnotatedWith(classLoader, getPackageName(), ConfigClass.class))
 		{
@@ -52,7 +52,7 @@ public abstract class AbstractConfigGenerator
 	 * Same as {@link #AbstractConfigGenerator(ClassLoader)}, using {@link ClassLoader#getSystemClassLoader()} as the classLoader parameter.
 	 * @throws IOException
 	 */
-	public AbstractConfigGenerator() throws IOException
+	public AbstractConfigGenerator() throws IOException, InstantiationException, IllegalAccessException
 	{
 		this(ClassLoader.getSystemClassLoader());
 	}
@@ -63,7 +63,7 @@ public abstract class AbstractConfigGenerator
 	 * @param packageName the package where configuration related classes are stored
 	 * @throws IOException
 	 */
-	public static void generateAll(ClassLoader classLoader, String packageName) throws IOException
+	public static void generateAll(ClassLoader classLoader, String packageName) throws IOException, InstantiationException, IllegalAccessException
 	{
 		new AbstractConfigGenerator(classLoader)
 		{
@@ -80,7 +80,7 @@ public abstract class AbstractConfigGenerator
 	 * @param packageName
 	 * @throws IOException
 	 */
-	public static void generateAll(String packageName) throws IOException
+	public static void generateAll(String packageName) throws IOException, InstantiationException, IllegalAccessException
 	{
 		generateAll(ClassLoader.getSystemClassLoader(), packageName);
 	}

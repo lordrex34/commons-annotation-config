@@ -1,16 +1,16 @@
 /*
  * Copyright (c) 2017 Reginald Ravenhorst <lordrex34@gmail.com>
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -38,6 +38,7 @@ import com.github.lordrex34.config.annotation.ConfigGroupEnding;
 import com.github.lordrex34.config.component.ConfigComponents;
 import com.github.lordrex34.config.context.ConfigFieldLoadingContext;
 import com.github.lordrex34.config.lang.ConfigProperties;
+import com.github.lordrex34.config.supplier.IConfigValueSupplier;
 import com.github.lordrex34.config.util.ConfigPropertyRegistry;
 
 /**
@@ -48,19 +49,29 @@ public final class ConfigFieldInfo
 {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ConfigFieldInfo.class);
 	
-	/** The class that is being scanned. */
+	/**
+	 * The class that is being scanned.
+	 */
 	private final Class<?> _clazz;
 	
-	/** The field that contains {@link ConfigField} annotation. */
+	/**
+	 * The field that contains {@link ConfigField} annotation.
+	 */
 	private final Field _field;
 	
-	/** The configuration field information annotation. */
+	/**
+	 * The configuration field information annotation.
+	 */
 	private final ConfigField _configField;
 	
-	/** Group beginning marker annotation. */
+	/**
+	 * Group beginning marker annotation.
+	 */
 	private final ConfigGroupBeginning _beginningGroup;
 	
-	/** Group ending marker annotation. */
+	/**
+	 * Group ending marker annotation.
+	 */
 	private final ConfigGroupEnding _endingGroup;
 	
 	/**
@@ -138,7 +149,9 @@ public final class ConfigFieldInfo
 				_field.setAccessible(true);
 			}
 			
-			_field.set(null, ConfigComponents.get(_configField.valueSupplier()).supply(_clazz, _field, _configField, properties));
+			final IConfigValueSupplier<?> supplier = ConfigComponents.get(_configField.valueSupplier());
+			final Object value = supplier.supply(_clazz, _field, _configField, properties, false);
+			_field.set(null, value);
 			ConfigComponents.get(_configField.postLoadHook()).load(properties);
 		}
 		finally
@@ -152,7 +165,7 @@ public final class ConfigFieldInfo
 	 * Prints the necessary field information into a {@link StringBuilder}.
 	 * @param out the {@link StringBuilder} that receives the output
 	 */
-	public void print(StringBuilder out)
+	public void print(StringBuilder out) throws IllegalAccessException, InstantiationException
 	{
 		if (_beginningGroup != null)
 		{
@@ -189,7 +202,11 @@ public final class ConfigFieldInfo
 					out.append("# Available: ").append(collection.toString().replace("[", "").replace("]", "").replace(" ", "")).append(System.lineSeparator());
 				}
 			}
-			out.append(_configField.name()).append(" = ").append(_configField.value()).append(System.lineSeparator());
+			
+			final IConfigValueSupplier<?> supplier = ConfigComponents.get(_configField.valueSupplier());
+			final Object value = supplier.supply(_clazz, _field, _configField, new ConfigProperties(), true);
+			out.append(_configField.name()).append(" = ").append(value).append(System.lineSeparator());
+			
 			out.append(System.lineSeparator());
 		}
 		

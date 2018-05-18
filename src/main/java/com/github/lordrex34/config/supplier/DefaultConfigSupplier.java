@@ -36,7 +36,7 @@ import com.github.lordrex34.config.lang.FieldParser.FieldParserException;
 public class DefaultConfigSupplier implements IConfigValueSupplier<Object>
 {
 	@Override
-	public Object supply(Class<?> clazz, Field field, ConfigField configField, ConfigProperties properties)
+	public Object supply(Class<?> clazz, Field field, ConfigField configField, ConfigProperties properties, boolean generating)
 	{
 		final String propertyKey = configField.name();
 		final String propertyValue = configField.value();
@@ -46,7 +46,8 @@ public class DefaultConfigSupplier implements IConfigValueSupplier<Object>
 		
 		try
 		{
-			return converter.convertFromString(field, field.getType(), configProperty);
+			final Object value = converter.convertFromString(field, field.getType(), configProperty);
+			return generating ? converter.convertToString(field, field.getType(), value) : value;
 		}
 		catch (FieldParserException e)
 		{

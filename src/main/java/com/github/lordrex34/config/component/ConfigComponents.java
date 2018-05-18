@@ -21,6 +21,7 @@
  */
 package com.github.lordrex34.config.component;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
@@ -54,7 +55,9 @@ public final class ConfigComponents
 		{
 			try
 			{
-				return componentClass.getConstructor().newInstance();
+				final Constructor<T> constructor = componentClass.getDeclaredConstructor();
+				constructor.trySetAccessible();
+				return constructor.newInstance();
 			}
 			catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e)
 			{

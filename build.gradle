@@ -19,7 +19,7 @@ gitPublishConfig {
 }
 
 group = "com.github.lordrex34.config"
-version = "1.0.4"
+version = "1.0.5"
 
 repositories {
 	mavenCentral()
@@ -34,6 +34,8 @@ eclipse {
 dependencies {
 	compile(group: "com.github.lordrex34.reflection", name: "commons-reflection-utils", version: "1.0.1")
 	testCompile(group: 'junit', name: 'junit', version: '4.12')
+	testRuntime(group: "org.apache.logging.log4j", name: "log4j-slf4j-impl", version: "2.9.1")
+	testRuntime(group: "org.apache.logging.log4j", name: "log4j-core", version: "2.9.1")
 }
 
 test {
