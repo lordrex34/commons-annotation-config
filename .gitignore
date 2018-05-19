@@ -7,7 +7,7 @@ bin/
 
 # Idea
 *.iml
-*/.idea/
+.idea/
 /out/
 
 # Gradle
