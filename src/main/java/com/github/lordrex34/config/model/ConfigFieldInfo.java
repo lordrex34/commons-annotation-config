@@ -141,7 +141,7 @@ public final class ConfigFieldInfo
 		}
 		
 		// private field support
-		final boolean wasAccessible = _field.canAccess(null);
+		final boolean wasAccessible = _field.isAccessible(); /*_field.canAccess(null);*/
 		try
 		{
 			if (!wasAccessible)

@@ -56,7 +56,7 @@ public final class ConfigComponents
 			try
 			{
 				final Constructor<T> constructor = componentClass.getDeclaredConstructor();
-				constructor.trySetAccessible();
+				// constructor.trySetAccessible();
 				return constructor.newInstance();
 			}
 			catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e)
