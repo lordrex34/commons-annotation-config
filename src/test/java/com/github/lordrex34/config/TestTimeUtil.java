@@ -121,6 +121,12 @@ public class TestTimeUtil extends AbstractConfigTest
 
 			assertEquals("Failed to parse " + pattern, result, expectedResult);
 		}
+
+		// Test default parse as well
+		for (Duration duration : TEST_VALUES.values())
+		{
+			assertEquals(TimeUtil.parseDuration(duration.toString()), duration);
+		}
 	}
 
 	@Test(expected = IllegalStateException.class)
