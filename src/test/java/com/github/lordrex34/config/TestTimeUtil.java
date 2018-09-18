@@ -21,26 +21,19 @@
  */
 package com.github.lordrex34.config;
 
-import com.github.lordrex34.config.annotation.ConfigClass;
-import com.github.lordrex34.config.annotation.ConfigField;
 import com.github.lordrex34.config.util.TimeUtil;
 import org.junit.Test;
 
 import java.time.Duration;
-import java.time.Period;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author Nik
