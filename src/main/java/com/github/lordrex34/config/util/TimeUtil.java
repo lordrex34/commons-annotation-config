@@ -271,7 +271,7 @@ public final class TimeUtil
 	/** Clone of java 9 {@code duration.toDaysPart()} to allow support until we update to above java 8. */
 	private static long toDaysPart(Duration duration)
 	{
-		return duration.toSeconds() / 86400;
+		return duration.getSeconds() / 86400;
 	}
 
 	/** Clone of java 9 {@code duration.toHoursPart()} to allow support until we update to above java 8. */
