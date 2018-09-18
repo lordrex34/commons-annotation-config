@@ -37,11 +37,11 @@ public class TimeUtil
 	/**
 	 * Parses patterns like:
 	 * <ul>
+	 * <li>1millis or 10millis</li>
+	 * <li>1sec or 10secs</li>
 	 * <li>1min or 10mins</li>
 	 * <li>1day or 10days</li>
 	 * <li>1week or 4weeks</li>
-	 * <li>1month or 12months</li>
-	 * <li>1year or 5years</li>
 	 * </ul>
 	 * Also multiple value types in pattern are supported as well:
 	 * <ul>
@@ -57,33 +57,36 @@ public class TimeUtil
 	 * <li>millis</li>
 	 * <li>sec</li>
 	 * <li>secs</li>
+	 * <li>second</li>
+	 * <li>seconds</li>
 	 * <li>min</li>
 	 * <li>mins</li>
+	 * <li>minute</li>
+	 * <li>minutes</li>
 	 * <li>hour</li>
 	 * <li>hours</li>
+	 * <li>halfday</li>
+	 * <li>halfdays</li>
 	 * <li>day</li>
 	 * <li>days</li>
 	 * <li>week</li>
 	 * <li>weeks</li>
-	 * <li>month</li>
-	 * <li>months</li>
-	 * <li>year</li>
-	 * <li>years</li>
-	 * <li>All enum names of {@link ChronoUnit} by auto-converting input time unit to upper case before matching.</li>
 	 * </ul>
-	 * @param datePattern
+	 * Values such as months or years and everything above are not supported, because they are estimate values instead of precise ones.<br>
+	 * For example, one month can either be 30 or 31 days or one year can either be 365 or 366 days. A decade consists of 10 years with estimated amount of days.
+	 * @param pattern the pattern of duration to be parsed.
 	 * @return {@link Duration} object converted by the date pattern specified.
 	 * @throws IllegalStateException when malformed pattern specified.
 	 */
-	public static Duration parseDuration(String datePattern)
+	public static Duration parseDuration(String pattern)
 	{
 		try
 		{
 			Duration result = null;
-			final Matcher matcher = PARSE_DURATION_PATTERN.matcher(datePattern);
+			final Matcher matcher = PARSE_DURATION_PATTERN.matcher(pattern);
 			while (matcher.find())
 			{
-				final long value = Long.parseLong(matcher.group(1));
+				long value = Long.parseLong(matcher.group(1));
 				final String type = matcher.group(2);
 				final ChronoUnit unit;
 				switch (type.toLowerCase())
@@ -105,12 +108,16 @@ public class TimeUtil
 					}
 					case "sec":
 					case "secs":
+					case "second":
+					case "seconds":
 					{
 						unit = ChronoUnit.SECONDS;
 						break;
 					}
 					case "min":
 					case "mins":
+					case "minutes":
+					case "minute":
 					{
 						unit = ChronoUnit.MINUTES;
 						break;
@@ -119,6 +126,12 @@ public class TimeUtil
 					case "hours":
 					{
 						unit = ChronoUnit.HOURS;
+						break;
+					}
+					case "halfday":
+					case "halfdays":
+					{
+						unit = ChronoUnit.HALF_DAYS;
 						break;
 					}
 					case "day":
@@ -130,28 +143,13 @@ public class TimeUtil
 					case "week":
 					case "weeks":
 					{
-						unit = ChronoUnit.WEEKS;
-						break;
-					}
-					case "month":
-					case "months":
-					{
-						unit = ChronoUnit.MONTHS;
-						break;
-					}
-					case "year":
-					case "years":
-					{
-						unit = ChronoUnit.YEARS;
+						value *= ChronoUnit.WEEKS.getDuration().toDays();
+						unit = ChronoUnit.DAYS;
 						break;
 					}
 					default:
 					{
-						unit = ChronoUnit.valueOf(type.toUpperCase());
-						if (unit == null)
-						{
-							throw new IllegalArgumentException("Incorrect unit of time: " + type + "!");
-						}
+						throw new IllegalArgumentException("Incorrect or unsupported time unit type: " + type);
 					}
 				}
 
@@ -167,7 +165,7 @@ public class TimeUtil
 		}
 		catch (Exception e)
 		{
-			throw new IllegalStateException("Incorrect time format given: " + datePattern + "!", e);
+			throw new IllegalStateException("Incorrect time format given: " + pattern + "!", e);
 		}
 	}
 }
