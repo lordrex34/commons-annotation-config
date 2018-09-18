@@ -31,12 +31,19 @@ import java.util.regex.Pattern;
 /**
  * @author Nik
  */
-public class TimeUtil
+public final class TimeUtil
 {
 	private static class Lazy
 	{
-		/** Pattern that matches texts similar to "1hour30min20sec" into multiple groups of digit and non-digit parts. */
+		/**
+		 * Pattern that matches texts similar to "1hour30min20sec" into multiple groups of digit and non-digit parts.
+		 */
 		static final Pattern PARSE_DURATION_PATTERN = Pattern.compile("(\\d+)([^\\d]+)");
+	}
+
+	private TimeUtil()
+	{
+		// Utility class
 	}
 
 	/**
