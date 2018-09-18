@@ -22,6 +22,7 @@
 package com.github.lordrex34.config.util;
 
 import java.time.Duration;
+import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -31,9 +32,12 @@ import java.util.regex.Pattern;
  */
 public class TimeUtil
 {
-	/** Pattern that matches texts similar to "1hour30min20sec" into multiple groups of digit and non-digit parts. */
-	public static final Pattern PARSE_DURATION_PATTERN = Pattern.compile("(\\d+)([^\\d]+)");
-	
+	private static class Lazy
+	{
+		/** Pattern that matches texts similar to "1hour30min20sec" into multiple groups of digit and non-digit parts. */
+		static final Pattern PARSE_DURATION_PATTERN = Pattern.compile("(\\d+)([^\\d]+)");
+	}
+
 	/**
 	 * Parses patterns like:
 	 * <ul>
@@ -73,7 +77,9 @@ public class TimeUtil
 	 * <li>weeks</li>
 	 * </ul>
 	 * Values such as months or years and everything above are not supported, because they are estimate values instead of precise ones.<br>
-	 * For example, one month can either be 30 or 31 days or one year can either be 365 or 366 days. A decade consists of 10 years with estimated amount of days.
+	 * For example, one month can either be 30 or 31 days or one year can either be 365 or 366 days. A decade consists of 10 years with estimated amount of days.<br>
+	 * <br>
+	 * This method also supports the default duration pattern that is parsed by {@link Duration#parse(CharSequence)}
 	 * @param pattern the pattern of duration to be parsed.
 	 * @return {@link Duration} object converted by the date pattern specified.
 	 * @throws IllegalStateException when malformed pattern specified.
@@ -82,90 +88,97 @@ public class TimeUtil
 	{
 		try
 		{
-			Duration result = null;
-			final Matcher matcher = PARSE_DURATION_PATTERN.matcher(pattern);
-			while (matcher.find())
+			return Duration.parse(pattern);
+		}
+		catch (DateTimeParseException dtpe) // Intentional consequence when we want to parse our own variant of duration pattern.
+		{
+			try
 			{
-				long value = Long.parseLong(matcher.group(1));
-				final String type = matcher.group(2);
-				final ChronoUnit unit;
-				switch (type.toLowerCase())
+				Duration result = null;
+				final Matcher matcher = Lazy.PARSE_DURATION_PATTERN.matcher(pattern);
+				while (matcher.find())
 				{
-					case "nanos":
+					long value = Long.parseLong(matcher.group(1));
+					final String type = matcher.group(2);
+					final ChronoUnit unit;
+					switch (type.toLowerCase())
 					{
-						unit = ChronoUnit.NANOS;
-						break;
+						case "nanos":
+						{
+							unit = ChronoUnit.NANOS;
+							break;
+						}
+						case "micros":
+						{
+							unit = ChronoUnit.MICROS;
+							break;
+						}
+						case "millis":
+						{
+							unit = ChronoUnit.MILLIS;
+							break;
+						}
+						case "sec":
+						case "secs":
+						case "second":
+						case "seconds":
+						{
+							unit = ChronoUnit.SECONDS;
+							break;
+						}
+						case "min":
+						case "mins":
+						case "minutes":
+						case "minute":
+						{
+							unit = ChronoUnit.MINUTES;
+							break;
+						}
+						case "hour":
+						case "hours":
+						{
+							unit = ChronoUnit.HOURS;
+							break;
+						}
+						case "halfday":
+						case "halfdays":
+						{
+							unit = ChronoUnit.HALF_DAYS;
+							break;
+						}
+						case "day":
+						case "days":
+						{
+							unit = ChronoUnit.DAYS;
+							break;
+						}
+						case "week":
+						case "weeks":
+						{
+							value *= ChronoUnit.WEEKS.getDuration().toDays();
+							unit = ChronoUnit.DAYS;
+							break;
+						}
+						default:
+						{
+							throw new IllegalArgumentException("Incorrect or unsupported time unit type: " + type);
+						}
 					}
-					case "micros":
-					{
-						unit = ChronoUnit.MICROS;
-						break;
-					}
-					case "millis":
-					{
-						unit = ChronoUnit.MILLIS;
-						break;
-					}
-					case "sec":
-					case "secs":
-					case "second":
-					case "seconds":
-					{
-						unit = ChronoUnit.SECONDS;
-						break;
-					}
-					case "min":
-					case "mins":
-					case "minutes":
-					case "minute":
-					{
-						unit = ChronoUnit.MINUTES;
-						break;
-					}
-					case "hour":
-					case "hours":
-					{
-						unit = ChronoUnit.HOURS;
-						break;
-					}
-					case "halfday":
-					case "halfdays":
-					{
-						unit = ChronoUnit.HALF_DAYS;
-						break;
-					}
-					case "day":
-					case "days":
-					{
-						unit = ChronoUnit.DAYS;
-						break;
-					}
-					case "week":
-					case "weeks":
-					{
-						value *= ChronoUnit.WEEKS.getDuration().toDays();
-						unit = ChronoUnit.DAYS;
-						break;
-					}
-					default:
-					{
-						throw new IllegalArgumentException("Incorrect or unsupported time unit type: " + type);
-					}
+
+					result = result == null ? Duration.of(value, unit) : result.plus(value, unit);
 				}
 
-				result = result == null ? Duration.of(value, unit) : result.plus(value, unit);
-			}
+				if (result == null)
+				{
+					throw new IllegalStateException("Time format has failed to produce results!");
+				}
 
-			if (result == null)
+				return result;
+			}
+			catch (Exception e)
 			{
-				throw new IllegalStateException("Time format has failed to produce results!");
+				throw new IllegalStateException("Incorrect time format given: " + pattern + "!", e);
 			}
-
-			return result;
-		}
-		catch (Exception e)
-		{
-			throw new IllegalStateException("Incorrect time format given: " + pattern + "!", e);
 		}
 	}
 }
