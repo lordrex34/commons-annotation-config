@@ -106,74 +106,7 @@ public final class TimeUtil
 				final Matcher matcher = Lazy.PARSE_DURATION_PATTERN.matcher(pattern);
 				while (matcher.find())
 				{
-					long value = Long.parseLong(matcher.group(1));
-					final String type = matcher.group(2);
-					final ChronoUnit unit;
-					switch (type.toLowerCase())
-					{
-						case "nanos":
-						{
-							unit = ChronoUnit.NANOS;
-							break;
-						}
-						case "micros":
-						{
-							unit = ChronoUnit.MICROS;
-							break;
-						}
-						case "millis":
-						{
-							unit = ChronoUnit.MILLIS;
-							break;
-						}
-						case "sec":
-						case "secs":
-						case "second":
-						case "seconds":
-						{
-							unit = ChronoUnit.SECONDS;
-							break;
-						}
-						case "min":
-						case "mins":
-						case "minutes":
-						case "minute":
-						{
-							unit = ChronoUnit.MINUTES;
-							break;
-						}
-						case "hour":
-						case "hours":
-						{
-							unit = ChronoUnit.HOURS;
-							break;
-						}
-						case "halfday":
-						case "halfdays":
-						{
-							unit = ChronoUnit.HALF_DAYS;
-							break;
-						}
-						case "day":
-						case "days":
-						{
-							unit = ChronoUnit.DAYS;
-							break;
-						}
-						case "week":
-						case "weeks":
-						{
-							value = ChronoUnit.WEEKS.getDuration().multipliedBy(value).toDays();
-							unit = ChronoUnit.DAYS;
-							break;
-						}
-						default:
-						{
-							throw new IllegalArgumentException("Incorrect or unsupported time unit type: " + type);
-						}
-					}
-
-					result = result == null ? Duration.of(value, unit) : result.plus(value, unit);
+					result = parseSingleUnitDuration(matcher, result);
 				}
 
 				if (result == null)
@@ -188,6 +121,84 @@ public final class TimeUtil
 				throw new IllegalStateException("Incorrect time format given: " + pattern + "!", e);
 			}
 		}
+	}
+
+	/**
+	 * Parses a single unit of duration, following the pattern at {@link #parseDuration(String)}
+	 * @param matcher the matcher result of the pattern
+	 * @param durationToAdd the amount of duration to which the result will be added or {@code null} to return result as is.
+	 * @return the resulting duration of the pattern parsing, or the sum of the result with the given duration to add.
+	 */
+	public static Duration parseSingleUnitDuration(Matcher matcher, Duration durationToAdd)
+	{
+		long value = Long.parseLong(matcher.group(1));
+		final String type = matcher.group(2);
+		final ChronoUnit unit;
+		switch (type.toLowerCase())
+		{
+			case "nanos":
+			{
+				unit = ChronoUnit.NANOS;
+				break;
+			}
+			case "micros":
+			{
+				unit = ChronoUnit.MICROS;
+				break;
+			}
+			case "millis":
+			{
+				unit = ChronoUnit.MILLIS;
+				break;
+			}
+			case "sec":
+			case "secs":
+			case "second":
+			case "seconds":
+			{
+				unit = ChronoUnit.SECONDS;
+				break;
+			}
+			case "min":
+			case "mins":
+			case "minutes":
+			case "minute":
+			{
+				unit = ChronoUnit.MINUTES;
+				break;
+			}
+			case "hour":
+			case "hours":
+			{
+				unit = ChronoUnit.HOURS;
+				break;
+			}
+			case "halfday":
+			case "halfdays":
+			{
+				unit = ChronoUnit.HALF_DAYS;
+				break;
+			}
+			case "day":
+			case "days":
+			{
+				unit = ChronoUnit.DAYS;
+				break;
+			}
+			case "week":
+			case "weeks":
+			{
+				value = ChronoUnit.WEEKS.getDuration().multipliedBy(value).toDays();
+				unit = ChronoUnit.DAYS;
+				break;
+			}
+			default:
+			{
+				throw new IllegalArgumentException("Incorrect or unsupported time unit type: " + type);
+			}
+		}
+
+		return durationToAdd == null ? Duration.of(value, unit) : durationToAdd.plus(value, unit);
 	}
 
 	/**
@@ -212,48 +223,78 @@ public final class TimeUtil
 		}
 
 		String result = "";
-		if (duration.toDaysPart() > 1)
+		if (toDaysPart(duration) > 1)
 		{
-			result += duration.toDaysPart() + "days";
+			result += toDaysPart(duration) + "days";
 		}
-		if (duration.toDaysPart() == 1)
+		if (toDaysPart(duration) == 1)
 		{
-			result += duration.toDaysPart() + "day";
+			result += toDaysPart(duration) + "day";
 		}
-		if (duration.toHoursPart() > 1)
+		if (toHoursPart(duration) > 1)
 		{
-			result += duration.toHoursPart() + "hours";
+			result += toHoursPart(duration) + "hours";
 		}
-		if (duration.toHoursPart() == 1)
+		if (toHoursPart(duration) == 1)
 		{
-			result += duration.toHoursPart() + "hour";
+			result += toHoursPart(duration) + "hour";
 		}
-		if (duration.toMinutesPart() > 1)
+		if (toMinutesPart(duration) > 1)
 		{
-			result += duration.toMinutesPart() + "mins";
+			result += toMinutesPart(duration) + "mins";
 		}
-		if (duration.toMinutesPart() == 1)
+		if (toMinutesPart(duration) == 1)
 		{
-			result += duration.toMinutesPart() + "min";
+			result += toMinutesPart(duration) + "min";
 		}
-		if (duration.toSecondsPart() > 1)
+		if (toSecondsPart(duration) > 1)
 		{
-			result += duration.toSecondsPart() + "secs";
+			result += toSecondsPart(duration) + "secs";
 		}
-		if (duration.toSecondsPart() == 1)
+		if (toSecondsPart(duration) == 1)
 		{
-			result += duration.toSecondsPart() + "sec";
+			result += toSecondsPart(duration) + "sec";
 		}
-		if (duration.toMillisPart() >= 1)
+		if (toMillisPart(duration) >= 1)
 		{
-			result += duration.toMillisPart() + "millis";
+			result += toMillisPart(duration) + "millis";
 		}
 		// I don't know why toNanosPart returns nanoseconds unmodified by milliseconds mod.
-		if (duration.toNanosPart() % ChronoUnit.MILLIS.getDuration().getNano() >= 1)
+		if (duration.getNano() % ChronoUnit.MILLIS.getDuration().getNano() >= 1)
 		{
-			result += (duration.toNanosPart() % ChronoUnit.MILLIS.getDuration().getNano()) + "nanos";
+			result += (duration.getNano() % ChronoUnit.MILLIS.getDuration().getNano()) + "nanos";
 		}
 
 		return result;
+	}
+
+	/** Clone of java 9 {@code duration.toDaysPart()} to allow support until we update to above java 8. */
+	private static long toDaysPart(Duration duration)
+	{
+		return duration.toSeconds() / 86400;
+	}
+
+	/** Clone of java 9 {@code duration.toHoursPart()} to allow support until we update to above java 8. */
+	private static int toHoursPart(Duration duration)
+	{
+		return (int) (duration.toHours() % 24);
+	}
+
+	/** Clone of java 9 {@code duration.toMinutesPart()} to allow support until we update to above java 8. */
+	private static int toMinutesPart(Duration duration)
+	{
+		return (int) (duration.toMinutes() % 60);
+	}
+
+	/** Clone of java 9 {@code duration.toSecondsPart()} to allow support until we update to above java 8. */
+	private static int toSecondsPart(Duration duration)
+	{
+		return (int) (duration.getSeconds() % 60);
+	}
+
+	/** Clone of java 9 {@code duration.toMillisPart()} to allow support until we update to above java 8. */
+	private static int toMillisPart(Duration duration)
+	{
+		return duration.getNano() / 1000_000;
 	}
 }
