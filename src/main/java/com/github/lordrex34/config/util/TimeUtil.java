@@ -163,7 +163,7 @@ public final class TimeUtil
 						case "week":
 						case "weeks":
 						{
-							value *= ChronoUnit.WEEKS.getDuration().toDays();
+							value = ChronoUnit.WEEKS.getDuration().multipliedBy(value).toDays();
 							unit = ChronoUnit.DAYS;
 							break;
 						}
