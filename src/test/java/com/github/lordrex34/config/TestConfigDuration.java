@@ -19,37 +19,35 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.github.lordrex34.config.converter;
+package com.github.lordrex34.config;
 
-import java.lang.reflect.Field;
+import static org.junit.Assert.*;
+
 import java.time.Duration;
 
-import com.github.lordrex34.config.util.TimeUtil;
+import org.junit.Test;
+
+import com.github.lordrex34.config.annotation.ConfigClass;
+import com.github.lordrex34.config.annotation.ConfigField;
 
 /**
  * @author lord_rex
  */
-public class DurationConfigConverter implements IConfigConverter
+public class TestConfigDuration extends AbstractConfigTest
 {
-	@Override
-	public Object convertFromString(Field field, Class<?> type, String value)
+	@Test
+	public void test()
 	{
-		return TimeUtil.parseDuration(value);
+		assertNotEquals(_configManager.getConfigRegistrySize(), 0);
+		assertEquals(ConfigDurationTest.TEST_DURATION, Duration.ofSeconds(20));
 	}
 	
-	@Override
-	public String convertToString(Field field, Class<?> type, Object obj)
+	@ConfigClass(fileName = "test_duration")
+	public static class ConfigDurationTest
 	{
-		return TimeUtil.durationToString((Duration) obj);
-	}
-	
-	public static final DurationConfigConverter getInstance()
-	{
-		return SingletonHolder.INSTANCE;
-	}
-	
-	private static final class SingletonHolder
-	{
-		static final DurationConfigConverter INSTANCE = new DurationConfigConverter();
+		public static final String TWENTY_SECS = "20secs";
+		
+		@ConfigField(name = "TestDuration", value = TWENTY_SECS)
+		public static Duration TEST_DURATION;
 	}
 }
