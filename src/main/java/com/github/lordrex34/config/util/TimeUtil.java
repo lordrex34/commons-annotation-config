@@ -24,11 +24,12 @@ package com.github.lordrex34.config.util;
 import java.time.Duration;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * @author UnAfraid, Nik
+ * @author Nik
  */
 public class TimeUtil
 {
@@ -180,5 +181,72 @@ public class TimeUtil
 				throw new IllegalStateException("Incorrect time format given: " + pattern + "!", e);
 			}
 		}
+	}
+
+	/**
+	 * Converts the given duration to a format that can be parsed by {@link #parseDuration(String)}.<br>
+	 * The util format of duration present in {@link #parseDuration(String)} is preferred over the default {@link Duration#parse(CharSequence)}<br>
+	 * Only negative duration values will be converted to the default {@link Duration#parse(CharSequence)} pattern.
+	 * @param duration the duration which will be converted to string.
+	 * @return a string representation of the given duration, which can then be used to recreate the same duration via {@link #parseDuration(String)}
+	 */
+	public static String durationToString(Duration duration)
+	{
+		Objects.requireNonNull(duration);
+
+		if (duration.isNegative())
+		{
+			return duration.toString();
+		}
+
+		if (duration.isZero())
+		{
+			return "0secs";
+		}
+
+		String result = "";
+		if (duration.toDaysPart() > 1)
+		{
+			result += duration.toDaysPart() + "days";
+		}
+		if (duration.toDaysPart() == 1)
+		{
+			result += duration.toDaysPart() + "day";
+		}
+		if (duration.toHoursPart() > 1)
+		{
+			result += duration.toHoursPart() + "hours";
+		}
+		if (duration.toHoursPart() == 1)
+		{
+			result += duration.toHoursPart() + "hour";
+		}
+		if (duration.toMinutesPart() > 1)
+		{
+			result += duration.toMinutesPart() + "mins";
+		}
+		if (duration.toMinutesPart() == 1)
+		{
+			result += duration.toMinutesPart() + "min";
+		}
+		if (duration.toSecondsPart() > 1)
+		{
+			result += duration.toSecondsPart() + "secs";
+		}
+		if (duration.toSecondsPart() == 1)
+		{
+			result += duration.toSecondsPart() + "sec";
+		}
+		if (duration.toMillisPart() >= 1)
+		{
+			result += duration.toMillisPart() + "millis";
+		}
+		// I don't know why toNanosPart returns nanoseconds unmodified by milliseconds mod.
+		if (duration.toNanosPart() % ChronoUnit.MILLIS.getDuration().getNano() >= 1)
+		{
+			result += (duration.toNanosPart() % ChronoUnit.MILLIS.getDuration().getNano()) + "nanos";
+		}
+
+		return result;
 	}
 }

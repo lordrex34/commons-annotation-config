@@ -22,6 +22,7 @@
 package com.github.lordrex34.config.converter;
 
 import java.lang.reflect.Field;
+import java.time.Duration;
 
 import com.github.lordrex34.config.util.TimeUtil;
 
@@ -39,7 +40,7 @@ public class DurationConfigConverter implements IConfigConverter
 	@Override
 	public String convertToString(Field field, Class<?> type, Object obj)
 	{
-		return obj.toString();
+		return TimeUtil.durationToString((Duration) obj);
 	}
 	
 	public static final DurationConfigConverter getInstance()

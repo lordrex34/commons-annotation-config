@@ -119,13 +119,15 @@ public class TestTimeUtil extends AbstractConfigTest
 			final Duration result = TimeUtil.parseDuration(pattern);
 			final Duration expectedResult = entry.getValue();
 
-			assertEquals("Failed to parse " + pattern, result, expectedResult);
+			assertEquals("Failed to parse " + pattern, expectedResult, result);
+
+			assertEquals("Failed reusing duration converted to string " + pattern, expectedResult, TimeUtil.parseDuration(TimeUtil.durationToString(expectedResult)));
 		}
 
 		// Test default parse as well
 		for (Duration duration : TEST_VALUES.values())
 		{
-			assertEquals(TimeUtil.parseDuration(duration.toString()), duration);
+			assertEquals(duration, TimeUtil.parseDuration(duration.toString()));
 		}
 	}
 
