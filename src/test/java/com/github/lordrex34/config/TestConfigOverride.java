@@ -48,7 +48,7 @@ public class TestConfigOverride extends AbstractConfigTest
 	public void before() throws IOException, IllegalArgumentException, IllegalAccessException, InstantiationException
 	{
 		clearAll(ITestConfigMarker.class.getPackage().getName());
-		_configManager = new ConfigManager(overrideInputStream());
+		_configManager = new ConfigManager(this::overrideInputStream);
 		_configManager.load(ITestConfigMarker.class.getPackage().getName());
 	}
 	
@@ -63,6 +63,16 @@ public class TestConfigOverride extends AbstractConfigTest
 	@Test
 	public void test()
 	{
+		assertNotEquals(_configManager.getConfigRegistrySize(), 0);
+		assertNotEquals(_configManager.getOverriddenProperties().size(), 0);
+		assertThat(ConfigOverrideTest.TEST_OVERRIDE_INT, is(OVERRIDDEN_INT));
+		assertThat(ConfigOverrideTest.TEST_OVERRIDE_STRING, is(OVERRIDDEN_STRING));
+	}
+	
+	@Test
+	public void testReload() throws IllegalAccessException, IOException, InstantiationException
+	{
+		_configManager.reload(ITestConfigMarker.class.getPackage().getName());
 		assertNotEquals(_configManager.getConfigRegistrySize(), 0);
 		assertNotEquals(_configManager.getOverriddenProperties().size(), 0);
 		assertThat(ConfigOverrideTest.TEST_OVERRIDE_INT, is(OVERRIDDEN_INT));
