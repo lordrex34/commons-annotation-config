@@ -32,6 +32,8 @@ import com.github.lordrex34.config.annotation.ConfigField;
 import com.github.lordrex34.config.annotation.ConfigGroupBeginning;
 import com.github.lordrex34.config.annotation.ConfigGroupEnding;
 
+import java.io.IOException;
+
 /**
  * @author lord_rex
  */
@@ -40,6 +42,20 @@ public class TestConfig extends AbstractConfigTest
 	@Test
 	public void test()
 	{
+		assertNotEquals(_configManager.getConfigRegistrySize(), 0);
+		assertTrue(ConfigTest.TEST_BOOLEAN);
+		assertEquals(ConfigTest.TEST_STRING, ConfigTest.TEST_STRING_VALUE);
+	}
+	
+	@Test
+	public void testReload() throws IllegalAccessException, IOException, InstantiationException
+	{
+		assertNotEquals(_configManager.getConfigRegistrySize(), 0);
+		assertTrue(ConfigTest.TEST_BOOLEAN);
+		assertEquals(ConfigTest.TEST_STRING, ConfigTest.TEST_STRING_VALUE);
+		
+		reload();
+		
 		assertNotEquals(_configManager.getConfigRegistrySize(), 0);
 		assertTrue(ConfigTest.TEST_BOOLEAN);
 		assertEquals(ConfigTest.TEST_STRING, ConfigTest.TEST_STRING_VALUE);
