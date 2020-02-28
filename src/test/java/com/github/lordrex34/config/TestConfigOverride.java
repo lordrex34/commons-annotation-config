@@ -41,7 +41,11 @@ import com.github.lordrex34.config.annotation.ConfigField;
 public class TestConfigOverride extends AbstractConfigTest
 {
 	private static final int OVERRIDDEN_INT = 300;
+	private static final int OVERRIDDEN_INT_ALT = 333;
 	private static final String OVERRIDDEN_STRING = "My overridden string. :)";
+	private static final String OVERRIDDEN_STRING_ALT = "My alternative overridden string. :)";
+	
+	private boolean _alternative;
 	
 	@Override
 	@Before
@@ -55,8 +59,8 @@ public class TestConfigOverride extends AbstractConfigTest
 	private InputStream overrideInputStream()
 	{
 		final StringBuffer buffer = new StringBuffer();
-		buffer.append("TestOverrideInt = ").append(OVERRIDDEN_INT).append(System.lineSeparator());
-		buffer.append("TestOverrideString = ").append(OVERRIDDEN_STRING).append(System.lineSeparator());
+		buffer.append("TestOverrideInt = ").append(_alternative ? OVERRIDDEN_INT_ALT : OVERRIDDEN_INT).append(System.lineSeparator());
+		buffer.append("TestOverrideString = ").append(_alternative ? OVERRIDDEN_STRING_ALT : OVERRIDDEN_STRING).append(System.lineSeparator());
 		return new ByteArrayInputStream(buffer.toString().getBytes());
 	}
 	
@@ -83,6 +87,14 @@ public class TestConfigOverride extends AbstractConfigTest
 		assertNotEquals(_configManager.getOverriddenProperties().size(), 0);
 		assertThat(ConfigOverrideTest.TEST_OVERRIDE_INT, is(OVERRIDDEN_INT));
 		assertThat(ConfigOverrideTest.TEST_OVERRIDE_STRING, is(OVERRIDDEN_STRING));
+		
+		_alternative = true;
+		_configManager.reload(ITestConfigMarker.class.getPackage().getName());
+		
+		assertNotEquals(_configManager.getConfigRegistrySize(), 0);
+		assertNotEquals(_configManager.getOverriddenProperties().size(), 0);
+		assertThat(ConfigOverrideTest.TEST_OVERRIDE_INT, is(OVERRIDDEN_INT_ALT));
+		assertThat(ConfigOverrideTest.TEST_OVERRIDE_STRING, is(OVERRIDDEN_STRING_ALT));
 	}
 	
 	@ConfigClass(fileName = "override_test")
