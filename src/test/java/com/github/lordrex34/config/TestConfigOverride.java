@@ -72,7 +72,13 @@ public class TestConfigOverride extends AbstractConfigTest
 	@Test
 	public void testReload() throws IllegalAccessException, IOException, InstantiationException
 	{
+		assertNotEquals(_configManager.getConfigRegistrySize(), 0);
+		assertNotEquals(_configManager.getOverriddenProperties().size(), 0);
+		assertThat(ConfigOverrideTest.TEST_OVERRIDE_INT, is(OVERRIDDEN_INT));
+		assertThat(ConfigOverrideTest.TEST_OVERRIDE_STRING, is(OVERRIDDEN_STRING));
+		
 		_configManager.reload(ITestConfigMarker.class.getPackage().getName());
+		
 		assertNotEquals(_configManager.getConfigRegistrySize(), 0);
 		assertNotEquals(_configManager.getOverriddenProperties().size(), 0);
 		assertThat(ConfigOverrideTest.TEST_OVERRIDE_INT, is(OVERRIDDEN_INT));
