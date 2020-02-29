@@ -29,6 +29,7 @@ import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
+import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,19 +55,19 @@ public final class ConfigManager
 	private final Set<ConfigClassInfo> _configRegistry = new HashSet<>();
 	
 	/** Input stream of the override system. */
-	private final InputStream _overrideInputStream;
+	private final Supplier<InputStream> _overrideInputStreamSupplier;
 	
 	/** The parsed overridden properties. */
 	private ConfigProperties _overridenProperties;
 	
 	/**
 	 * Constructs the {@link ConfigManager} class, used by user-end implementation.
-	 * @param overrideInputStream By setting this to {@code null} you can disable the override system.<br>
+	 * @param overrideInputStreamSupplier By setting this to {@code null} you can disable the override system.<br>
 	 *            You can as well set this to whatever you want. See tests for example.
 	 */
-	public ConfigManager(InputStream overrideInputStream)
+	public ConfigManager(Supplier<InputStream> overrideInputStreamSupplier)
 	{
-		_overrideInputStream = overrideInputStream;
+		_overrideInputStreamSupplier = overrideInputStreamSupplier;
 	}
 	
 	/**
@@ -74,7 +75,7 @@ public final class ConfigManager
 	 */
 	public ConfigManager()
 	{
-		this(defaultOverrideInputStream());
+		this(ConfigManager::defaultOverrideInputStream);
 	}
 	
 	/**
@@ -145,10 +146,10 @@ public final class ConfigManager
 	{
 		if ((_overridenProperties == null) || reloading)
 		{
-			if (_overrideInputStream != null)
+			if (_overrideInputStreamSupplier != null)
 			{
 				final Properties overriddenProperties = new Properties();
-				overriddenProperties.load(_overrideInputStream);
+				overriddenProperties.load(_overrideInputStreamSupplier.get());
 				_overridenProperties = new ConfigProperties(overriddenProperties);
 				LOGGER.info("Loaded {} overridden properti(es).", _overridenProperties.size());
 			}

@@ -46,6 +46,11 @@ public abstract class AbstractConfigTest
 		_configManager.load(ITestConfigMarker.class.getPackage().getName());
 	}
 	
+	protected void reload() throws IllegalAccessException, IOException, InstantiationException
+	{
+		_configManager.reload(ITestConfigMarker.class.getPackage().getName());
+	}
+	
 	/**
 	 * Clears everything from the manager. Clears also the values of the fields. Usable only for tests.
 	 * @param packageName the package where configuration related classes are stored
